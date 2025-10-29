@@ -1,0 +1,103 @@
+// Copyright 2025 The MathWorks, Inc.
+
+package startmatlabsession_test
+
+import (
+	"testing"
+
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/startmatlabsession"
+	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
+	startmatlabsessionusecase "github.com/matlab/matlab-mcp-core-server/internal/usecases/startmatlabsession"
+	basetoolsmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools/basetool"
+	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools/multisession/startmatlabsession"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestNew_HappyPath(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockLoggerFactory := &basetoolsmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockUsecase := &mocks.MockUsecase{}
+	defer mockUsecase.AssertExpectations(t)
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	// Act
+	tool := startmatlabsession.New(mockLoggerFactory, mockUsecase)
+
+	// Assert
+	assert.NotNil(t, tool)
+}
+
+func TestTool_Handler_HappyPath(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockUsecase := &mocks.MockUsecase{}
+	defer mockUsecase.AssertExpectations(t)
+
+	ctx := t.Context()
+	const matlabRoot = "/path/to/matlab"
+	const expectedSessionID = entities.SessionID(123)
+	const expectedVerOutput = "MATLAB Version: R2023a"
+	const expectedAddOnsOutput = "Installed Add-Ons: Toolbox1, Toolbox2"
+	expectedResponse := startmatlabsessionusecase.ReturnArgs{
+		SessionID:    expectedSessionID,
+		VerOutput:    expectedVerOutput,
+		AddOnsOutput: expectedAddOnsOutput,
+	}
+
+	mockUsecase.EXPECT().
+		Execute(ctx, mockLogger.AsMockArg(), entities.LocalSessionDetails{MATLABRoot: matlabRoot}).
+		Return(expectedResponse, nil).
+		Once()
+
+	args := startmatlabsession.Args{
+		MATLABRoot: matlabRoot,
+	}
+
+	// Act
+	result, err := startmatlabsession.Handler(mockUsecase)(ctx, mockLogger, args)
+
+	// Assert
+	require.NoError(t, err, "Handler should not return an error")
+	assert.Equal(t, int(expectedSessionID), result.SessionID, "Session ID should match")
+	assert.Equal(t, expectedVerOutput, result.VerOutput, "Ver output should match")
+	assert.Equal(t, expectedAddOnsOutput, result.AddOnsOutput, "AddOns output should match")
+}
+
+func TestTool_Handler_UsecaseError(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockUsecase := &mocks.MockUsecase{}
+	defer mockUsecase.AssertExpectations(t)
+
+	ctx := t.Context()
+	const matlabRoot = "/path/to/matlab"
+	expectedError := assert.AnError
+
+	mockUsecase.EXPECT().
+		Execute(ctx, mockLogger.AsMockArg(), entities.LocalSessionDetails{MATLABRoot: matlabRoot}).
+		Return(startmatlabsessionusecase.ReturnArgs{}, expectedError).
+		Once()
+
+	args := startmatlabsession.Args{
+		MATLABRoot: matlabRoot,
+	}
+
+	// Act
+	result, err := startmatlabsession.Handler(mockUsecase)(ctx, mockLogger, args)
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "Handler should return an error")
+	assert.Empty(t, result.ResponseText, "Response text should be empty on error")
+}

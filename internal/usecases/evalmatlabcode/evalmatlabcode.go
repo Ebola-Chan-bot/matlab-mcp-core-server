@@ -1,0 +1,60 @@
+// Copyright 2025 The MathWorks, Inc.
+
+package evalmatlabcode
+
+import (
+	"context"
+	"fmt"
+	"strings"
+
+	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+)
+
+type Args struct {
+	Code        string
+	ProjectPath string
+}
+
+type PathValidator interface {
+	ValidateFolderPath(filePath string) (string, error)
+}
+
+type Usecase struct {
+	pathValidator PathValidator
+}
+
+func New(
+	pathValidator PathValidator,
+) *Usecase {
+	return &Usecase{
+		pathValidator: pathValidator,
+	}
+}
+
+func (u *Usecase) Execute(ctx context.Context, sessionLogger entities.Logger, client entities.MATLABSessionClient, request Args) (entities.EvalResponse, error) {
+	sessionLogger.Debug("Entering EvalInlMATLAB Usecase")
+	defer sessionLogger.Debug("Exiting EvalInMATLAB Usecase")
+
+	validatedPath, err := u.pathValidator.ValidateFolderPath(request.ProjectPath)
+	if err != nil {
+		sessionLogger.WithError(err).With("path", request.ProjectPath).Warn("Path validation failed")
+		return entities.EvalResponse{}, fmt.Errorf("path validation failed: %w", err)
+	}
+
+	cdRequest := entities.EvalRequest{
+		Code: fmt.Sprintf("cd('%s')", strings.ReplaceAll(validatedPath, "'", "''")), // Escape single quotes
+	}
+	_, err = client.Eval(ctx, sessionLogger, cdRequest)
+	if err != nil {
+		return entities.EvalResponse{}, err
+	}
+
+	response, err := client.Eval(ctx, sessionLogger, entities.EvalRequest{
+		Code: request.Code,
+	})
+	if err != nil {
+		return entities.EvalResponse{}, err
+	}
+
+	return response, nil
+}

@@ -1,0 +1,8 @@
+internal/adaptors/application/config/assets/version
+internal/adaptors/mcp/server/assets/**
+internal/wire/wire_gen.go
+licenses/**
+mocks/**
+go.sum
+SECURITY.md
+*.pem
