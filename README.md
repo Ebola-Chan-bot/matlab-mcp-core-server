@@ -22,7 +22,29 @@ Run MATLAB® using AI applications. The MATLAB MCP Core Server allows your AI ap
 2. Download the [Latest Release](https://github.com/matlab/matlab-mcp-core-server/releases/latest) from GitHub®. Alternatively, you can install [Go](https://go.dev/doc/install) and build the binary from source using `go install github.com/matlab/matlab-mcp-core-server/cmd/matlab-mcp-core-server`. 
 3. Add the MATLAB MCP Core Server to your AI application. You can find instructions for adding MCP servers in the documentation of your AI application. For example instructions on using Claude Code®, Claude Desktop®, and GitHub Copilot in Visual Studio® Code, see below. Note that you can customize the server by specifying optional [arguments](#arguments).
 
-#### Claude Code
+#### Download on macOS
+
+From a macOS terminal, use `curl` to download the latest version of the MATLAB MCP Core Server for your macOS architecture.
+
+* macOS (Apple silicon processor)
+
+   ```sh
+   curl -L -o ~/Downloads/matlab-mcp-core-server https://github.com/matlab/matlab-mcp-core-server/releases/latest/download/matlab-mcp-core-server-maca64
+   ```
+
+* macOS (Intel processor)
+
+   ```sh
+   curl -L -o ~/Downloads/matlab-mcp-core-server https://github.com/matlab/matlab-mcp-core-server/releases/latest/download/matlab-mcp-core-server-maci64
+   ```
+
+Give the downloaded file executable permissions so that you can run the MATLAB MCP Core Server:
+
+```sh
+chmod +x ~/Downloads/matlab-mcp-core-server
+```
+
+### Claude Code
 
 In your terminal, run the following, remembering to insert the full path to the server binary you acquired in the setup:
 ```sh
@@ -38,7 +60,7 @@ For details on adding MCP servers in Claude Code, see [Add a local stdio server 
 claude mcp remove matlab
 ```
 
-#### Claude Desktop
+### Claude Desktop
 
 Follow the instructions on the page [Connect to local MCP servers (MCP)](https://modelcontextprotocol.io/docs/develop/connect-local-servers) to install Node.js and the Filesystem Server. In your Claude Desktop configuration file, you need to add the configuration for the MATLAB MCP Core Server as well as the Filesystem Server. You can use the combined JSON below. In the Filesystem `args`, remember to specify which paths the server can access. In the MATLAB `args`, remember to insert the full path to the server binary you acquired, as well as any other arguments:
 
@@ -64,7 +86,7 @@ Follow the instructions on the page [Connect to local MCP servers (MCP)](https:/
 ```
 After saving the configuration file, quit and restart Claude Desktop. 
 
-#### GitHub Copilot in Visual Studio Code
+### GitHub Copilot in Visual Studio Code
 
 VS Code provides different methods to [Add an MCP Server (VS Code)](https://code.visualstudio.com/docs/copilot/customization/mcp-servers?wt.md_id=AZ-MVP-5004796#_add-an-mcp-server). MathWorks recommends you follow the steps in the section **"Add an MCP server to a workspace `mcp.json` file"**. In your `mcp.json` configuration file, add the following, remembering to insert the full path to the server binary you acquired in the setup, as well as any arguments:
 ```json
@@ -86,7 +108,7 @@ Customize the behavior of the server by providing arguments in the `args` array 
 | Argument | Description | Example |
 | ------------- | ------------- | ------------- |
 | matlab-root | Full path specifying which MATLAB to start. Do not include `/bin` in the path. By default, the server tries to find the first MATLAB on the system PATH. | `"--matlab-root=/home/usr/MATLAB/R2025a"` |
-| initial-working-folder | Specify the folder where MATLAB starts and where the server generates any MATLAB scripts. If you do not provide the argument, MATLAB starts in the folder specified by the last entry in your list of [Roots (MCP)](https://modelcontextprotocol.io/specification/2025-06-18/client/roots). If you do not specify a root, MATLAB starts in these locations: <br><br> <ul><li>Linux: `/home/username` </li><li> Windows: `C:\Users\username\Documents`</li><li>Mac: `/Users/username/Documents`</li></ul> | `"--initial-working-folder=C:\\Users\\name\\MyProject"` |  
+| initial-working-folder | Specify the folder where MATLAB starts and where the server generates any MATLAB scripts. If you do not provide the argument, MATLAB starts in these locations: <br><br> <ul><li>Linux: `/home/username` </li><li> Windows: `C:\Users\username\Documents`</li><li>Mac: `/Users/username/Documents`</li></ul> | `"--initial-working-folder=C:\\Users\\name\\MyProject"` |  
 | disable-telemetry | To disable anonymized data collection, set this argument to `true`. For details, see [Data Collection](#data-collection). | `"--disable-telemetry=true"`  |
 
 ## Tools
