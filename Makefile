@@ -15,7 +15,7 @@ else
     RACE_FLAG = -race
 endif
 
-SEMANTIC_VERSION=v0.1.0
+SEMANTIC_VERSION=v0.2.0
 COMMIT_HASH := $(shell git rev-parse HEAD)
 
 # Append Git commit hash to version unless building a release
