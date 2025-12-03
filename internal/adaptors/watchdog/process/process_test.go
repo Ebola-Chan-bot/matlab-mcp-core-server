@@ -44,8 +44,7 @@ func TestNew_HappyPath(t *testing.T) {
 	defer mockStderr.AssertExpectations(t)
 
 	expectedProgramPath := filepath.Join("path", "to", "program")
-	args := []string{expectedProgramPath, "arg1", "arg2"}
-	baseDir := "/tmp/base/dir"
+	baseDir := filepath.Join("tmp", "base", "dir")
 	serverID := "server-id"
 
 	mockLoggerFactory.EXPECT().
@@ -54,8 +53,8 @@ func TestNew_HappyPath(t *testing.T) {
 		Once()
 
 	mockOSLayer.EXPECT().
-		Args().
-		Return(args).
+		Executable().
+		Return(expectedProgramPath, nil).
 		Once()
 
 	mockDirectory.EXPECT().
@@ -104,6 +103,39 @@ func TestNew_HappyPath(t *testing.T) {
 	assert.NotNil(t, processInstance, "Process instance should not be nil")
 }
 
+func TestNew_ExecutableError(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockOSLayer := &processmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockLoggerFactory := &processmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockDirectory := &processmocks.MockDirectory{}
+	defer mockDirectory.AssertExpectations(t)
+
+	expectedError := errors.New("executable error")
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	mockOSLayer.EXPECT().
+		Executable().
+		Return("", expectedError).
+		Once()
+
+	// Act
+	processInstance, err := process.New(mockOSLayer, mockLoggerFactory, mockDirectory)
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "Error should be the executable error")
+	assert.Nil(t, processInstance, "Process instance should be nil on error")
+}
+
 func TestNew_StdinPipeError(t *testing.T) {
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()
@@ -121,8 +153,7 @@ func TestNew_StdinPipeError(t *testing.T) {
 	defer mockCmd.AssertExpectations(t)
 
 	expectedProgramPath := filepath.Join("path", "to", "program")
-	args := []string{expectedProgramPath, "arg1", "arg2"}
-	baseDir := "/tmp/base/dir"
+	baseDir := filepath.Join("tmp", "base", "dir")
 	serverID := "server-id"
 	expectedError := errors.New("stdin pipe error")
 
@@ -132,8 +163,8 @@ func TestNew_StdinPipeError(t *testing.T) {
 		Once()
 
 	mockOSLayer.EXPECT().
-		Args().
-		Return(args).
+		Executable().
+		Return(expectedProgramPath, nil).
 		Once()
 
 	mockDirectory.EXPECT().
@@ -188,8 +219,7 @@ func TestNew_StdoutPipeError(t *testing.T) {
 	defer mockStdin.AssertExpectations(t)
 
 	expectedProgramPath := filepath.Join("path", "to", "program")
-	args := []string{expectedProgramPath, "arg1", "arg2"}
-	baseDir := "/tmp/base/dir"
+	baseDir := filepath.Join("tmp", "base", "dir")
 	serverID := "server-id"
 	expectedError := errors.New("stdout pipe error")
 
@@ -199,8 +229,8 @@ func TestNew_StdoutPipeError(t *testing.T) {
 		Once()
 
 	mockOSLayer.EXPECT().
-		Args().
-		Return(args).
+		Executable().
+		Return(expectedProgramPath, nil).
 		Once()
 
 	mockDirectory.EXPECT().
@@ -263,8 +293,7 @@ func TestNew_StderrPipeError(t *testing.T) {
 	defer mockStdout.AssertExpectations(t)
 
 	expectedProgramPath := filepath.Join("path", "to", "program")
-	args := []string{expectedProgramPath, "arg1", "arg2"}
-	baseDir := "/tmp/base/dir"
+	baseDir := filepath.Join("tmp", "base", "dir")
 	serverID := "server-id"
 	expectedError := errors.New("stderr pipe error")
 
@@ -274,8 +303,8 @@ func TestNew_StderrPipeError(t *testing.T) {
 		Once()
 
 	mockOSLayer.EXPECT().
-		Args().
-		Return(args).
+		Executable().
+		Return(expectedProgramPath, nil).
 		Once()
 
 	mockDirectory.EXPECT().
@@ -346,8 +375,7 @@ func TestProcess_Start_HappyPath(t *testing.T) {
 	defer mockStderr.AssertExpectations(t)
 
 	expectedProgramPath := filepath.Join("path", "to", "program")
-	args := []string{expectedProgramPath, "arg1", "arg2"}
-	baseDir := "/tmp/base/dir"
+	baseDir := filepath.Join("tmp", "base", "dir")
 	serverID := "server-id"
 
 	// Setup mocks for New
@@ -357,8 +385,8 @@ func TestProcess_Start_HappyPath(t *testing.T) {
 		Once()
 
 	mockOSLayer.EXPECT().
-		Args().
-		Return(args).
+		Executable().
+		Return(expectedProgramPath, nil).
 		Once()
 
 	mockDirectory.EXPECT().
@@ -440,8 +468,7 @@ func TestProcess_Start_Error(t *testing.T) {
 	defer mockStderr.AssertExpectations(t)
 
 	expectedProgramPath := filepath.Join("path", "to", "program")
-	args := []string{expectedProgramPath, "arg1", "arg2"}
-	baseDir := "/tmp/base/dir"
+	baseDir := filepath.Join("tmp", "base", "dir")
 	serverID := "server-id"
 	expectedError := errors.New("start process error")
 
@@ -452,8 +479,8 @@ func TestProcess_Start_Error(t *testing.T) {
 		Once()
 
 	mockOSLayer.EXPECT().
-		Args().
-		Return(args).
+		Executable().
+		Return(expectedProgramPath, nil).
 		Once()
 
 	mockDirectory.EXPECT().
@@ -535,8 +562,7 @@ func TestProcess_Stdio_HappyPath(t *testing.T) {
 	defer mockStderr.AssertExpectations(t)
 
 	expectedProgramPath := filepath.Join("path", "to", "program")
-	args := []string{expectedProgramPath, "arg1", "arg2"}
-	baseDir := "/tmp/base/dir"
+	baseDir := filepath.Join("tmp", "base", "dir")
 	serverID := "server-id"
 
 	// Setup mocks for New
@@ -546,8 +572,8 @@ func TestProcess_Stdio_HappyPath(t *testing.T) {
 		Once()
 
 	mockOSLayer.EXPECT().
-		Args().
-		Return(args).
+		Executable().
+		Return(expectedProgramPath, nil).
 		Once()
 
 	mockDirectory.EXPECT().

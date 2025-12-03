@@ -12,8 +12,8 @@ import (
 )
 
 type OSLayer interface {
-	Args() []string
 	Command(name string, arg ...string) osfacade.Cmd
+	Executable() (string, error)
 }
 
 type LoggerFactory interface {
@@ -42,7 +42,11 @@ func New(
 ) (*Process, error) {
 	logger := loggerFactory.GetGlobalLogger()
 
-	programPath := osLayer.Args()[0]
+	programPath, err := osLayer.Executable()
+	if err != nil {
+		logger.WithError(err).Error("Failed to get executable path")
+		return nil, err
+	}
 	cmd := osLayer.Command(programPath,
 		"--"+flags.WatchdogMode,
 		"--"+flags.BaseDir, directory.BaseDir(),

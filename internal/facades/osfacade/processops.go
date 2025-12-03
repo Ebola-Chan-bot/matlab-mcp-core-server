@@ -22,3 +22,8 @@ func (osw *OsFacade) FindProcess(pid int) (Process, error) {
 func (osw *OsFacade) ReadBuildInfo() (info *debug.BuildInfo, ok bool) {
 	return debug.ReadBuildInfo()
 }
+
+// Executable wraps os.Executable
+func (osw *OsFacade) Executable() (string, error) {
+	return os.Executable()
+}

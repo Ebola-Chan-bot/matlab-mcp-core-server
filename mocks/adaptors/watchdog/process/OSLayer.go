@@ -36,52 +36,6 @@ func (_m *MockOSLayer) EXPECT() *MockOSLayer_Expecter {
 	return &MockOSLayer_Expecter{mock: &_m.Mock}
 }
 
-// Args provides a mock function for the type MockOSLayer
-func (_mock *MockOSLayer) Args() []string {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for Args")
-	}
-
-	var r0 []string
-	if returnFunc, ok := ret.Get(0).(func() []string); ok {
-		r0 = returnFunc()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]string)
-		}
-	}
-	return r0
-}
-
-// MockOSLayer_Args_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Args'
-type MockOSLayer_Args_Call struct {
-	*mock.Call
-}
-
-// Args is a helper method to define mock.On call
-func (_e *MockOSLayer_Expecter) Args() *MockOSLayer_Args_Call {
-	return &MockOSLayer_Args_Call{Call: _e.mock.On("Args")}
-}
-
-func (_c *MockOSLayer_Args_Call) Run(run func()) *MockOSLayer_Args_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockOSLayer_Args_Call) Return(strings []string) *MockOSLayer_Args_Call {
-	_c.Call.Return(strings)
-	return _c
-}
-
-func (_c *MockOSLayer_Args_Call) RunAndReturn(run func() []string) *MockOSLayer_Args_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Command provides a mock function for the type MockOSLayer
 func (_mock *MockOSLayer) Command(name string, arg ...string) osfacade.Cmd {
 	var tmpRet mock.Arguments
@@ -146,6 +100,59 @@ func (_c *MockOSLayer_Command_Call) Return(cmd osfacade.Cmd) *MockOSLayer_Comman
 }
 
 func (_c *MockOSLayer_Command_Call) RunAndReturn(run func(name string, arg ...string) osfacade.Cmd) *MockOSLayer_Command_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Executable provides a mock function for the type MockOSLayer
+func (_mock *MockOSLayer) Executable() (string, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Executable")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (string, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() string); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockOSLayer_Executable_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Executable'
+type MockOSLayer_Executable_Call struct {
+	*mock.Call
+}
+
+// Executable is a helper method to define mock.On call
+func (_e *MockOSLayer_Expecter) Executable() *MockOSLayer_Executable_Call {
+	return &MockOSLayer_Executable_Call{Call: _e.mock.On("Executable")}
+}
+
+func (_c *MockOSLayer_Executable_Call) Run(run func()) *MockOSLayer_Executable_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockOSLayer_Executable_Call) Return(s string, err error) *MockOSLayer_Executable_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockOSLayer_Executable_Call) RunAndReturn(run func() (string, error)) *MockOSLayer_Executable_Call {
 	_c.Call.Return(run)
 	return _c
 }
