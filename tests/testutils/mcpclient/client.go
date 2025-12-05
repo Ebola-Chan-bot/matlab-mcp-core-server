@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -206,4 +207,21 @@ func (s *MCPClientSession) NewSessionManager() *SessionManager {
 	return &SessionManager{
 		session: s,
 	}
+}
+
+// ReadResource reads an MCP resource by URI and returns its text content
+func (s *MCPClientSession) ReadResource(ctx context.Context, uri string) (string, error) {
+	result, err := s.session.ReadResource(ctx, &mcp.ReadResourceParams{
+		URI: uri,
+	})
+	if err != nil {
+		return "", fmt.Errorf("failed to read resource %s: %w", uri, err)
+	}
+	if len(result.Contents) == 0 {
+		return "", fmt.Errorf("resource %s returned no contents", uri)
+	}
+	if strings.TrimSpace(result.Contents[0].Text) == "" {
+		return "", fmt.Errorf("resource %s returned empty text content", uri)
+	}
+	return result.Contents[0].Text, nil
 }

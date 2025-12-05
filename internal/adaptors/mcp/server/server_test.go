@@ -5,9 +5,11 @@ package server_test
 import (
 	"testing"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
+	resourcemocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/resources"
 	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/server"
 	toolsmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -26,6 +28,9 @@ func TestNew_HappyPath(t *testing.T) {
 
 	mockConfigurator := &mocks.MockMCPServerConfigurator{}
 	defer mockConfigurator.AssertExpectations(t)
+
+	mockResource := &resourcemocks.MockResource{}
+	defer mockResource.AssertExpectations(t)
 
 	mockFirstTool := &toolsmocks.MockTool{}
 	defer mockFirstTool.AssertExpectations(t)
@@ -55,6 +60,11 @@ func TestNew_HappyPath(t *testing.T) {
 		Return([]tools.Tool{mockFirstTool, mockSecondTool}).
 		Once()
 
+	mockConfigurator.EXPECT().
+		GetResourcesToAdd().
+		Return([]resources.Resource{mockResource}).
+		Once()
+
 	mockFirstTool.EXPECT().
 		AddToServer(expectedMCPServer).
 		Return(nil).
@@ -63,6 +73,11 @@ func TestNew_HappyPath(t *testing.T) {
 	mockSecondTool.EXPECT().
 		AddToServer(expectedMCPServer).
 		Return(nil).
+		Once()
+
+	mockResource.EXPECT().
+		AddToServer(expectedMCPServer).
+		Return().
 		Once()
 
 	// Act
@@ -124,7 +139,7 @@ func TestNew_AddToServerReturnsError(t *testing.T) {
 	assert.Empty(t, server, "Server should be nil when error occurs")
 }
 
-func TestNew_HandlesNoTools(t *testing.T) {
+func TestNew_HandlesNoToolsOrResources(t *testing.T) {
 	// Arrange
 	mockLoggerFactory := &mocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
@@ -154,6 +169,11 @@ func TestNew_HandlesNoTools(t *testing.T) {
 
 	mockConfigurator.EXPECT().
 		GetToolsToAdd().
+		Return(nil).
+		Once()
+
+	mockConfigurator.EXPECT().
+		GetResourcesToAdd().
 		Return(nil).
 		Once()
 
@@ -195,6 +215,11 @@ func TestServer_Run_HappyPath(t *testing.T) {
 
 	mockConfigurator.EXPECT().
 		GetToolsToAdd().
+		Return(nil).
+		Once()
+
+	mockConfigurator.EXPECT().
+		GetResourcesToAdd().
 		Return(nil).
 		Once()
 

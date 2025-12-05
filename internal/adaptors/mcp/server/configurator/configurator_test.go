@@ -5,6 +5,8 @@ package configurator_test
 import (
 	"testing"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/codingguidelines"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/configurator"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	evalmatlabmultisession "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/evalmatlabcode"
@@ -35,6 +37,7 @@ func TestNew_HappyPath(t *testing.T) {
 	detectMATLABToolboxesInSingleSessionTool := &detectmatlabtoolboxes.Tool{}
 	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
 	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
+	codingGuidelinesResource := &codingguidelines.Resource{}
 
 	// Act
 	result := configurator.New(
@@ -48,6 +51,7 @@ func TestNew_HappyPath(t *testing.T) {
 		detectMATLABToolboxesInSingleSessionTool,
 		runMATLABFileInGlobalMATLABSessionTool,
 		runMATLABTestFileInGlobalMATLABSessionTool,
+		codingGuidelinesResource,
 	)
 
 	// Assert
@@ -68,6 +72,7 @@ func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T
 	detectMATLABToolboxesInSingleSessionTool := &detectmatlabtoolboxes.Tool{}
 	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
 	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
+	codingGuidelinesResource := &codingguidelines.Resource{}
 
 	mockConfig.EXPECT().
 		UseSingleMATLABSession().
@@ -85,6 +90,7 @@ func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T
 		detectMATLABToolboxesInSingleSessionTool,
 		runMATLABFileInGlobalMATLABSessionTool,
 		runMATLABTestFileInGlobalMATLABSessionTool,
+		codingGuidelinesResource,
 	)
 
 	// Act
@@ -113,6 +119,7 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 	detectMATLABToolboxesInSingleSessionTool := &detectmatlabtoolboxes.Tool{}
 	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
 	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
+	codingGuidelinesResource := &codingguidelines.Resource{}
 
 	mockConfig.EXPECT().
 		UseSingleMATLABSession().
@@ -130,6 +137,7 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 		detectMATLABToolboxesInSingleSessionTool,
 		runMATLABFileInGlobalMATLABSessionTool,
 		runMATLABTestFileInGlobalMATLABSessionTool,
+		codingGuidelinesResource,
 	)
 
 	// Act
@@ -143,4 +151,41 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 		runMATLABTestFileInGlobalMATLABSessionTool,
 		detectMATLABToolboxesInSingleSessionTool,
 	}, "GetToolsToAdd should all injected tools for single session")
+}
+
+func TestConfigurator_GetResourcesToAdd_HappyPath(t *testing.T) {
+	// Arrange
+	mockConfig := &mocks.MockConfig{}
+	defer mockConfig.AssertExpectations(t)
+
+	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
+	startMATLABSessionTool := &startmatlabsession.Tool{}
+	stopMATLABSessionTool := &stopmatlabsession.Tool{}
+	evalInMATLABSessionTool := &evalmatlabmultisession.Tool{}
+	evalInGlobalMATLABSessionTool := &evalmatlabsinglesession.Tool{}
+	checkMATLABCodeInGlobalMATLABSession := &checkmatlabcode.Tool{}
+	detectMATLABToolboxesInSingleSessionTool := &detectmatlabtoolboxes.Tool{}
+	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
+	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
+	codingGuidelinesResource := &codingguidelines.Resource{}
+
+	c := configurator.New(
+		mockConfig,
+		listAvailableMATLABsTool,
+		startMATLABSessionTool,
+		stopMATLABSessionTool,
+		evalInMATLABSessionTool,
+		evalInGlobalMATLABSessionTool,
+		checkMATLABCodeInGlobalMATLABSession,
+		detectMATLABToolboxesInSingleSessionTool,
+		runMATLABFileInGlobalMATLABSessionTool,
+		runMATLABTestFileInGlobalMATLABSessionTool,
+		codingGuidelinesResource,
+	)
+
+	// Act
+	result := c.GetResourcesToAdd()
+
+	// Assert
+	assert.ElementsMatch(t, []resources.Resource{codingGuidelinesResource}, result)
 }

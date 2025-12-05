@@ -30,6 +30,9 @@ type WorkflowTestSuite struct {
 // - Runs existing scripts and test suites
 // - All work happens in one continuous MATLAB session
 //
+// MCP Resources tested:
+// - matlab_coding_guidelines (coding standards reference)
+//
 // MCP Tools tested:
 // - detect_matlab_toolboxes (feature discovery)
 // - evaluate_matlab_code (iterative development with persistent workspace)
@@ -44,17 +47,22 @@ func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 		s.Require().NoError(session.Close(), "closing session should not error")
 	}()
 
-	// Step 1: Feature discovery - check what toolboxes are available
+	// Step 1: Read coding guidelines (AI references standards before writing code)
+	guidelines, err := session.ReadResource(ctx, "guidelines://coding")
+	s.Require().NoError(err, "should read coding guidelines resource")
+	s.Contains(guidelines, "MATLAB Coding Standards", "should contain coding standards title")
+
+	// Step 2: Feature discovery - check what toolboxes are available
 	info, err := session.DetectToolboxes(ctx)
 	s.Require().NoError(err, "should detect toolboxes")
 	s.Contains(info, "MATLAB Version:", "should discover MATLAB version")
 
-	// Step 2: Iterative development with explicit integer math
+	// Step 3: Iterative development with explicit integer math
 	output, err := session.EvaluateCode(ctx, `a = int32(2); b = int32(3);`, s.testDataDir)
 	s.Require().NoError(err)
 	s.Empty(output, "semicolon-terminated statements should produce no output")
 
-	// Step 2b: Verify variables persist and computation works
+	// Step 3b: Verify variables persist and computation works
 	output, err = session.EvaluateCode(ctx, `
 		c = a + b;
 		fprintf('a=%d\n', a);
@@ -68,7 +76,7 @@ func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 	s.Contains(lines, "b=3", "variable 'b' should persist on its own line")
 	s.Contains(lines, "c=5", "should compute 2 + 3 = 5 on its own line")
 
-	// Step 3: Code quality checking - analyze existing code for issues
+	// Step 4: Code quality checking - analyze existing code for issues
 	// First check code with problems to see what issues are detected
 	problematicMessages, err := session.CheckCode(ctx, s.problematicCodePath())
 	s.Require().NoError(err, "should check code without error")
@@ -79,12 +87,12 @@ func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 	s.Require().NoError(err, "should check code without error")
 	testdata.AssertCleanCode(s.T(), cleanMessages)
 
-	// Step 4: Script execution - run a MATLAB script file
+	// Step 5: Script execution - run a MATLAB script file
 	scriptOutput, err := session.RunFile(ctx, s.testScriptPath())
 	s.Require().NoError(err, "should execute script file without error")
 	testdata.TestScript.Assert(s.T(), scriptOutput)
 
-	// Step 5: Test execution - run test suite (TDD workflow)
+	// Step 6: Test execution - run test suite (TDD workflow)
 	testOutput, err := session.RunTestFile(ctx, s.testMathFunctionsPath())
 	s.Require().NoError(err, "should execute test suite without error")
 	testdata.TestMathFunctions.Assert(s.T(), testOutput)

@@ -13,6 +13,7 @@ Run MATLAB® using AI applications with the official MATLAB MCP Server from Math
     - [GitHub Copilot in Visual Studio Code](#github-copilot-in-visual-studio-code)
   - [Arguments](#arguments)
   - [Tools](#tools)
+  - [Resources](#resources)
   - [Data Collection](#data-collection)
 
 ## Setup
@@ -131,6 +132,14 @@ Customize the behavior of the server by providing arguments in the `args` array 
    - Executes a MATLAB test script and returns comprehensive test results. Designed specifically for MATLAB unit test files that follow MATLAB testing framework conventions.
    - Inputs:
      - `script_path` (string): Absolute path to the MATLAB test script file. Must be a valid `.m` file containing MATLAB unit tests, within an allowed directory. Example: `C:\Users\username\tests\testMyFunction.m` or `/home/user/matlab/tests/test_analysis.m`.
+
+## Resources
+The MCP server provides a [Resource (MCP)](https://modelcontextprotocol.io/specification/2025-03-26/server/resources) to help your AI application write MATLAB code. To see instructions for using this resource, refer to the documentation of your AI application that explains how to use resources. 
+1. `matlab_coding_guidelines`
+   - Provides comprehensive MATLAB coding standards for improving code readability, maintainability, and collaboration. The guidelines encompass naming conventions, formatting, commenting, performance optimization, and error handling.
+   - URI: `guidelines://coding`
+   - MIME Type: `text/markdown`
+   - Source: [MATLAB Coding Standards (GitHub)](https://github.com/matlab/rules/blob/main/matlab-coding-standards.md)
 
 ## Data Collection
 

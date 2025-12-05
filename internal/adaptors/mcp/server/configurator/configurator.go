@@ -3,6 +3,8 @@
 package configurator
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/codingguidelines"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	evalmatlabcodemultisession "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/evalmatlabcode"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/listavailablematlabs"
@@ -22,18 +24,21 @@ type Config interface {
 type Configurator struct {
 	config Config
 
-	// Multi Session
+	// Multi Session tools
 	listAvailableMATLABsTool tools.Tool
 	startMATLABSessionTool   tools.Tool
 	stopMATLABSessionTool    tools.Tool
 	evalInMATLABSessionTool  tools.Tool
 
-	// Single Session
+	// Single Session tools
 	evalInGlobalMATLABSessionTool                  tools.Tool
 	checkMATLABCodeInGlobalMATLABSessionTool       tools.Tool
 	detectMATLABToolboxesInGlobalMATLABSessionTool tools.Tool
 	runMATLABFileInGlobalMATLABSessionTool         tools.Tool
 	runMATLABTestFileInGlobalMATLABSessionTool     tools.Tool
+
+	// Resources
+	codingGuidelinesResource resources.Resource
 }
 
 func New(
@@ -49,6 +54,8 @@ func New(
 	detectMATLABToolboxesInGlobalMATLABSessionTool *detectmatlabtoolboxes.Tool,
 	runMATLABFileInGlobalMATLABSessionTool *runmatlabfile.Tool,
 	runMATLABTestFileInGlobalMATLABSessionTool *runmatlabtestfile.Tool,
+
+	codingGuidelinesResource *codingguidelines.Resource,
 ) *Configurator {
 	return &Configurator{
 		config: config,
@@ -63,6 +70,8 @@ func New(
 		detectMATLABToolboxesInGlobalMATLABSessionTool: detectMATLABToolboxesInGlobalMATLABSessionTool,
 		runMATLABFileInGlobalMATLABSessionTool:         runMATLABFileInGlobalMATLABSessionTool,
 		runMATLABTestFileInGlobalMATLABSessionTool:     runMATLABTestFileInGlobalMATLABSessionTool,
+
+		codingGuidelinesResource: codingGuidelinesResource,
 	}
 }
 
@@ -84,5 +93,11 @@ func (c *Configurator) GetToolsToAdd() []tools.Tool {
 		c.startMATLABSessionTool,
 		c.stopMATLABSessionTool,
 		c.evalInMATLABSessionTool,
+	}
+}
+
+func (c *Configurator) GetResourcesToAdd() []resources.Resource {
+	return []resources.Resource{
+		c.codingGuidelinesResource,
 	}
 }

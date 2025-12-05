@@ -1,4 +1,5 @@
 internal/adaptors/application/config/assets/version
+internal/adaptors/mcp/resources/**/*.md
 internal/adaptors/mcp/server/assets/**
 internal/wire/wire_gen.go
 licenses/**

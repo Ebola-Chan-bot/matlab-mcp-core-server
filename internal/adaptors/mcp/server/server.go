@@ -5,6 +5,7 @@ package server
 import (
 	"context"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -20,6 +21,7 @@ type LifecycleSignaler interface {
 
 type MCPServerConfigurator interface {
 	GetToolsToAdd() []tools.Tool
+	GetResourcesToAdd() []resources.Resource
 }
 
 type Server struct {
@@ -37,12 +39,19 @@ func New(
 ) (*Server, error) {
 	logger := loggerFactory.GetGlobalLogger()
 
-	logger.Debug("Adding tools to MCP SDK server")
-	for _, tool := range configurator.GetToolsToAdd() {
+	toolsToAdd := configurator.GetToolsToAdd()
+	for _, tool := range toolsToAdd {
 		if err := tool.AddToServer(mcpserver); err != nil {
 			return nil, err
 		}
 	}
+	logger.With("count", len(toolsToAdd)).Info("Added tools to MCP SDK server")
+
+	resourcesToAdd := configurator.GetResourcesToAdd()
+	for _, resource := range resourcesToAdd {
+		resource.AddToServer(mcpserver)
+	}
+	logger.With("count", len(resourcesToAdd)).Info("Added resources to MCP SDK server")
 
 	return &Server{
 		mcpServer:         mcpserver,

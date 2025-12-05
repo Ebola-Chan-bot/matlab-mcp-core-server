@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -34,6 +35,52 @@ type MockMCPServerConfigurator_Expecter struct {
 
 func (_m *MockMCPServerConfigurator) EXPECT() *MockMCPServerConfigurator_Expecter {
 	return &MockMCPServerConfigurator_Expecter{mock: &_m.Mock}
+}
+
+// GetResourcesToAdd provides a mock function for the type MockMCPServerConfigurator
+func (_mock *MockMCPServerConfigurator) GetResourcesToAdd() []resources.Resource {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetResourcesToAdd")
+	}
+
+	var r0 []resources.Resource
+	if returnFunc, ok := ret.Get(0).(func() []resources.Resource); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]resources.Resource)
+		}
+	}
+	return r0
+}
+
+// MockMCPServerConfigurator_GetResourcesToAdd_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetResourcesToAdd'
+type MockMCPServerConfigurator_GetResourcesToAdd_Call struct {
+	*mock.Call
+}
+
+// GetResourcesToAdd is a helper method to define mock.On call
+func (_e *MockMCPServerConfigurator_Expecter) GetResourcesToAdd() *MockMCPServerConfigurator_GetResourcesToAdd_Call {
+	return &MockMCPServerConfigurator_GetResourcesToAdd_Call{Call: _e.mock.On("GetResourcesToAdd")}
+}
+
+func (_c *MockMCPServerConfigurator_GetResourcesToAdd_Call) Run(run func()) *MockMCPServerConfigurator_GetResourcesToAdd_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockMCPServerConfigurator_GetResourcesToAdd_Call) Return(resources1 []resources.Resource) *MockMCPServerConfigurator_GetResourcesToAdd_Call {
+	_c.Call.Return(resources1)
+	return _c
+}
+
+func (_c *MockMCPServerConfigurator_GetResourcesToAdd_Call) RunAndReturn(run func() []resources.Resource) *MockMCPServerConfigurator_GetResourcesToAdd_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetToolsToAdd provides a mock function for the type MockMCPServerConfigurator

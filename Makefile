@@ -104,6 +104,18 @@ lint:
 fix-lint:
 	golangci-lint run ./... --fix
 
+# Resources
+
+CODING_GUIDELINES_URL := https://raw.githubusercontent.com/matlab/rules/main/matlab-coding-standards.md
+CODING_GUIDELINES_PATH := $(CURDIR)/internal/adaptors/mcp/resources/codingguidelines/codingguidelines.md
+
+update-coding-guidelines:
+ifeq ($(OS),Windows_NT)
+	Invoke-WebRequest -Uri "$(CODING_GUIDELINES_URL)" -OutFile "$(CODING_GUIDELINES_PATH)"
+else
+	curl -sSL "$(CODING_GUIDELINES_URL)" -o "$(CODING_GUIDELINES_PATH)"
+endif
+
 # Building
 
 build: build-for-windows build-for-glnxa64 build-for-maci64 build-for-maca64
