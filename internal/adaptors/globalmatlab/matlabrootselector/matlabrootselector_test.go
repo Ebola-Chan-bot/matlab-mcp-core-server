@@ -30,7 +30,7 @@ func TestNew_HappyPath(t *testing.T) {
 	assert.NotNil(t, selector)
 }
 
-func TestMATLABRootSelector_SelectFirstMATLABVersionOnPath_HappyPath(t *testing.T) {
+func TestMATLABRootSelector_SelectMATLABRoot_HappyPath(t *testing.T) {
 	testCases := []struct {
 		name         string
 		environments []entities.EnvironmentInfo
@@ -106,7 +106,7 @@ func TestMATLABRootSelector_SelectFirstMATLABVersionOnPath_HappyPath(t *testing.
 			selector := matlabrootselector.New(mockConfig, mockMATLABManager)
 
 			// Act
-			result, err := selector.SelectFirstMATLABVersionOnPath(ctx, mockLogger)
+			result, err := selector.SelectMATLABRoot(ctx, mockLogger)
 
 			// Assert
 			require.NoError(t, err)
@@ -115,7 +115,7 @@ func TestMATLABRootSelector_SelectFirstMATLABVersionOnPath_HappyPath(t *testing.
 	}
 }
 
-func TestMATLABRootSelector_SelectFirstMATLABVersionOnPath_PreferredMATLABRootSet_HappyPath(t *testing.T) {
+func TestMATLABRootSelector_SelectMATLABRoot_PreferredMATLABRootSet_HappyPath(t *testing.T) {
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()
 
@@ -137,14 +137,14 @@ func TestMATLABRootSelector_SelectFirstMATLABVersionOnPath_PreferredMATLABRootSe
 	selector := matlabrootselector.New(mockConfig, mockMATLABManager)
 
 	// Act
-	result, err := selector.SelectFirstMATLABVersionOnPath(ctx, mockLogger)
+	result, err := selector.SelectMATLABRoot(ctx, mockLogger)
 
 	// Assert
 	require.NoError(t, err)
 	assert.Equal(t, expectedPreferredMATLABRoot, result)
 }
 
-func TestMATLABRootSelector_SelectFirstMATLABVersionOnPath_ListEnvironmentsEmpty(t *testing.T) {
+func TestMATLABRootSelector_SelectMATLABRoot_ListEnvironmentsEmpty(t *testing.T) {
 	testCases := []struct {
 		name         string
 		environments []entities.EnvironmentInfo
@@ -185,7 +185,7 @@ func TestMATLABRootSelector_SelectFirstMATLABVersionOnPath_ListEnvironmentsEmpty
 			selector := matlabrootselector.New(mockConfig, mockMATLABManager)
 
 			// Act
-			result, err := selector.SelectFirstMATLABVersionOnPath(ctx, mockLogger)
+			result, err := selector.SelectMATLABRoot(ctx, mockLogger)
 
 			// Assert
 			require.Error(t, err)

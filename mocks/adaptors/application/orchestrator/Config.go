@@ -36,6 +36,50 @@ func (_m *MockConfig) EXPECT() *MockConfig_Expecter {
 	return &MockConfig_Expecter{mock: &_m.Mock}
 }
 
+// InitializeMATLABOnStartup provides a mock function for the type MockConfig
+func (_mock *MockConfig) InitializeMATLABOnStartup() bool {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for InitializeMATLABOnStartup")
+	}
+
+	var r0 bool
+	if returnFunc, ok := ret.Get(0).(func() bool); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	return r0
+}
+
+// MockConfig_InitializeMATLABOnStartup_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InitializeMATLABOnStartup'
+type MockConfig_InitializeMATLABOnStartup_Call struct {
+	*mock.Call
+}
+
+// InitializeMATLABOnStartup is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) InitializeMATLABOnStartup() *MockConfig_InitializeMATLABOnStartup_Call {
+	return &MockConfig_InitializeMATLABOnStartup_Call{Call: _e.mock.On("InitializeMATLABOnStartup")}
+}
+
+func (_c *MockConfig_InitializeMATLABOnStartup_Call) Run(run func()) *MockConfig_InitializeMATLABOnStartup_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockConfig_InitializeMATLABOnStartup_Call) Return(b bool) *MockConfig_InitializeMATLABOnStartup_Call {
+	_c.Call.Return(b)
+	return _c
+}
+
+func (_c *MockConfig_InitializeMATLABOnStartup_Call) RunAndReturn(run func() bool) *MockConfig_InitializeMATLABOnStartup_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // RecordToLogger provides a mock function for the type MockConfig
 func (_mock *MockConfig) RecordToLogger(logger entities.Logger) {
 	_mock.Called(logger)

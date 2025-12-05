@@ -124,6 +124,11 @@ func TestOrchestrator_StartAndWaitForCompletion_HappyPath(t *testing.T) {
 		Return(true).
 		Once()
 
+	mockConfig.EXPECT().
+		InitializeMATLABOnStartup().
+		Return(true).
+		Once()
+
 	mockGlobalMATLABManager.EXPECT().
 		Client(ctx, mockLogger.AsMockArg()).
 		Return(nil, nil).
@@ -172,6 +177,124 @@ func TestOrchestrator_StartAndWaitForCompletion_HappyPath(t *testing.T) {
 
 	// Assert
 	require.NoError(t, <-errC, "StartAndWaitForCompletion should not return an error on signal interrupt")
+}
+
+func TestOrchestrator_StartAndWaitForCompletion_InitializeMATLABOnStartup_False(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	mockConfig := &orchestratormocks.MockConfig{}
+	defer mockConfig.AssertExpectations(t)
+
+	mockServer := &orchestratormocks.MockServer{}
+	defer mockServer.AssertExpectations(t)
+
+	mockWatchdogClient := &orchestratormocks.MockWatchdogClient{}
+	defer mockWatchdogClient.AssertExpectations(t)
+
+	mockLoggerFactory := &orchestratormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockSignalLayer := &orchestratormocks.MockOSSignaler{}
+	defer mockSignalLayer.AssertExpectations(t)
+
+	mockGlobalMATLABManager := &orchestratormocks.MockGlobalMATLAB{}
+	defer mockGlobalMATLABManager.AssertExpectations(t)
+
+	mockDirectory := &orchestratormocks.MockDirectory{}
+	defer mockDirectory.AssertExpectations(t)
+
+	ctx := t.Context()
+	interruptC := getInterruptChannel()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	mockConfig.EXPECT().
+		RecordToLogger(mockLogger.AsMockArg()).
+		Return().
+		Once()
+
+	mockDirectory.EXPECT().
+		RecordToLogger(mockLogger.AsMockArg()).
+		Return().
+		Once()
+
+	mockWatchdogClient.EXPECT().
+		Start().
+		Return(nil).
+		Once()
+
+	serverStarted := make(chan struct{})
+	stopServer := make(chan struct{})
+	defer close(stopServer)
+
+	mockServer.EXPECT().
+		Run().
+		RunAndReturn(func() error {
+			close(serverStarted)
+			<-stopServer
+			return nil
+		}).
+		Once()
+
+	mockConfig.EXPECT().
+		UseSingleMATLABSession().
+		Return(true).
+		Once()
+
+	mockConfig.EXPECT().
+		InitializeMATLABOnStartup().
+		Return(false).
+		Once()
+
+	mockSignalLayer.EXPECT().
+		InterruptSignalChan().
+		Return(interruptC).
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		RequestShutdown().
+		Return().
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		WaitForShutdownToComplete().
+		Return(nil).
+		Once()
+
+	mockWatchdogClient.EXPECT().
+		Stop().
+		Return(nil).
+		Once()
+
+	orchestratorInstance := orchestrator.New(
+		mockLifecycleSignaler,
+		mockConfig,
+		mockServer,
+		mockWatchdogClient,
+		mockLoggerFactory,
+		mockSignalLayer,
+		mockGlobalMATLABManager,
+		mockDirectory,
+	)
+
+	// Act
+	errC := make(chan error)
+	go func() {
+		errC <- orchestratorInstance.StartAndWaitForCompletion(ctx)
+	}()
+
+	<-serverStarted
+	sendInterruptSignal(interruptC)
+
+	// Assert
+	require.NoError(t, <-errC)
 }
 
 func TestOrchestrator_StartAndWaitForCompletion_ServerError(t *testing.T) {
@@ -232,6 +355,11 @@ func TestOrchestrator_StartAndWaitForCompletion_ServerError(t *testing.T) {
 
 	mockConfig.EXPECT().
 		UseSingleMATLABSession().
+		Return(true).
+		Once()
+
+	mockConfig.EXPECT().
+		InitializeMATLABOnStartup().
 		Return(true).
 		Once()
 
@@ -340,6 +468,11 @@ func TestOrchestrator_StartAndWaitForCompletion_InitializeMATLABErrorDoesNotTrig
 
 	mockConfig.EXPECT().
 		UseSingleMATLABSession().
+		Return(true).
+		Once()
+
+	mockConfig.EXPECT().
+		InitializeMATLABOnStartup().
 		Return(true).
 		Once()
 
@@ -461,6 +594,11 @@ func TestOrchestrator_StartAndWaitForCompletion_WaitForShutdownToCompleteError(t
 		Return(true).
 		Once()
 
+	mockConfig.EXPECT().
+		InitializeMATLABOnStartup().
+		Return(true).
+		Once()
+
 	mockGlobalMATLABManager.EXPECT().
 		Client(ctx, mockLogger.AsMockArg()).
 		Return(nil, nil).
@@ -518,6 +656,134 @@ func TestOrchestrator_StartAndWaitForCompletion_WaitForShutdownToCompleteError(t
 	err, ok := errField.(error)
 	require.True(t, ok, "Error field should be of type error")
 	require.ErrorIs(t, err, expectedError, "Logged error should match the shutdown error")
+}
+
+func TestOrchestrator_StartAndWaitForCompletion_WatchdogStopError(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	mockConfig := &orchestratormocks.MockConfig{}
+	defer mockConfig.AssertExpectations(t)
+
+	mockServer := &orchestratormocks.MockServer{}
+	defer mockServer.AssertExpectations(t)
+
+	mockWatchdogClient := &orchestratormocks.MockWatchdogClient{}
+	defer mockWatchdogClient.AssertExpectations(t)
+
+	mockLoggerFactory := &orchestratormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockSignalLayer := &orchestratormocks.MockOSSignaler{}
+	defer mockSignalLayer.AssertExpectations(t)
+
+	mockGlobalMATLABManager := &orchestratormocks.MockGlobalMATLAB{}
+	defer mockGlobalMATLABManager.AssertExpectations(t)
+
+	mockDirectory := &orchestratormocks.MockDirectory{}
+	defer mockDirectory.AssertExpectations(t)
+
+	ctx := t.Context()
+	interruptC := getInterruptChannel()
+	expectedError := assert.AnError
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Twice()
+
+	mockConfig.EXPECT().
+		RecordToLogger(mockLogger.AsMockArg()).
+		Return().
+		Once()
+
+	mockDirectory.EXPECT().
+		RecordToLogger(mockLogger.AsMockArg()).
+		Return().
+		Once()
+
+	mockWatchdogClient.EXPECT().
+		Start().
+		Return(nil).
+		Once()
+
+	serverStarted := make(chan struct{})
+	stopServer := make(chan struct{})
+	defer close(stopServer)
+
+	mockServer.EXPECT().
+		Run().
+		RunAndReturn(func() error {
+			close(serverStarted)
+			<-stopServer
+			return nil
+		}).
+		Once()
+
+	mockConfig.EXPECT().
+		UseSingleMATLABSession().
+		Return(true).
+		Once()
+
+	mockConfig.EXPECT().
+		InitializeMATLABOnStartup().
+		Return(true).
+		Once()
+
+	mockGlobalMATLABManager.EXPECT().
+		Client(ctx, mockLogger.AsMockArg()).
+		Return(nil, nil).
+		Once()
+
+	// Signal
+	mockSignalLayer.EXPECT().
+		InterruptSignalChan().
+		Return(interruptC).
+		Once()
+
+	// Shutdown sequence
+	mockLifecycleSignaler.EXPECT().
+		RequestShutdown().
+		Return().
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		WaitForShutdownToComplete().
+		Return(nil).
+		Once()
+
+	// Watchdog Stop Fails
+	mockWatchdogClient.EXPECT().
+		Stop().
+		Return(expectedError).
+		Once()
+
+	orchestratorInstance := orchestrator.New(
+		mockLifecycleSignaler, mockConfig, mockServer, mockWatchdogClient,
+		mockLoggerFactory, mockSignalLayer, mockGlobalMATLABManager, mockDirectory,
+	)
+
+	// Act
+	errC := make(chan error)
+	go func() {
+		errC <- orchestratorInstance.StartAndWaitForCompletion(ctx)
+	}()
+
+	<-serverStarted
+	sendInterruptSignal(interruptC)
+	err := <-errC
+
+	// Assert
+	require.NoError(t, err)
+
+	// Verify Log
+	logs := mockLogger.WarnLogs()
+	fields, found := logs["Watchdog shutdown failed"]
+	require.True(t, found, "Expected warning log for watchdog failure")
+	assert.Equal(t, expectedError, fields["error"])
 }
 
 func TestOrchestrator_runMATLABMCPServerMain_MultipleSession_HappyPath(t *testing.T) {

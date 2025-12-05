@@ -37,6 +37,11 @@ func TestMATLABManager_GetMATLABSessionClient_HappyPath(t *testing.T) {
 		Return(mockSessionClient, nil).
 		Once()
 
+	mockSessionClient.EXPECT().
+		Ping(ctx, mockLogger.AsMockArg()).
+		Return(entities.PingResponse{IsAlive: true}).
+		Once()
+
 	manager := matlabmanager.New(mockMATLABServices, mockSessionStore, mockClientFactory)
 
 	// Act
@@ -45,6 +50,45 @@ func TestMATLABManager_GetMATLABSessionClient_HappyPath(t *testing.T) {
 	// Assert
 	require.NoError(t, err)
 	assert.Equal(t, mockSessionClient, client)
+}
+
+func TestMATLABManager_GetMATLABSessionClient_PingFailure(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockMATLABServices := &mocks.MockMATLABServices{}
+	defer mockMATLABServices.AssertExpectations(t)
+
+	mockSessionStore := &mocks.MockMATLABSessionStore{}
+	defer mockSessionStore.AssertExpectations(t)
+
+	mockClientFactory := &mocks.MockMATLABSessionClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
+
+	mockSessionClient := &sessionstoremocks.MockMATLABSessionClientWithCleanup{}
+
+	sessionID := entities.SessionID(123)
+	ctx := t.Context()
+
+	mockSessionStore.EXPECT().
+		Get(sessionID).
+		Return(mockSessionClient, nil).
+		Once()
+
+	mockSessionClient.EXPECT().
+		Ping(ctx, mockLogger.AsMockArg()).
+		Return(entities.PingResponse{IsAlive: false}).
+		Once()
+
+	manager := matlabmanager.New(mockMATLABServices, mockSessionStore, mockClientFactory)
+
+	// Act
+	client, err := manager.GetMATLABSessionClient(ctx, mockLogger, sessionID)
+
+	// Assert
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "is not alive")
+	assert.Nil(t, client)
 }
 
 func TestMATLABManager_GetMATLABSessionClient_SessionStoreError(t *testing.T) {

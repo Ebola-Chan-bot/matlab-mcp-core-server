@@ -24,7 +24,7 @@ func TestClient_Eval_HappyPath(t *testing.T) {
 	const expectedCode = "disp('Hello World')"
 	const expectedOutput = "Hello World\n"
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertEvalMessage(t, request, expectedCode)
 
 		response := embeddedconnector.ConnectorPayload{
@@ -68,7 +68,7 @@ func TestClient_Eval_MATLABError(t *testing.T) {
 	expectedCode := "invalid_function()"
 	expectedErrorMessage := "Undefined function 'invalid_function'"
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertEvalMessage(t, request, expectedCode)
 
 		response := embeddedconnector.ConnectorPayload{
@@ -110,7 +110,7 @@ func TestClient_Eval_HTTPError(t *testing.T) {
 	httpClientFactory := httpclientfactory.New()
 	mockLogger := testutils.NewInspectableLogger()
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 	})
 
@@ -137,7 +137,7 @@ func TestClient_Eval_NoResponseMessages(t *testing.T) {
 	httpClientFactory := httpclientfactory.New()
 	mockLogger := testutils.NewInspectableLogger()
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		response := embeddedconnector.ConnectorPayload{
 			Messages: embeddedconnector.ConnectorMessage{
 				EvalResponse: []embeddedconnector.EvalResponseMessage{},
@@ -173,7 +173,7 @@ func TestClient_Eval_InvalidJSONResponse(t *testing.T) {
 	httpClientFactory := httpclientfactory.New()
 	mockLogger := testutils.NewInspectableLogger()
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		responseWriter.Header().Set("Content-Type", "application/json")
 		responseWriter.WriteHeader(http.StatusOK)
 		_, err := responseWriter.Write([]byte("invalid json"))
@@ -203,7 +203,7 @@ func TestClient_Eval_ContextCancellation(t *testing.T) {
 	httpClientFactory := httpclientfactory.New()
 	mockLogger := testutils.NewInspectableLogger()
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		t.Error("Handler should not be called when context is cancelled")
 	})
 

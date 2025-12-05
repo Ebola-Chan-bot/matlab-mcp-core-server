@@ -11,11 +11,12 @@ import (
 
 type MATLABManager interface {
 	StartMATLABSession(ctx context.Context, sessionLogger entities.Logger, startRequest entities.SessionDetails) (entities.SessionID, error)
+	StopMATLABSession(ctx context.Context, sessionLogger entities.Logger, sessionID entities.SessionID) error
 	GetMATLABSessionClient(ctx context.Context, sessionLogger entities.Logger, sessionID entities.SessionID) (entities.MATLABSessionClient, error)
 }
 
 type MATLABRootSelector interface {
-	SelectFirstMATLABVersionOnPath(ctx context.Context, logger entities.Logger) (string, error)
+	SelectMATLABRoot(ctx context.Context, logger entities.Logger) (string, error)
 }
 
 type MATLABStartingDirSelector interface {
@@ -55,7 +56,7 @@ func (g *GlobalMATLAB) Client(ctx context.Context, logger entities.Logger) (enti
 	defer g.lock.Unlock()
 
 	g.initializeOnce.Do(func() {
-		err := g.initializeMATLABStartupVariables(ctx, logger)
+		err := g.initializeStartupConfig(ctx, logger)
 		if err != nil {
 			g.cachedStartupErr = err
 		}
@@ -65,41 +66,56 @@ func (g *GlobalMATLAB) Client(ctx context.Context, logger entities.Logger) (enti
 		return nil, g.cachedStartupErr
 	}
 
-	if err := g.ensureMATLABSessionIsReady(ctx, logger); err != nil {
-		g.cachedStartupErr = err
-		return nil, err
+	return g.getOrCreateClient(ctx, logger)
+}
+
+func (g *GlobalMATLAB) getOrCreateClient(ctx context.Context, logger entities.Logger) (entities.MATLABSessionClient, error) {
+	var sessionIDZeroValue entities.SessionID
+
+	// Start MATLAB if we don't have a session
+	if g.sessionID == sessionIDZeroValue {
+		if err := g.startNewSession(ctx, logger); err != nil {
+			g.cachedStartupErr = err
+			return nil, err
+		}
 	}
 
+	// Try to get the client
 	client, err := g.matlabManager.GetMATLABSessionClient(ctx, logger, g.sessionID)
 	if err != nil {
-		return nil, err
+		// Retry: stop old session and start a new one
+		if stopErr := g.matlabManager.StopMATLABSession(ctx, logger, g.sessionID); stopErr != nil {
+			logger.WithError(stopErr).Warn("failed to stop MATLAB session")
+		}
+
+		if err := g.startNewSession(ctx, logger); err != nil {
+			g.cachedStartupErr = err
+			return nil, err
+		}
+
+		return g.matlabManager.GetMATLABSessionClient(ctx, logger, g.sessionID)
 	}
 
 	return client, nil
 }
 
-func (g *GlobalMATLAB) ensureMATLABSessionIsReady(ctx context.Context, logger entities.Logger) error {
-
-	var sessionIDZeroValue entities.SessionID
-	if g.sessionID == sessionIDZeroValue {
-		sessionID, err := g.matlabManager.StartMATLABSession(ctx, logger, entities.LocalSessionDetails{
-			MATLABRoot:             g.matlabRoot,
-			IsStartingDirectorySet: g.matlabStartingDir != "",
-			StartingDirectory:      g.matlabStartingDir,
-			ShowMATLABDesktop:      true,
-		})
-		if err != nil {
-			return err
-		}
-
-		g.sessionID = sessionID
+func (g *GlobalMATLAB) startNewSession(ctx context.Context, logger entities.Logger) error {
+	sessionID, err := g.matlabManager.StartMATLABSession(ctx, logger, entities.LocalSessionDetails{
+		MATLABRoot:             g.matlabRoot,
+		IsStartingDirectorySet: g.matlabStartingDir != "",
+		StartingDirectory:      g.matlabStartingDir,
+		ShowMATLABDesktop:      true,
+	})
+	if err != nil {
+		return err
 	}
 
+	g.sessionID = sessionID
 	return nil
 }
 
-func (g *GlobalMATLAB) initializeMATLABStartupVariables(ctx context.Context, logger entities.Logger) error {
-	matlabRoot, err := g.matlabRootSelector.SelectFirstMATLABVersionOnPath(ctx, logger)
+func (g *GlobalMATLAB) initializeStartupConfig(ctx context.Context, logger entities.Logger) error {
+	matlabRoot, err := g.matlabRootSelector.SelectMATLABRoot(ctx, logger)
 	if err != nil {
 		return err
 	}

@@ -32,7 +32,7 @@ func New(
 	}
 }
 
-func (m *MATLABRootSelector) SelectFirstMATLABVersionOnPath(ctx context.Context, logger entities.Logger) (string, error) {
+func (m *MATLABRootSelector) SelectMATLABRoot(ctx context.Context, logger entities.Logger) (string, error) {
 	if preferredLocalMATLABRoot := m.config.PreferredLocalMATLABRoot(); preferredLocalMATLABRoot != "" {
 		return preferredLocalMATLABRoot, nil
 	}

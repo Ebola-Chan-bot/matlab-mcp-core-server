@@ -9,10 +9,15 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/utils/httpclientfactory"
 )
+
+const defaultPingRetry = 100 * time.Millisecond
+const defaultPingTimeout = 1 * time.Second
 
 type HttpClientFactory interface {
 	NewClientForSelfSignedTLSServer(certificatePEM []byte) (httpclientfactory.HttpClient, error)
@@ -30,6 +35,9 @@ type Client struct {
 	port       string
 	apiKey     string
 	httpClient httpclientfactory.HttpClient
+
+	pingRetry   time.Duration
+	pingTimeout time.Duration
 }
 
 func NewClient(
@@ -46,7 +54,18 @@ func NewClient(
 		port:       endpoint.Port,
 		apiKey:     endpoint.APIKey,
 		httpClient: httpClient,
+
+		pingRetry:   defaultPingRetry,
+		pingTimeout: defaultPingTimeout,
 	}, nil
+}
+
+func (c *Client) SetPingTimeout(timeout time.Duration) {
+	c.pingTimeout = timeout
+}
+
+func (c *Client) SetPingRetry(retry time.Duration) {
+	c.pingRetry = retry
 }
 
 func (c *Client) Eval(ctx context.Context, logger entities.Logger, input entities.EvalRequest) (entities.EvalResponse, error) {
@@ -145,14 +164,84 @@ func (c *Client) FEval(ctx context.Context, logger entities.Logger, input entiti
 	}, nil
 }
 
+func (m *Client) Ping(ctx context.Context, sessionLogger entities.Logger) entities.PingResponse {
+	timeout := time.After(m.pingTimeout)
+	tick := time.Tick(m.pingRetry)
+
+	for {
+		select {
+		case <-timeout:
+			sessionLogger.Warn("timeout waiting for matlab to be ready")
+			return entities.PingResponse{
+				IsAlive: false,
+			}
+		case <-tick:
+			status, err := m.pingMATLAB(ctx, sessionLogger)
+			if err != nil {
+				sessionLogger.WithError(err).Warn("Ping to MATLAB session failed")
+			}
+
+			if !status {
+				continue
+			}
+
+			return entities.PingResponse{
+				IsAlive: true,
+			}
+		}
+	}
+}
+
+func (c *Client) pingMATLAB(ctx context.Context, logger entities.Logger) (bool, error) {
+	payload := ConnectorPayload{
+		Messages: ConnectorMessage{
+			Ping: []PingMessage{{}},
+		},
+	}
+
+	response, err := c.sendRequestToStateEndpoint(ctx, logger, payload)
+	if err != nil {
+		return false, err
+	}
+
+	if len(response.Messages.PingResponse) == 0 {
+		return false, fmt.Errorf("no response messages received")
+	}
+
+	messageFaults := response.Messages.PingResponse[0].MessageFaults
+	if len(messageFaults) > 0 {
+		var errorMessage strings.Builder
+		for _, rawFault := range response.Messages.PingResponse[0].MessageFaults {
+			var f Fault
+			if err := json.Unmarshal(rawFault, &f); err != nil {
+				logger.WithError(err).Warn("Failed to deserialize fault message into a fault")
+			}
+			errorMessage.WriteString(f.Message)
+			errorMessage.WriteString("\n\n")
+		}
+		return false, newMATLABError(errorMessage.String())
+	}
+
+	return true, nil
+}
+
 func (c *Client) sendRequestToEvaluationEndpoint(ctx context.Context, logger entities.Logger, payload ConnectorPayload) (ConnectorPayload, error) {
+	endpoint := fmt.Sprintf("https://%s:%s/messageservice/json/secure", c.host, c.port)
+	return c.sendRequest(ctx, logger, endpoint, payload)
+}
+
+func (c *Client) sendRequestToStateEndpoint(ctx context.Context, logger entities.Logger, payload ConnectorPayload) (ConnectorPayload, error) {
+	endpoint := fmt.Sprintf("https://%s:%s/messageservice/json/state", c.host, c.port)
+	return c.sendRequest(ctx, logger, endpoint, payload)
+}
+
+func (c *Client) sendRequest(ctx context.Context, logger entities.Logger, endpoint string, payload ConnectorPayload) (ConnectorPayload, error) {
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return ConnectorPayload{}, fmt.Errorf("failed to marshal request payload: %w", err)
 	}
 
-	evaluationRequest := fmt.Sprintf("https://%s:%s/messageservice/json/secure", c.host, c.port)
-	req, err := http.NewRequestWithContext(ctx, "POST", evaluationRequest, bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequestWithContext(ctx, "POST", endpoint, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		logger.WithError(err).Error("Failed to create HTTP request")
 		return ConnectorPayload{}, fmt.Errorf("failed to create request: %w", err)

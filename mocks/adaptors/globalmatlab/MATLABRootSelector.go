@@ -38,12 +38,12 @@ func (_m *MockMATLABRootSelector) EXPECT() *MockMATLABRootSelector_Expecter {
 	return &MockMATLABRootSelector_Expecter{mock: &_m.Mock}
 }
 
-// SelectFirstMATLABVersionOnPath provides a mock function for the type MockMATLABRootSelector
-func (_mock *MockMATLABRootSelector) SelectFirstMATLABVersionOnPath(ctx context.Context, logger entities.Logger) (string, error) {
+// SelectMATLABRoot provides a mock function for the type MockMATLABRootSelector
+func (_mock *MockMATLABRootSelector) SelectMATLABRoot(ctx context.Context, logger entities.Logger) (string, error) {
 	ret := _mock.Called(ctx, logger)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SelectFirstMATLABVersionOnPath")
+		panic("no return value specified for SelectMATLABRoot")
 	}
 
 	var r0 string
@@ -64,19 +64,19 @@ func (_mock *MockMATLABRootSelector) SelectFirstMATLABVersionOnPath(ctx context.
 	return r0, r1
 }
 
-// MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SelectFirstMATLABVersionOnPath'
-type MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call struct {
+// MockMATLABRootSelector_SelectMATLABRoot_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SelectMATLABRoot'
+type MockMATLABRootSelector_SelectMATLABRoot_Call struct {
 	*mock.Call
 }
 
-// SelectFirstMATLABVersionOnPath is a helper method to define mock.On call
+// SelectMATLABRoot is a helper method to define mock.On call
 //   - ctx context.Context
 //   - logger entities.Logger
-func (_e *MockMATLABRootSelector_Expecter) SelectFirstMATLABVersionOnPath(ctx interface{}, logger interface{}) *MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call {
-	return &MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call{Call: _e.mock.On("SelectFirstMATLABVersionOnPath", ctx, logger)}
+func (_e *MockMATLABRootSelector_Expecter) SelectMATLABRoot(ctx interface{}, logger interface{}) *MockMATLABRootSelector_SelectMATLABRoot_Call {
+	return &MockMATLABRootSelector_SelectMATLABRoot_Call{Call: _e.mock.On("SelectMATLABRoot", ctx, logger)}
 }
 
-func (_c *MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call) Run(run func(ctx context.Context, logger entities.Logger)) *MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call {
+func (_c *MockMATLABRootSelector_SelectMATLABRoot_Call) Run(run func(ctx context.Context, logger entities.Logger)) *MockMATLABRootSelector_SelectMATLABRoot_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -94,12 +94,12 @@ func (_c *MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call) Run(run fu
 	return _c
 }
 
-func (_c *MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call) Return(s string, err error) *MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call {
+func (_c *MockMATLABRootSelector_SelectMATLABRoot_Call) Return(s string, err error) *MockMATLABRootSelector_SelectMATLABRoot_Call {
 	_c.Call.Return(s, err)
 	return _c
 }
 
-func (_c *MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call) RunAndReturn(run func(ctx context.Context, logger entities.Logger) (string, error)) *MockMATLABRootSelector_SelectFirstMATLABVersionOnPath_Call {
+func (_c *MockMATLABRootSelector_SelectMATLABRoot_Call) RunAndReturn(run func(ctx context.Context, logger entities.Logger) (string, error)) *MockMATLABRootSelector_SelectMATLABRoot_Call {
 	_c.Call.Return(run)
 	return _c
 }

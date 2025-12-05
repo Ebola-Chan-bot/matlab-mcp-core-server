@@ -26,7 +26,7 @@ func TestClient_FEval_HappyPath(t *testing.T) {
 	expectedNumOutputs := 1
 	expectedResults := []interface{}{"3"}
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, expectedFunction, expectedArguments, expectedNumOutputs)
 
 		response := embeddedconnector.ConnectorPayload{
@@ -73,7 +73,7 @@ func TestClient_FEval_MultipleOutputs(t *testing.T) {
 	expectedNumOutputs := 2
 	expectedResults := []interface{}{"2", "3"}
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, expectedFunction, expectedArguments, expectedNumOutputs)
 
 		response := embeddedconnector.ConnectorPayload{
@@ -120,7 +120,7 @@ func TestClient_FEval_NoArguments(t *testing.T) {
 	expectedNumOutputs := 1
 	expectedResults := []interface{}{"0.8147"}
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, expectedFunction, expectedArguments, expectedNumOutputs)
 
 		response := embeddedconnector.ConnectorPayload{
@@ -167,7 +167,7 @@ func TestClient_FEval_MATLABError(t *testing.T) {
 	expectedNumOutputs := 1
 	expectedErrorMessage := "Undefined function 'invalid_function'"
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, expectedFunction, expectedArguments, expectedNumOutputs)
 
 		faultMessage := embeddedconnector.Fault{
@@ -222,7 +222,7 @@ func TestClient_FEval_MATLABErrorWithMultipleFaults(t *testing.T) {
 	expectedErrorMessage1 := "First error message"
 	expectedErrorMessage2 := "Second error message"
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, expectedFunction, expectedArguments, expectedNumOutputs)
 
 		fault1 := embeddedconnector.Fault{
@@ -282,7 +282,7 @@ func TestClient_FEval_MATLABErrorWithNoFaults(t *testing.T) {
 	expectedArguments := []string{}
 	expectedNumOutputs := 1
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, expectedFunction, expectedArguments, expectedNumOutputs)
 
 		response := embeddedconnector.ConnectorPayload{
@@ -325,7 +325,7 @@ func TestClient_FEval_HTTPError(t *testing.T) {
 	httpClientFactory := httpclientfactory.New()
 	mockLogger := testutils.NewInspectableLogger()
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 	})
 
@@ -353,7 +353,7 @@ func TestClient_FEval_NoResponseMessages(t *testing.T) {
 	httpClientFactory := httpclientfactory.New()
 	mockLogger := testutils.NewInspectableLogger()
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		response := embeddedconnector.ConnectorPayload{
 			Messages: embeddedconnector.ConnectorMessage{
 				FevalResponse: []embeddedconnector.FevalResponseMessage{},
@@ -390,7 +390,7 @@ func TestClient_FEval_InvalidJSONResponse(t *testing.T) {
 	httpClientFactory := httpclientfactory.New()
 	mockLogger := testutils.NewInspectableLogger()
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		responseWriter.Header().Set("Content-Type", "application/json")
 		responseWriter.WriteHeader(http.StatusOK)
 		_, err := responseWriter.Write([]byte("invalid json"))
@@ -421,7 +421,7 @@ func TestClient_FEval_ContextCancellation(t *testing.T) {
 	httpClientFactory := httpclientfactory.New()
 	mockLogger := testutils.NewInspectableLogger()
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		t.Error("Handler should not be called when context is cancelled")
 	})
 

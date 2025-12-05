@@ -39,6 +39,10 @@ func setupFlags(flagSet *pflag.FlagSet) error {
 		flags.BaseDirDescription,
 	)
 
+	flagSet.Bool(flags.InitializeMATLABOnStartup, flags.InitializeMATLABOnStartupDefaultValue,
+		flags.InitializeMATLABOnStartupDescription,
+	)
+
 	// Hidden flags, for internal use only
 	flagSet.Bool(flags.WatchdogMode, flags.WatchdogModeDefaultValue,
 		flags.WatchdogModeDescription,
@@ -117,6 +121,15 @@ func createConfigWithFlagValues(osLayer OSLayer, flagSet *pflag.FlagSet, args []
 		return nil, err
 	}
 
+	initializeMATLABOnStartup, err := flagSet.GetBool(flags.InitializeMATLABOnStartup)
+	if err != nil {
+		return nil, err
+	}
+
+	if !useSingleMATLABSession {
+		initializeMATLABOnStartup = false
+	}
+
 	return &Config{
 		osLayer: osLayer,
 
@@ -129,5 +142,6 @@ func createConfigWithFlagValues(osLayer OSLayer, flagSet *pflag.FlagSet, args []
 		baseDirectory:                    baseDir,
 		watchdogMode:                     watchdogMode,
 		serverInstanceID:                 serverInstanceID,
+		initializeMATLABOnStartup:        initializeMATLABOnStartup,
 	}, nil
 }

@@ -19,6 +19,8 @@ type ConnectorMessage struct {
 	FEval         []FevalMessage         `json:"FEval,omitempty"`
 	EvalResponse  []EvalResponseMessage  `json:"EvalResponse,omitempty"`
 	FevalResponse []FevalResponseMessage `json:"FEvalResponse,omitempty"`
+	Ping          []PingMessage          `json:"Ping,omitempty"`
+	PingResponse  []PingResponseMessage  `json:"PingResponse,omitempty"`
 }
 
 type EvalMessage struct {
@@ -41,6 +43,13 @@ type FevalResponseMessage struct {
 	IsError       bool              `json:"isError"`
 	MessageFaults []json.RawMessage `json:"messageFaults"`
 	Results       []interface{}     `json:"results"`
+}
+
+type PingMessage struct {
+}
+
+type PingResponseMessage struct {
+	MessageFaults []json.RawMessage `json:"messageFaults"`
 }
 
 type Fault struct {

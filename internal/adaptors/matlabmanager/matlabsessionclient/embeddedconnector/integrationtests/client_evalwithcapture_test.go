@@ -24,7 +24,7 @@ func TestClient_EvalWithCapture_HappyPath(t *testing.T) {
 	const expectedCode = "disp('Hello World')"
 	const expectedOutput = "Hello World"
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, "matlab_mcp.mcpEval", []string{expectedCode}, 1)
 
 		liveEditorResponseEntries := []embeddedconnector.LiveEditorResponseEntry{
@@ -82,7 +82,7 @@ func TestClient_EvalWithCapture_ReturnImages(t *testing.T) {
 	expectedImageData := []byte("image data")
 	expectedImageBase64 := base64.StdEncoding.EncodeToString(expectedImageData)
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, "matlab_mcp.mcpEval", []string{expectedCode}, 1)
 
 		liveEditorResponseEntries := []embeddedconnector.LiveEditorResponseEntry{
@@ -139,7 +139,7 @@ func TestClient_EvalWithCapture_ReturnStreams(t *testing.T) {
 	const expectedOutput = "some error"
 	const expectedName = "stderr"
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, "matlab_mcp.mcpEval", []string{expectedCode}, 1)
 
 		liveEditorResponseEntries := []embeddedconnector.LiveEditorResponseEntry{
@@ -199,7 +199,7 @@ func TestClient_EvalWithCapture_MultipleStreams_SameName(t *testing.T) {
 
 	const expectedCode = "disp('line1'); disp('line2')"
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, "matlab_mcp.mcpEval", []string{expectedCode}, 1)
 
 		liveEditorResponseEntries := []embeddedconnector.LiveEditorResponseEntry{
@@ -269,7 +269,7 @@ func TestClient_EvalWithCapture_MultipleStreams_DifferentNames(t *testing.T) {
 
 	const expectedCode = "fprintf('output'); warning('warning message')"
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, "matlab_mcp.mcpEval", []string{expectedCode}, 1)
 
 		liveEditorResponseEntries := []embeddedconnector.LiveEditorResponseEntry{
@@ -352,7 +352,7 @@ func TestClient_EvalWithCapture_MixedStreamsAndResults(t *testing.T) {
 	expectedImageData := []byte("plot_image_data")
 	expectedImageBase64 := base64.StdEncoding.EncodeToString(expectedImageData)
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, "matlab_mcp.mcpEval", []string{expectedCode}, 1)
 
 		liveEditorResponseEntries := []embeddedconnector.LiveEditorResponseEntry{
@@ -431,7 +431,7 @@ func TestClient_EvalWithCapture_StreamsWithInterruptionByExecuteResult(t *testin
 
 	const expectedCode = "warning('first'); x = 1; warning('second')"
 
-	connectionDetails := startTestServer(t, func(responseWriter http.ResponseWriter, request *http.Request) {
+	connectionDetails := startTestServerForEvaluation(t, func(responseWriter http.ResponseWriter, request *http.Request) {
 		assertFevalMessage(t, request, "matlab_mcp.mcpEval", []string{expectedCode}, 1)
 
 		liveEditorResponseEntries := []embeddedconnector.LiveEditorResponseEntry{

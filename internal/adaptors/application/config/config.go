@@ -28,6 +28,7 @@ type Config struct {
 	baseDirectory                    string
 	watchdogMode                     bool
 	serverInstanceID                 string
+	initializeMATLABOnStartup        bool
 }
 
 func New(
@@ -90,6 +91,10 @@ func (c *Config) WatchdogMode() bool {
 
 func (c *Config) ServerInstanceID() string {
 	return c.serverInstanceID
+}
+
+func (c *Config) InitializeMATLABOnStartup() bool {
+	return c.initializeMATLABOnStartup
 }
 
 func (c *Config) RecordToLogger(logger entities.Logger) {

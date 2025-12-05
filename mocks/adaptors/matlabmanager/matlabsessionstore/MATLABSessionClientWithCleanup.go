@@ -254,6 +254,63 @@ func (_c *MockMATLABSessionClientWithCleanup_FEval_Call) RunAndReturn(run func(c
 	return _c
 }
 
+// Ping provides a mock function for the type MockMATLABSessionClientWithCleanup
+func (_mock *MockMATLABSessionClientWithCleanup) Ping(ctx context.Context, sessionLogger entities.Logger) entities.PingResponse {
+	ret := _mock.Called(ctx, sessionLogger)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Ping")
+	}
+
+	var r0 entities.PingResponse
+	if returnFunc, ok := ret.Get(0).(func(context.Context, entities.Logger) entities.PingResponse); ok {
+		r0 = returnFunc(ctx, sessionLogger)
+	} else {
+		r0 = ret.Get(0).(entities.PingResponse)
+	}
+	return r0
+}
+
+// MockMATLABSessionClientWithCleanup_Ping_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Ping'
+type MockMATLABSessionClientWithCleanup_Ping_Call struct {
+	*mock.Call
+}
+
+// Ping is a helper method to define mock.On call
+//   - ctx context.Context
+//   - sessionLogger entities.Logger
+func (_e *MockMATLABSessionClientWithCleanup_Expecter) Ping(ctx interface{}, sessionLogger interface{}) *MockMATLABSessionClientWithCleanup_Ping_Call {
+	return &MockMATLABSessionClientWithCleanup_Ping_Call{Call: _e.mock.On("Ping", ctx, sessionLogger)}
+}
+
+func (_c *MockMATLABSessionClientWithCleanup_Ping_Call) Run(run func(ctx context.Context, sessionLogger entities.Logger)) *MockMATLABSessionClientWithCleanup_Ping_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 entities.Logger
+		if args[1] != nil {
+			arg1 = args[1].(entities.Logger)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockMATLABSessionClientWithCleanup_Ping_Call) Return(pingResponse entities.PingResponse) *MockMATLABSessionClientWithCleanup_Ping_Call {
+	_c.Call.Return(pingResponse)
+	return _c
+}
+
+func (_c *MockMATLABSessionClientWithCleanup_Ping_Call) RunAndReturn(run func(ctx context.Context, sessionLogger entities.Logger) entities.PingResponse) *MockMATLABSessionClientWithCleanup_Ping_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // StopSession provides a mock function for the type MockMATLABSessionClientWithCleanup
 func (_mock *MockMATLABSessionClientWithCleanup) StopSession(ctx context.Context, sessionLogger entities.Logger) error {
 	ret := _mock.Called(ctx, sessionLogger)

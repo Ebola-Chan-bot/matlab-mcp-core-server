@@ -31,6 +31,10 @@ const (
 	LogLevelDefaultValue = "info"
 	LogLevelDescription  = "The log level to use. Valid values are 'debug', 'info', 'warn', 'error', and 'fatal'."
 
+	InitializeMATLABOnStartup             = "initialize-matlab-on-startup"
+	InitializeMATLABOnStartupDefaultValue = false
+	InitializeMATLABOnStartupDescription  = "To initialize MATLAB as soon as you start the server, set this argument to true. By default, MATLAB only starts when the first tool is called."
+
 	// Hidden
 
 	WatchdogMode             = "watchdog"

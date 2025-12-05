@@ -16,6 +16,7 @@ type LifecycleSignaler interface {
 
 type Config interface {
 	UseSingleMATLABSession() bool
+	InitializeMATLABOnStartup() bool
 	RecordToLogger(logger entities.Logger)
 }
 
@@ -114,7 +115,7 @@ func (o *Orchestrator) StartAndWaitForCompletion(ctx context.Context) error {
 		serverErrC <- o.server.Run()
 	}()
 
-	if o.config.UseSingleMATLABSession() {
+	if o.config.UseSingleMATLABSession() && o.config.InitializeMATLABOnStartup() {
 		_, err := o.globalMATLAB.Client(ctx, o.loggerFactory.GetGlobalLogger())
 		if err != nil {
 			logger.WithError(err).Warn("MATLAB global initialization failed")

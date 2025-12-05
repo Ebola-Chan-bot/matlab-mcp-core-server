@@ -14,14 +14,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func startTestServer(t *testing.T, handler func(responseWriter http.ResponseWriter, request *http.Request)) embeddedconnector.ConnectionDetails {
+func startTestServerForEvaluation(t *testing.T, handler func(responseWriter http.ResponseWriter, request *http.Request)) embeddedconnector.ConnectionDetails {
+	t.Helper()
+	return startTestServerWithPath(t, "/messageservice/json/secure", handler)
+}
+
+func startTestServerForState(t *testing.T, handler func(responseWriter http.ResponseWriter, request *http.Request)) embeddedconnector.ConnectionDetails {
+	t.Helper()
+	return startTestServerWithPath(t, "/messageservice/json/state", handler)
+}
+
+func startTestServerWithPath(t *testing.T, expectedPath string, handler func(responseWriter http.ResponseWriter, request *http.Request)) embeddedconnector.ConnectionDetails {
 	t.Helper()
 
 	const expectedAPIKey = "test-api-key"
 
 	server := httptest.NewTLSServer(http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 		assert.Equal(t, "POST", request.Method)
-		assert.Equal(t, "/messageservice/json/secure", request.URL.Path)
+		assert.Equal(t, expectedPath, request.URL.Path)
 		assert.Equal(t, "application/json", request.Header.Get("Content-Type"))
 		assert.Equal(t, expectedAPIKey, request.Header.Get("mwapikey"))
 

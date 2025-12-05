@@ -8,6 +8,7 @@ type MATLABSessionClient interface {
 	Eval(ctx context.Context, sessionLogger Logger, request EvalRequest) (EvalResponse, error)
 	EvalWithCapture(ctx context.Context, logger Logger, input EvalRequest) (EvalResponse, error)
 	FEval(ctx context.Context, sessionLogger Logger, request FEvalRequest) (FEvalResponse, error)
+	Ping(ctx context.Context, sessionLogger Logger) PingResponse
 }
 
 type MATLABManager interface {
@@ -55,4 +56,8 @@ type FEvalRequest struct {
 
 type FEvalResponse struct {
 	Outputs []any
+}
+
+type PingResponse struct {
+	IsAlive bool
 }

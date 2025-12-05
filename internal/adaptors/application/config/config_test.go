@@ -25,6 +25,7 @@ type expectedConfig struct {
 	baseDirectory                    string
 	watchdogMode                     bool
 	serverInstanceID                 string
+	initializeMATLABOnStartup        bool
 }
 
 func TestNew_HappyPath(t *testing.T) {
@@ -46,6 +47,7 @@ func TestNew_HappyPath(t *testing.T) {
 				baseDirectory:                    "",
 				watchdogMode:                     false,
 				serverInstanceID:                 "",
+				initializeMATLABOnStartup:        false,
 			},
 		},
 		{
@@ -60,6 +62,7 @@ func TestNew_HappyPath(t *testing.T) {
 				"--log-folder=" + filepath.Join("tmp", "logs"),
 				"--watchdog=true",
 				"--server-instance-id=1337",
+				"--initialize-matlab-on-startup=false",
 			},
 			expected: expectedConfig{
 				versionMode:                      true,
@@ -71,6 +74,25 @@ func TestNew_HappyPath(t *testing.T) {
 				baseDirectory:                    filepath.Join("tmp", "logs"),
 				watchdogMode:                     true,
 				serverInstanceID:                 "1337",
+				initializeMATLABOnStartup:        false,
+			},
+		},
+		{
+			name: "single session disabled forces initialize on startup false",
+			args: []string{
+				"--use-single-matlab-session=false",
+				"--initialize-matlab-on-startup=true",
+			},
+			expected: expectedConfig{
+				versionMode:                      false,
+				disableTelemetry:                 false,
+				useSingleMATLABSession:           false,
+				logLevel:                         entities.LogLevelInfo,
+				preferredLocalMATLABRoot:         "",
+				preferredMATLABStartingDirectory: "",
+				baseDirectory:                    "",
+				watchdogMode:                     false,
+				initializeMATLABOnStartup:        false,
 			},
 		},
 	}
@@ -105,6 +127,7 @@ func TestNew_HappyPath(t *testing.T) {
 			assert.Equal(t, testConfig.expected.baseDirectory, cfg.BaseDir())
 			assert.Equal(t, testConfig.expected.watchdogMode, cfg.WatchdogMode())
 			assert.Equal(t, testConfig.expected.serverInstanceID, cfg.ServerInstanceID())
+			assert.Equal(t, testConfig.expected.initializeMATLABOnStartup, cfg.InitializeMATLABOnStartup())
 		})
 	}
 }
