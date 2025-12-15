@@ -3,12 +3,9 @@
 package process
 
 import (
-	"io"
-
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/flags"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
-	"github.com/matlab/matlab-mcp-core-server/internal/utils/stdio"
 )
 
 type OSLayer interface {
@@ -25,20 +22,21 @@ type Directory interface {
 	ID() string
 }
 
+type Config interface {
+	LogLevel() entities.LogLevel
+}
+
 type Process struct {
 	osLayer OSLayer
 	cmd     osfacade.Cmd
 	logger  entities.Logger
-
-	stdin  io.Writer
-	stdout io.Reader
-	stderr io.Reader
 }
 
 func New(
 	osLayer OSLayer,
 	loggerFactory LoggerFactory,
 	directory Directory,
+	config Config,
 ) (*Process, error) {
 	logger := loggerFactory.GetGlobalLogger()
 
@@ -50,25 +48,9 @@ func New(
 	cmd := osLayer.Command(programPath,
 		"--"+flags.WatchdogMode,
 		"--"+flags.BaseDir, directory.BaseDir(),
-		"--"+flags.ServerInstanceID, directory.ID())
-
-	watchdogProcessStdin, err := cmd.StdinPipe()
-	if err != nil {
-		logger.WithError(err).Error("Failed to get stdin pipe for watchdog")
-		return nil, err
-	}
-
-	watchodProcessStdout, err := cmd.StdoutPipe()
-	if err != nil {
-		logger.WithError(err).Error("Failed to get stdout pipe for watchdog")
-		return nil, err
-	}
-
-	watchdogProcessStderr, err := cmd.StderrPipe()
-	if err != nil {
-		logger.WithError(err).Error("Failed to get stderr pipe for watchdog")
-		return nil, err
-	}
+		"--"+flags.ServerInstanceID, directory.ID(),
+		"--"+flags.LogLevel, string(config.LogLevel()),
+	)
 
 	cmd.SetSysProcAttr(getSysProcAttrForDetachingAProcess())
 
@@ -76,10 +58,6 @@ func New(
 		osLayer: osLayer,
 		cmd:     cmd,
 		logger:  logger,
-
-		stdin:  watchdogProcessStdin,
-		stdout: watchodProcessStdout,
-		stderr: watchdogProcessStderr,
 	}
 
 	return process, nil
@@ -92,8 +70,4 @@ func (p *Process) Start() error {
 	}
 
 	return nil
-}
-
-func (p *Process) Stdio() entities.SubProcessStdio {
-	return stdio.NewSubProcessStdio(p.stdin, p.stdout, p.stderr)
 }

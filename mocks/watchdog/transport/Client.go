@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/messages"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -35,21 +36,125 @@ func (_m *MockClient) EXPECT() *MockClient_Expecter {
 	return &MockClient_Expecter{mock: &_m.Mock}
 }
 
+// Close provides a mock function for the type MockClient
+func (_mock *MockClient) Close() error {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Close")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func() error); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockClient_Close_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Close'
+type MockClient_Close_Call struct {
+	*mock.Call
+}
+
+// Close is a helper method to define mock.On call
+func (_e *MockClient_Expecter) Close() *MockClient_Close_Call {
+	return &MockClient_Close_Call{Call: _e.mock.On("Close")}
+}
+
+func (_c *MockClient_Close_Call) Run(run func()) *MockClient_Close_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockClient_Close_Call) Return(err error) *MockClient_Close_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockClient_Close_Call) RunAndReturn(run func() error) *MockClient_Close_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Connect provides a mock function for the type MockClient
+func (_mock *MockClient) Connect(socketPath string) error {
+	ret := _mock.Called(socketPath)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Connect")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(string) error); ok {
+		r0 = returnFunc(socketPath)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockClient_Connect_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Connect'
+type MockClient_Connect_Call struct {
+	*mock.Call
+}
+
+// Connect is a helper method to define mock.On call
+//   - socketPath string
+func (_e *MockClient_Expecter) Connect(socketPath interface{}) *MockClient_Connect_Call {
+	return &MockClient_Connect_Call{Call: _e.mock.On("Connect", socketPath)}
+}
+
+func (_c *MockClient_Connect_Call) Run(run func(socketPath string)) *MockClient_Connect_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_Connect_Call) Return(err error) *MockClient_Connect_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockClient_Connect_Call) RunAndReturn(run func(socketPath string) error) *MockClient_Connect_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendProcessPID provides a mock function for the type MockClient
-func (_mock *MockClient) SendProcessPID(processPID int) error {
-	ret := _mock.Called(processPID)
+func (_mock *MockClient) SendProcessPID(pid int) (messages.ProcessToKillResponse, error) {
+	ret := _mock.Called(pid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendProcessPID")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(int) error); ok {
-		r0 = returnFunc(processPID)
-	} else {
-		r0 = ret.Error(0)
+	var r0 messages.ProcessToKillResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(int) (messages.ProcessToKillResponse, error)); ok {
+		return returnFunc(pid)
 	}
-	return r0
+	if returnFunc, ok := ret.Get(0).(func(int) messages.ProcessToKillResponse); ok {
+		r0 = returnFunc(pid)
+	} else {
+		r0 = ret.Get(0).(messages.ProcessToKillResponse)
+	}
+	if returnFunc, ok := ret.Get(1).(func(int) error); ok {
+		r1 = returnFunc(pid)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // MockClient_SendProcessPID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendProcessPID'
@@ -58,12 +163,12 @@ type MockClient_SendProcessPID_Call struct {
 }
 
 // SendProcessPID is a helper method to define mock.On call
-//   - processPID int
-func (_e *MockClient_Expecter) SendProcessPID(processPID interface{}) *MockClient_SendProcessPID_Call {
-	return &MockClient_SendProcessPID_Call{Call: _e.mock.On("SendProcessPID", processPID)}
+//   - pid int
+func (_e *MockClient_Expecter) SendProcessPID(pid interface{}) *MockClient_SendProcessPID_Call {
+	return &MockClient_SendProcessPID_Call{Call: _e.mock.On("SendProcessPID", pid)}
 }
 
-func (_c *MockClient_SendProcessPID_Call) Run(run func(processPID int)) *MockClient_SendProcessPID_Call {
+func (_c *MockClient_SendProcessPID_Call) Run(run func(pid int)) *MockClient_SendProcessPID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 int
 		if args[0] != nil {
@@ -76,31 +181,40 @@ func (_c *MockClient_SendProcessPID_Call) Run(run func(processPID int)) *MockCli
 	return _c
 }
 
-func (_c *MockClient_SendProcessPID_Call) Return(err error) *MockClient_SendProcessPID_Call {
-	_c.Call.Return(err)
+func (_c *MockClient_SendProcessPID_Call) Return(processToKillResponse messages.ProcessToKillResponse, err error) *MockClient_SendProcessPID_Call {
+	_c.Call.Return(processToKillResponse, err)
 	return _c
 }
 
-func (_c *MockClient_SendProcessPID_Call) RunAndReturn(run func(processPID int) error) *MockClient_SendProcessPID_Call {
+func (_c *MockClient_SendProcessPID_Call) RunAndReturn(run func(pid int) (messages.ProcessToKillResponse, error)) *MockClient_SendProcessPID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SendStop provides a mock function for the type MockClient
-func (_mock *MockClient) SendStop() error {
+func (_mock *MockClient) SendStop() (messages.ShutdownResponse, error) {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendStop")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func() error); ok {
+	var r0 messages.ShutdownResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (messages.ShutdownResponse, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() messages.ShutdownResponse); ok {
 		r0 = returnFunc()
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(messages.ShutdownResponse)
 	}
-	return r0
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // MockClient_SendStop_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendStop'
@@ -120,12 +234,12 @@ func (_c *MockClient_SendStop_Call) Run(run func()) *MockClient_SendStop_Call {
 	return _c
 }
 
-func (_c *MockClient_SendStop_Call) Return(err error) *MockClient_SendStop_Call {
-	_c.Call.Return(err)
+func (_c *MockClient_SendStop_Call) Return(shutdownResponse messages.ShutdownResponse, err error) *MockClient_SendStop_Call {
+	_c.Call.Return(shutdownResponse, err)
 	return _c
 }
 
-func (_c *MockClient_SendStop_Call) RunAndReturn(run func() error) *MockClient_SendStop_Call {
+func (_c *MockClient_SendStop_Call) RunAndReturn(run func() (messages.ShutdownResponse, error)) *MockClient_SendStop_Call {
 	_c.Call.Return(run)
 	return _c
 }

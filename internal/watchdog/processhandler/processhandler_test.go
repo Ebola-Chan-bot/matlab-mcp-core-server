@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
 	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/processhandler"
 	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
 	processhandlermocks "github.com/matlab/matlab-mcp-core-server/mocks/watchdog/processhandler"
@@ -15,11 +16,21 @@ import (
 
 func TestNew_HappyPath(t *testing.T) {
 	// Arrange
+	mockLoggerFactory := &processhandlermocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
 	mockOSWrapper := &processhandlermocks.MockOSWrapper{}
 	defer mockOSWrapper.AssertExpectations(t)
 
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
 	// Act
-	processHandlerInstance := processhandler.New(mockOSWrapper)
+	processHandlerInstance := processhandler.New(mockLoggerFactory, mockOSWrapper)
 
 	// Assert
 	assert.NotNil(t, processHandlerInstance, "ProcessHandler instance should not be nil")
@@ -27,20 +38,29 @@ func TestNew_HappyPath(t *testing.T) {
 
 func TestProcessHandler_WatchProcessAndGetTerminationChan_HappyPath(t *testing.T) {
 	// Arrange
+	mockLoggerFactory := &processhandlermocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
 	mockOSWrapper := &processhandlermocks.MockOSWrapper{}
 	defer mockOSWrapper.AssertExpectations(t)
 
 	mockProcess := &osfacademocks.MockProcess{}
 	defer mockProcess.AssertExpectations(t)
 
+	mockLogger := testutils.NewInspectableLogger()
 	expectedProcessPid := 1234
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
 
 	mockOSWrapper.EXPECT().
 		WaitForProcessToComplete(expectedProcessPid).
 		Return().
 		Once()
 
-	processHandlerInstance := processhandler.New(mockOSWrapper)
+	processHandlerInstance := processhandler.New(mockLoggerFactory, mockOSWrapper)
 
 	// Act
 	terminationChan := processHandlerInstance.WatchProcessAndGetTerminationChan(expectedProcessPid)
@@ -56,13 +76,22 @@ func TestProcessHandler_WatchProcessAndGetTerminationChan_HappyPath(t *testing.T
 
 func TestProcessHandler_KillProcess_HappyPath(t *testing.T) {
 	// Arrange
+	mockLoggerFactory := &processhandlermocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
 	mockOSWrapper := &processhandlermocks.MockOSWrapper{}
 	defer mockOSWrapper.AssertExpectations(t)
 
 	mockProcess := &osfacademocks.MockProcess{}
 	defer mockProcess.AssertExpectations(t)
 
+	mockLogger := testutils.NewInspectableLogger()
 	expectedProcessPid := 1234
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
 
 	mockOSWrapper.EXPECT().
 		FindProcess(expectedProcessPid).
@@ -74,7 +103,7 @@ func TestProcessHandler_KillProcess_HappyPath(t *testing.T) {
 		Return(nil).
 		Once()
 
-	processHandlerInstance := processhandler.New(mockOSWrapper)
+	processHandlerInstance := processhandler.New(mockLoggerFactory, mockOSWrapper)
 
 	// Act
 	err := processHandlerInstance.KillProcess(expectedProcessPid)
@@ -85,14 +114,23 @@ func TestProcessHandler_KillProcess_HappyPath(t *testing.T) {
 
 func TestProcessHandler_KillProcess_ProcessExistsButKillFails(t *testing.T) {
 	// Arrange
+	mockLoggerFactory := &processhandlermocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
 	mockOSWrapper := &processhandlermocks.MockOSWrapper{}
 	defer mockOSWrapper.AssertExpectations(t)
 
 	mockProcess := &osfacademocks.MockProcess{}
 	defer mockProcess.AssertExpectations(t)
 
+	mockLogger := testutils.NewInspectableLogger()
 	expectedProcessPid := 1234
 	expectedError := assert.AnError
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
 
 	mockOSWrapper.EXPECT().
 		FindProcess(expectedProcessPid).
@@ -104,7 +142,7 @@ func TestProcessHandler_KillProcess_ProcessExistsButKillFails(t *testing.T) {
 		Return(expectedError).
 		Once()
 
-	processHandlerInstance := processhandler.New(mockOSWrapper)
+	processHandlerInstance := processhandler.New(mockLoggerFactory, mockOSWrapper)
 
 	// Act
 	err := processHandlerInstance.KillProcess(expectedProcessPid)
@@ -115,17 +153,26 @@ func TestProcessHandler_KillProcess_ProcessExistsButKillFails(t *testing.T) {
 
 func TestProcessHandler_KillProcess_ProcessDoesNotExist(t *testing.T) {
 	// Arrange
+	mockLoggerFactory := &processhandlermocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
 	mockOSWrapper := &processhandlermocks.MockOSWrapper{}
 	defer mockOSWrapper.AssertExpectations(t)
 
+	mockLogger := testutils.NewInspectableLogger()
 	expectedProcessPid := 1234
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
 
 	mockOSWrapper.EXPECT().
 		FindProcess(expectedProcessPid).
 		Return(nil).
 		Once()
 
-	processHandlerInstance := processhandler.New(mockOSWrapper)
+	processHandlerInstance := processhandler.New(mockLoggerFactory, mockOSWrapper)
 
 	// Act
 	err := processHandlerInstance.KillProcess(expectedProcessPid)

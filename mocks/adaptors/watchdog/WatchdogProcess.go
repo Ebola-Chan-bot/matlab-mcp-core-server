@@ -5,7 +5,6 @@
 package mocks
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -76,52 +75,6 @@ func (_c *MockWatchdogProcess_Start_Call) Return(err error) *MockWatchdogProcess
 }
 
 func (_c *MockWatchdogProcess_Start_Call) RunAndReturn(run func() error) *MockWatchdogProcess_Start_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Stdio provides a mock function for the type MockWatchdogProcess
-func (_mock *MockWatchdogProcess) Stdio() entities.SubProcessStdio {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for Stdio")
-	}
-
-	var r0 entities.SubProcessStdio
-	if returnFunc, ok := ret.Get(0).(func() entities.SubProcessStdio); ok {
-		r0 = returnFunc()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(entities.SubProcessStdio)
-		}
-	}
-	return r0
-}
-
-// MockWatchdogProcess_Stdio_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Stdio'
-type MockWatchdogProcess_Stdio_Call struct {
-	*mock.Call
-}
-
-// Stdio is a helper method to define mock.On call
-func (_e *MockWatchdogProcess_Expecter) Stdio() *MockWatchdogProcess_Stdio_Call {
-	return &MockWatchdogProcess_Stdio_Call{Call: _e.mock.On("Stdio")}
-}
-
-func (_c *MockWatchdogProcess_Stdio_Call) Run(run func()) *MockWatchdogProcess_Stdio_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockWatchdogProcess_Stdio_Call) Return(subProcessStdio entities.SubProcessStdio) *MockWatchdogProcess_Stdio_Call {
-	_c.Call.Return(subProcessStdio)
-	return _c
-}
-
-func (_c *MockWatchdogProcess_Stdio_Call) RunAndReturn(run func() entities.SubProcessStdio) *MockWatchdogProcess_Stdio_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -3,15 +3,18 @@
 package httpclientfactory
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/cookiejar"
 )
 
 type HttpClient interface {
 	Do(request *http.Request) (*http.Response, error)
+	CloseIdleConnections()
 }
 
 type HTTPClientFactory struct{}
@@ -43,4 +46,17 @@ func (f *HTTPClientFactory) NewClientForSelfSignedTLSServer(certificatePEM []byt
 		Transport: transport,
 		Jar:       jar,
 	}, nil
+}
+
+func (f *HTTPClientFactory) NewClientOverUDS(socketPath string) HttpClient {
+	transport := &http.Transport{
+		DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+			var d net.Dialer
+			return d.DialContext(ctx, "unix", socketPath)
+		},
+	}
+
+	return &http.Client{
+		Transport: transport,
+	}
 }

@@ -8,9 +8,10 @@ import (
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/watchdog"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
+	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/messages"
 	watchdogmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/watchdog"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
 	transportmocks "github.com/matlab/matlab-mcp-core-server/mocks/watchdog/transport"
+	socketmocks "github.com/matlab/matlab-mcp-core-server/mocks/watchdog/transport/socket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -22,22 +23,34 @@ func TestNew_HappyPath(t *testing.T) {
 	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
-	mockTransportFactory := &watchdogmocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
 
 	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
+
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
 		Return(mockLogger).
 		Once()
 
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
 	// Act
 	watchdogInstance := watchdog.New(
 		mockWatchdogProcess,
-		mockTransportFactory,
+		mockClientFactory,
 		mockLoggerFactory,
+		mockSocketFactory,
 	)
 
 	// Assert
@@ -51,17 +64,22 @@ func TestWatchdog_Start_HappyPath(t *testing.T) {
 	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
-	mockTransportFactory := &watchdogmocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
 
 	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
-	mockSubProcessStdio := &entitiesmocks.MockSubProcessStdio{}
-	defer mockSubProcessStdio.AssertExpectations(t)
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
-	mockTransportClient := &transportmocks.MockClient{}
-	defer mockTransportClient.AssertExpectations(t)
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
+
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
+
+	expectedSocketPath := "socket-path"
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
@@ -69,24 +87,35 @@ func TestWatchdog_Start_HappyPath(t *testing.T) {
 		Once()
 
 	mockWatchdogProcess.EXPECT().
-		Stdio().
-		Return(mockSubProcessStdio).
-		Once()
-
-	mockTransportFactory.EXPECT().
-		NewClient(mockSubProcessStdio).
-		Return(mockTransportClient, nil).
-		Once()
-
-	mockWatchdogProcess.EXPECT().
 		Start().
+		Return(nil).
+		Once()
+
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
+		Once()
+
+	mockSocket.EXPECT().
+		Path().
+		Return(expectedSocketPath).
+		Once()
+
+	mockClient.EXPECT().
+		Connect(expectedSocketPath).
 		Return(nil).
 		Once()
 
 	watchdogInstance := watchdog.New(
 		mockWatchdogProcess,
-		mockTransportFactory,
+		mockClientFactory,
 		mockLoggerFactory,
+		mockSocketFactory,
 	)
 
 	// Act
@@ -96,21 +125,24 @@ func TestWatchdog_Start_HappyPath(t *testing.T) {
 	require.NoError(t, err, "Start should not return an error")
 }
 
-func TestWatchdog_Start_TransportFactoryError(t *testing.T) {
+func TestWatchdog_Start_SocketFactoryError(t *testing.T) {
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()
 
 	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
-	mockTransportFactory := &watchdogmocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
 
 	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
-	mockSubProcessStdio := &entitiesmocks.MockSubProcessStdio{}
-	defer mockSubProcessStdio.AssertExpectations(t)
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
+
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
 
 	expectedError := assert.AnError
 
@@ -119,74 +151,21 @@ func TestWatchdog_Start_TransportFactoryError(t *testing.T) {
 		Return(mockLogger).
 		Once()
 
-	mockWatchdogProcess.EXPECT().
-		Stdio().
-		Return(mockSubProcessStdio).
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
 		Once()
 
-	mockTransportFactory.EXPECT().
-		NewClient(mockSubProcessStdio).
+	mockSocketFactory.EXPECT().
+		Socket().
 		Return(nil, expectedError).
 		Once()
 
 	watchdogInstance := watchdog.New(
 		mockWatchdogProcess,
-		mockTransportFactory,
+		mockClientFactory,
 		mockLoggerFactory,
-	)
-
-	// Act
-	err := watchdogInstance.Start()
-
-	// Assert
-	assert.ErrorIs(t, err, expectedError, "Error should be the transport factory error")
-}
-
-func TestWatchdog_Start_WatchdogProcessStartError(t *testing.T) {
-	// Arrange
-	mockLogger := testutils.NewInspectableLogger()
-
-	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
-	defer mockWatchdogProcess.AssertExpectations(t)
-
-	mockTransportFactory := &watchdogmocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
-
-	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
-	defer mockLoggerFactory.AssertExpectations(t)
-
-	mockSubProcessStdio := &entitiesmocks.MockSubProcessStdio{}
-	defer mockSubProcessStdio.AssertExpectations(t)
-
-	mockTransportClient := &transportmocks.MockClient{}
-	defer mockTransportClient.AssertExpectations(t)
-
-	expectedError := assert.AnError
-
-	mockLoggerFactory.EXPECT().
-		GetGlobalLogger().
-		Return(mockLogger).
-		Once()
-
-	mockWatchdogProcess.EXPECT().
-		Stdio().
-		Return(mockSubProcessStdio).
-		Once()
-
-	mockTransportFactory.EXPECT().
-		NewClient(mockSubProcessStdio).
-		Return(mockTransportClient, nil).
-		Once()
-
-	mockWatchdogProcess.EXPECT().
-		Start().
-		Return(expectedError).
-		Once()
-
-	watchdogInstance := watchdog.New(
-		mockWatchdogProcess,
-		mockTransportFactory,
-		mockLoggerFactory,
+		mockSocketFactory,
 	)
 
 	// Act
@@ -196,6 +175,133 @@ func TestWatchdog_Start_WatchdogProcessStartError(t *testing.T) {
 	assert.ErrorIs(t, err, expectedError, "Error should be the watchdog process start error")
 }
 
+func TestWatchdog_Start_WatchdogProcessStartError(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
+	defer mockWatchdogProcess.AssertExpectations(t)
+
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
+
+	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
+
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
+
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
+
+	expectedError := assert.AnError
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
+		Once()
+
+	mockWatchdogProcess.EXPECT().
+		Start().
+		Return(expectedError).
+		Once()
+
+	watchdogInstance := watchdog.New(
+		mockWatchdogProcess,
+		mockClientFactory,
+		mockLoggerFactory,
+		mockSocketFactory,
+	)
+
+	// Act
+	err := watchdogInstance.Start()
+
+	// Assert
+	assert.ErrorIs(t, err, expectedError, "Error should be the watchdog process start error")
+}
+
+func TestWatchdog_Start_ClientConnectError(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
+	defer mockWatchdogProcess.AssertExpectations(t)
+
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
+
+	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
+
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
+
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
+
+	expectedSocketPath := "socket-path"
+	expectedError := assert.AnError
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	mockWatchdogProcess.EXPECT().
+		Start().
+		Return(nil).
+		Once()
+
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
+		Once()
+
+	mockSocket.EXPECT().
+		Path().
+		Return(expectedSocketPath).
+		Once()
+
+	mockClient.EXPECT().
+		Connect(expectedSocketPath).
+		Return(expectedError).
+		Once()
+
+	watchdogInstance := watchdog.New(
+		mockWatchdogProcess,
+		mockClientFactory,
+		mockLoggerFactory,
+		mockSocketFactory,
+	)
+
+	// Act
+	err := watchdogInstance.Start()
+
+	// Assert
+	assert.ErrorIs(t, err, expectedError, "Error should be the client connect error")
+}
+
 func TestWatchdog_RegisterProcessPIDWithWatchdog_HappyPath(t *testing.T) {
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()
@@ -203,22 +309,22 @@ func TestWatchdog_RegisterProcessPIDWithWatchdog_HappyPath(t *testing.T) {
 	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
-	mockTransportFactory := &watchdogmocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
 
 	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
-	mockSubProcessStdio := &entitiesmocks.MockSubProcessStdio{}
-	defer mockSubProcessStdio.AssertExpectations(t)
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
-	mockTransportClient := &transportmocks.MockClient{}
-	defer mockTransportClient.AssertExpectations(t)
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
 
-	debugMessageC := make(chan string)
-	defer close(debugMessageC)
-	errorMessageC := make(chan string)
-	defer close(errorMessageC)
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
+
+	expectedSocketPath := "socket-path"
 	expectedPID := 12345
 
 	mockLoggerFactory.EXPECT().
@@ -227,29 +333,40 @@ func TestWatchdog_RegisterProcessPIDWithWatchdog_HappyPath(t *testing.T) {
 		Once()
 
 	mockWatchdogProcess.EXPECT().
-		Stdio().
-		Return(mockSubProcessStdio).
-		Once()
-
-	mockTransportFactory.EXPECT().
-		NewClient(mockSubProcessStdio).
-		Return(mockTransportClient, nil).
-		Once()
-
-	mockWatchdogProcess.EXPECT().
 		Start().
 		Return(nil).
 		Once()
 
-	mockTransportClient.EXPECT().
-		SendProcessPID(expectedPID).
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
+		Once()
+
+	mockSocket.EXPECT().
+		Path().
+		Return(expectedSocketPath).
+		Once()
+
+	mockClient.EXPECT().
+		Connect(expectedSocketPath).
 		Return(nil).
+		Once()
+
+	mockClient.EXPECT().
+		SendProcessPID(expectedPID).
+		Return(messages.ProcessToKillResponse{}, nil).
 		Once()
 
 	watchdogInstance := watchdog.New(
 		mockWatchdogProcess,
-		mockTransportFactory,
+		mockClientFactory,
 		mockLoggerFactory,
+		mockSocketFactory,
 	)
 
 	// Start the watchdog first
@@ -270,22 +387,22 @@ func TestWatchdog_RegisterProcessPIDWithWatchdog_WaitsIfNotStarted(t *testing.T)
 	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
-	mockTransportFactory := &watchdogmocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
 
 	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
-	mockSubProcessStdio := &entitiesmocks.MockSubProcessStdio{}
-	defer mockSubProcessStdio.AssertExpectations(t)
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
-	mockTransportClient := &transportmocks.MockClient{}
-	defer mockTransportClient.AssertExpectations(t)
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
 
-	debugMessageC := make(chan string)
-	defer close(debugMessageC)
-	errorMessageC := make(chan string)
-	defer close(errorMessageC)
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
+
+	expectedSocketPath := "socket-path"
 	expectedPID := 12345
 
 	mockLoggerFactory.EXPECT().
@@ -294,29 +411,40 @@ func TestWatchdog_RegisterProcessPIDWithWatchdog_WaitsIfNotStarted(t *testing.T)
 		Once()
 
 	mockWatchdogProcess.EXPECT().
-		Stdio().
-		Return(mockSubProcessStdio).
-		Once()
-
-	mockTransportFactory.EXPECT().
-		NewClient(mockSubProcessStdio).
-		Return(mockTransportClient, nil).
-		Once()
-
-	mockWatchdogProcess.EXPECT().
 		Start().
 		Return(nil).
 		Once()
 
-	mockTransportClient.EXPECT().
-		SendProcessPID(expectedPID).
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
+		Once()
+
+	mockSocket.EXPECT().
+		Path().
+		Return(expectedSocketPath).
+		Once()
+
+	mockClient.EXPECT().
+		Connect(expectedSocketPath).
 		Return(nil).
+		Once()
+
+	mockClient.EXPECT().
+		SendProcessPID(expectedPID).
+		Return(messages.ProcessToKillResponse{}, nil).
 		Once()
 
 	watchdogInstance := watchdog.New(
 		mockWatchdogProcess,
-		mockTransportFactory,
+		mockClientFactory,
 		mockLoggerFactory,
+		mockSocketFactory,
 	)
 
 	// Act & Assert
@@ -346,22 +474,22 @@ func TestWatchdog_RegisterProcessPIDWithWatchdog_SendProcessPIDError(t *testing.
 	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
-	mockTransportFactory := &watchdogmocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
 
 	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
-	mockSubProcessStdio := &entitiesmocks.MockSubProcessStdio{}
-	defer mockSubProcessStdio.AssertExpectations(t)
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
-	mockTransportClient := &transportmocks.MockClient{}
-	defer mockTransportClient.AssertExpectations(t)
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
 
-	debugMessageC := make(chan string)
-	defer close(debugMessageC)
-	errorMessageC := make(chan string)
-	defer close(errorMessageC)
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
+
+	expectedSocketPath := "socket-path"
 	expectedPID := 12345
 	expectedError := assert.AnError
 
@@ -371,29 +499,40 @@ func TestWatchdog_RegisterProcessPIDWithWatchdog_SendProcessPIDError(t *testing.
 		Once()
 
 	mockWatchdogProcess.EXPECT().
-		Stdio().
-		Return(mockSubProcessStdio).
-		Once()
-
-	mockTransportFactory.EXPECT().
-		NewClient(mockSubProcessStdio).
-		Return(mockTransportClient, nil).
-		Once()
-
-	mockWatchdogProcess.EXPECT().
 		Start().
 		Return(nil).
 		Once()
 
-	mockTransportClient.EXPECT().
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
+		Once()
+
+	mockSocket.EXPECT().
+		Path().
+		Return(expectedSocketPath).
+		Once()
+
+	mockClient.EXPECT().
+		Connect(expectedSocketPath).
+		Return(nil).
+		Once()
+
+	mockClient.EXPECT().
 		SendProcessPID(expectedPID).
-		Return(expectedError).
+		Return(messages.ProcessToKillResponse{}, expectedError).
 		Once()
 
 	watchdogInstance := watchdog.New(
 		mockWatchdogProcess,
-		mockTransportFactory,
+		mockClientFactory,
 		mockLoggerFactory,
+		mockSocketFactory,
 	)
 
 	// Start the watchdog first
@@ -414,17 +553,22 @@ func TestWatchdog_Stop_HappyPath(t *testing.T) {
 	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
-	mockTransportFactory := &watchdogmocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
 
 	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
-	mockSubProcessStdio := &entitiesmocks.MockSubProcessStdio{}
-	defer mockSubProcessStdio.AssertExpectations(t)
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
-	mockTransportClient := &transportmocks.MockClient{}
-	defer mockTransportClient.AssertExpectations(t)
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
+
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
+
+	expectedSocketPath := "socket-path"
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
@@ -432,29 +576,40 @@ func TestWatchdog_Stop_HappyPath(t *testing.T) {
 		Once()
 
 	mockWatchdogProcess.EXPECT().
-		Stdio().
-		Return(mockSubProcessStdio).
-		Once()
-
-	mockTransportFactory.EXPECT().
-		NewClient(mockSubProcessStdio).
-		Return(mockTransportClient, nil).
-		Once()
-
-	mockWatchdogProcess.EXPECT().
 		Start().
 		Return(nil).
 		Once()
 
-	mockTransportClient.EXPECT().
-		SendStop().
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
+		Once()
+
+	mockSocket.EXPECT().
+		Path().
+		Return(expectedSocketPath).
+		Once()
+
+	mockClient.EXPECT().
+		Connect(expectedSocketPath).
 		Return(nil).
+		Once()
+
+	mockClient.EXPECT().
+		SendStop().
+		Return(messages.ShutdownResponse{}, nil).
 		Once()
 
 	watchdogInstance := watchdog.New(
 		mockWatchdogProcess,
-		mockTransportFactory,
+		mockClientFactory,
 		mockLoggerFactory,
+		mockSocketFactory,
 	)
 
 	err := watchdogInstance.Start()
@@ -474,18 +629,22 @@ func TestWatchdog_Stop_StopErrors(t *testing.T) {
 	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
-	mockTransportFactory := &watchdogmocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
 
 	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
-	mockSubProcessStdio := &entitiesmocks.MockSubProcessStdio{}
-	defer mockSubProcessStdio.AssertExpectations(t)
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
-	mockTransportClient := &transportmocks.MockClient{}
-	defer mockTransportClient.AssertExpectations(t)
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
 
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
+
+	expectedSocketPath := "socket-path"
 	expectedError := assert.AnError
 
 	mockLoggerFactory.EXPECT().
@@ -494,29 +653,40 @@ func TestWatchdog_Stop_StopErrors(t *testing.T) {
 		Once()
 
 	mockWatchdogProcess.EXPECT().
-		Stdio().
-		Return(mockSubProcessStdio).
-		Once()
-
-	mockTransportFactory.EXPECT().
-		NewClient(mockSubProcessStdio).
-		Return(mockTransportClient, nil).
-		Once()
-
-	mockWatchdogProcess.EXPECT().
 		Start().
 		Return(nil).
 		Once()
 
-	mockTransportClient.EXPECT().
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
+		Once()
+
+	mockSocket.EXPECT().
+		Path().
+		Return(expectedSocketPath).
+		Once()
+
+	mockClient.EXPECT().
+		Connect(expectedSocketPath).
+		Return(nil).
+		Once()
+
+	mockClient.EXPECT().
 		SendStop().
-		Return(expectedError).
+		Return(messages.ShutdownResponse{}, expectedError).
 		Once()
 
 	watchdogInstance := watchdog.New(
 		mockWatchdogProcess,
-		mockTransportFactory,
+		mockClientFactory,
 		mockLoggerFactory,
+		mockSocketFactory,
 	)
 
 	err := watchdogInstance.Start()
@@ -536,17 +706,22 @@ func TestWatchdog_Stop_WaitsIfNotStarted(t *testing.T) {
 	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
-	mockTransportFactory := &watchdogmocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
 
 	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
-	mockSubProcessStdio := &entitiesmocks.MockSubProcessStdio{}
-	defer mockSubProcessStdio.AssertExpectations(t)
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
-	mockTransportClient := &transportmocks.MockClient{}
-	defer mockTransportClient.AssertExpectations(t)
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
+
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
+
+	expectedSocketPath := "socket-path"
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
@@ -554,29 +729,40 @@ func TestWatchdog_Stop_WaitsIfNotStarted(t *testing.T) {
 		Once()
 
 	mockWatchdogProcess.EXPECT().
-		Stdio().
-		Return(mockSubProcessStdio).
-		Once()
-
-	mockTransportFactory.EXPECT().
-		NewClient(mockSubProcessStdio).
-		Return(mockTransportClient, nil).
-		Once()
-
-	mockWatchdogProcess.EXPECT().
 		Start().
 		Return(nil).
 		Once()
 
-	mockTransportClient.EXPECT().
-		SendStop().
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
+		Once()
+
+	mockSocket.EXPECT().
+		Path().
+		Return(expectedSocketPath).
+		Once()
+
+	mockClient.EXPECT().
+		Connect(expectedSocketPath).
 		Return(nil).
+		Once()
+
+	mockClient.EXPECT().
+		SendStop().
+		Return(messages.ShutdownResponse{}, nil).
 		Once()
 
 	watchdogInstance := watchdog.New(
 		mockWatchdogProcess,
-		mockTransportFactory,
+		mockClientFactory,
 		mockLoggerFactory,
+		mockSocketFactory,
 	)
 
 	// Act & Assert

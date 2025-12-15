@@ -37,6 +37,39 @@ func (_m *MockHttpClient) EXPECT() *MockHttpClient_Expecter {
 	return &MockHttpClient_Expecter{mock: &_m.Mock}
 }
 
+// CloseIdleConnections provides a mock function for the type MockHttpClient
+func (_mock *MockHttpClient) CloseIdleConnections() {
+	_mock.Called()
+	return
+}
+
+// MockHttpClient_CloseIdleConnections_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CloseIdleConnections'
+type MockHttpClient_CloseIdleConnections_Call struct {
+	*mock.Call
+}
+
+// CloseIdleConnections is a helper method to define mock.On call
+func (_e *MockHttpClient_Expecter) CloseIdleConnections() *MockHttpClient_CloseIdleConnections_Call {
+	return &MockHttpClient_CloseIdleConnections_Call{Call: _e.mock.On("CloseIdleConnections")}
+}
+
+func (_c *MockHttpClient_CloseIdleConnections_Call) Run(run func()) *MockHttpClient_CloseIdleConnections_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockHttpClient_CloseIdleConnections_Call) Return() *MockHttpClient_CloseIdleConnections_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockHttpClient_CloseIdleConnections_Call) RunAndReturn(run func()) *MockHttpClient_CloseIdleConnections_Call {
+	_c.Run(run)
+	return _c
+}
+
 // Do provides a mock function for the type MockHttpClient
 func (_mock *MockHttpClient) Do(request *http.Request) (*http.Response, error) {
 	ret := _mock.Called(request)

@@ -74,7 +74,7 @@ else
 	LDFLAGS := $(LDVARS)
 endif
 
-all: install wire mockery lint unit-tests build
+all: install wire mockery lint unit-tests integration-tests build
 
 version:
 	@echo $(VERSION)
@@ -152,6 +152,9 @@ endif
 
 unit-tests:
 	gotestsum --packages="./internal/... ./tests/testutils/..." -- -race -coverprofile cover.out
+	
+integration-tests:
+	gotestsum --packages="./tests/integration/..." -- -race
 
 system-tests:
 	gotestsum --packages="./tests/system/..." -- -race -count=1 -timeout 30m
@@ -159,6 +162,9 @@ system-tests:
 
 ci-unit-tests:
 	go test $(RACE_FLAG) -json -count=1 -coverprofile cover.out ./internal/... ./tests/testutils/...
+
+ci-integration-tests:
+	go test $(RACE_FLAG) -json -count=1 ./tests/integration/...
 
 ci-system-tests:
 	go test $(RACE_FLAG) -timeout 120m -json -count=1 ./tests/system/...

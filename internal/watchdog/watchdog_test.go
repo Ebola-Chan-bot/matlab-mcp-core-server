@@ -4,16 +4,16 @@ package watchdog_test
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	"github.com/matlab/matlab-mcp-core-server/internal/utils/stdio"
 	"github.com/matlab/matlab-mcp-core-server/internal/watchdog"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
 	mocks "github.com/matlab/matlab-mcp-core-server/mocks/watchdog"
 	transportmocks "github.com/matlab/matlab-mcp-core-server/mocks/watchdog/transport"
+	socketmocks "github.com/matlab/matlab-mcp-core-server/mocks/watchdog/transport/socket"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -33,8 +33,14 @@ func TestNew_HappyPath(t *testing.T) {
 	mockOSSignaler := &mocks.MockOSSignaler{}
 	defer mockOSSignaler.AssertExpectations(t)
 
-	mockTransportFactory := &mocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockServerHandler := &mocks.MockServerHandler{}
+	defer mockServerHandler.AssertExpectations(t)
+
+	mockServerFactory := &mocks.MockServerFactory{}
+	defer mockServerFactory.AssertExpectations(t)
+
+	mockSocketFactory := &mocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
@@ -47,14 +53,16 @@ func TestNew_HappyPath(t *testing.T) {
 		mockOSLayer,
 		mockProcessHandler,
 		mockOSSignaler,
-		mockTransportFactory,
+		mockServerHandler,
+		mockServerFactory,
+		mockSocketFactory,
 	)
 
 	// Assert
 	assert.NotNil(t, watchdogInstance, "Watchdog instance should not be nil")
 }
 
-func TestWatchdog_StartAndWatch_HappyPath(t *testing.T) {
+func TestWatchdog_StartAndWaitForCompletion_GracefulShutdown(t *testing.T) {
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()
 
@@ -70,52 +78,59 @@ func TestWatchdog_StartAndWatch_HappyPath(t *testing.T) {
 	mockOSSignaler := &mocks.MockOSSignaler{}
 	defer mockOSSignaler.AssertExpectations(t)
 
-	mockTransportFactory := &mocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockServerHandler := &mocks.MockServerHandler{}
+	defer mockServerHandler.AssertExpectations(t)
 
-	mockReceiver := &transportmocks.MockReceiver{}
-	defer mockReceiver.AssertExpectations(t)
+	mockServerFactory := &mocks.MockServerFactory{}
+	defer mockServerFactory.AssertExpectations(t)
 
-	mockStdin := &entitiesmocks.MockReader{}
-	defer mockStdin.AssertExpectations(t)
+	mockSocketFactory := &mocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
-	mockStdout := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
+	mockServer := &transportmocks.MockServer{}
+	defer mockServer.AssertExpectations(t)
 
-	mockStderr := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
 
+	socketPath := filepath.Join(t.TempDir(), "test.sock")
+	serverStarted := make(chan struct{})
 	expectedParentPID := 1234
-
+	shutdownFuncC := make(chan func())
 	parentTerminationC := make(chan struct{})
 	interruptSignalC := make(chan os.Signal, 1)
-
-	expectedPIDToKill := 123654
-	messageC := make(chan transport.Message)
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
 		Return(mockLogger).
 		Once()
 
-	mockOSLayer.EXPECT().
-		Stdin().
-		Return(mockStdin).
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
 		Once()
 
-	mockOSLayer.EXPECT().
-		Stdout().
-		Return(mockStdout).
+	mockSocket.EXPECT().
+		Path().
+		Return(socketPath).
 		Once()
 
-	mockOSLayer.EXPECT().
-		Stderr().
-		Return(mockStderr).
+	mockServerFactory.EXPECT().
+		New().
+		Return(mockServer, nil).
 		Once()
 
-	mockTransportFactory.EXPECT().
-		NewReceiver(stdio.NewOSStdio(mockStdin, mockStdout, mockStderr)).
-		Return(mockReceiver, nil).
+	mockServer.EXPECT().
+		Start(socketPath).
+		Run(func(_ string) {
+			close(serverStarted)
+		}).
+		Return(nil).
+		Once()
+
+	mockServer.EXPECT().
+		Stop().
+		Return(nil).
 		Once()
 
 	mockOSLayer.EXPECT().
@@ -123,14 +138,11 @@ func TestWatchdog_StartAndWatch_HappyPath(t *testing.T) {
 		Return(expectedParentPID).
 		Once()
 
-	mockReceiver.EXPECT().
-		C().
-		Return(messageC).
-		Once()
-
-	mockReceiver.EXPECT().
-		SendGracefulShutdownCompleted().
-		Return(nil).
+	mockServerHandler.EXPECT().
+		RegisterShutdownFunction(mock.AnythingOfType("func()")).
+		Run(func(fn func()) {
+			shutdownFuncC <- fn
+		}).
 		Once()
 
 	mockProcessHandler.EXPECT().
@@ -143,9 +155,8 @@ func TestWatchdog_StartAndWatch_HappyPath(t *testing.T) {
 		Return(interruptSignalC).
 		Once()
 
-	mockProcessHandler.EXPECT().
-		KillProcess(expectedPIDToKill).
-		Return(nil).
+	mockServerHandler.EXPECT().
+		TerminateAllProcesses().
 		Once()
 
 	watchdogInstance := watchdog.New(
@@ -153,7 +164,9 @@ func TestWatchdog_StartAndWatch_HappyPath(t *testing.T) {
 		mockOSLayer,
 		mockProcessHandler,
 		mockOSSignaler,
-		mockTransportFactory,
+		mockServerHandler,
+		mockServerFactory,
+		mockSocketFactory,
 	)
 
 	// Act
@@ -162,15 +175,16 @@ func TestWatchdog_StartAndWatch_HappyPath(t *testing.T) {
 		errC <- watchdogInstance.StartAndWaitForCompletion(t.Context())
 	}()
 
-	messageC <- transport.ProcessToKill{PID: expectedPIDToKill}
+	<-serverStarted
+	shutdownFcn := <-shutdownFuncC
 
-	messageC <- transport.Shutdown{}
+	shutdownFcn()
 
 	// Assert
-	require.NoError(t, <-errC, "StartAndWatch should not return an error on graceful shutdown")
+	require.NoError(t, <-errC)
 }
 
-func TestWatchdog_StartAndWatch_MulitplePIDs(t *testing.T) {
+func TestWatchdog_StartAndWaitForCompletion_ParentProcessTermination(t *testing.T) {
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()
 
@@ -186,53 +200,58 @@ func TestWatchdog_StartAndWatch_MulitplePIDs(t *testing.T) {
 	mockOSSignaler := &mocks.MockOSSignaler{}
 	defer mockOSSignaler.AssertExpectations(t)
 
-	mockTransportFactory := &mocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockServerHandler := &mocks.MockServerHandler{}
+	defer mockServerHandler.AssertExpectations(t)
 
-	mockReceiver := &transportmocks.MockReceiver{}
-	defer mockReceiver.AssertExpectations(t)
+	mockServerFactory := &mocks.MockServerFactory{}
+	defer mockServerFactory.AssertExpectations(t)
 
-	mockStdin := &entitiesmocks.MockReader{}
-	defer mockStdin.AssertExpectations(t)
+	mockSocketFactory := &mocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
-	mockStdout := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
+	mockServer := &transportmocks.MockServer{}
+	defer mockServer.AssertExpectations(t)
 
-	mockStderr := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
 
+	socketPath := filepath.Join(t.TempDir(), "test.sock")
+	serverStarted := make(chan struct{})
 	expectedParentPID := 1234
-
 	parentTerminationC := make(chan struct{})
 	interruptSignalC := make(chan os.Signal, 1)
-
-	expectedPIDToKill := 123654
-	expectedSecondPIDToKill := 6587987
-	messageC := make(chan transport.Message)
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
 		Return(mockLogger).
 		Once()
 
-	mockOSLayer.EXPECT().
-		Stdin().
-		Return(mockStdin).
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
 		Once()
 
-	mockOSLayer.EXPECT().
-		Stdout().
-		Return(mockStdout).
+	mockSocket.EXPECT().
+		Path().
+		Return(socketPath).
 		Once()
 
-	mockOSLayer.EXPECT().
-		Stderr().
-		Return(mockStderr).
+	mockServerFactory.EXPECT().
+		New().
+		Return(mockServer, nil).
 		Once()
 
-	mockTransportFactory.EXPECT().
-		NewReceiver(stdio.NewOSStdio(mockStdin, mockStdout, mockStderr)).
-		Return(mockReceiver, nil).
+	mockServer.EXPECT().
+		Start(socketPath).
+		Run(func(_ string) {
+			close(serverStarted)
+		}).
+		Return(nil).
+		Once()
+
+	mockServer.EXPECT().
+		Stop().
+		Return(nil).
 		Once()
 
 	mockOSLayer.EXPECT().
@@ -240,14 +259,8 @@ func TestWatchdog_StartAndWatch_MulitplePIDs(t *testing.T) {
 		Return(expectedParentPID).
 		Once()
 
-	mockReceiver.EXPECT().
-		C().
-		Return(messageC).
-		Once()
-
-	mockReceiver.EXPECT().
-		SendGracefulShutdownCompleted().
-		Return(nil).
+	mockServerHandler.EXPECT().
+		RegisterShutdownFunction(mock.AnythingOfType("func()")).
 		Once()
 
 	mockProcessHandler.EXPECT().
@@ -260,14 +273,8 @@ func TestWatchdog_StartAndWatch_MulitplePIDs(t *testing.T) {
 		Return(interruptSignalC).
 		Once()
 
-	mockProcessHandler.EXPECT().
-		KillProcess(expectedPIDToKill).
-		Return(nil).
-		Once()
-
-	mockProcessHandler.EXPECT().
-		KillProcess(expectedSecondPIDToKill).
-		Return(nil).
+	mockServerHandler.EXPECT().
+		TerminateAllProcesses().
 		Once()
 
 	watchdogInstance := watchdog.New(
@@ -275,7 +282,9 @@ func TestWatchdog_StartAndWatch_MulitplePIDs(t *testing.T) {
 		mockOSLayer,
 		mockProcessHandler,
 		mockOSSignaler,
-		mockTransportFactory,
+		mockServerHandler,
+		mockServerFactory,
+		mockSocketFactory,
 	)
 
 	// Act
@@ -284,127 +293,14 @@ func TestWatchdog_StartAndWatch_MulitplePIDs(t *testing.T) {
 		errC <- watchdogInstance.StartAndWaitForCompletion(t.Context())
 	}()
 
-	messageC <- transport.ProcessToKill{PID: expectedPIDToKill}
-	messageC <- transport.ProcessToKill{PID: expectedSecondPIDToKill}
-
-	messageC <- transport.Shutdown{}
-
-	// Assert
-	require.NoError(t, <-errC, "StartAndWatch should not return an error on graceful shutdown")
-}
-
-func TestWatchdog_StartAndWatch_ParentProcessTermination(t *testing.T) {
-	// Arrange
-	mockLogger := testutils.NewInspectableLogger()
-
-	mockLoggerFactory := &mocks.MockLoggerFactory{}
-	defer mockLoggerFactory.AssertExpectations(t)
-
-	mockOSLayer := &mocks.MockOSLayer{}
-	defer mockOSLayer.AssertExpectations(t)
-
-	mockProcessHandler := &mocks.MockProcessHandler{}
-	defer mockProcessHandler.AssertExpectations(t)
-
-	mockOSSignaler := &mocks.MockOSSignaler{}
-	defer mockOSSignaler.AssertExpectations(t)
-
-	mockTransportFactory := &mocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
-
-	mockReceiver := &transportmocks.MockReceiver{}
-	defer mockReceiver.AssertExpectations(t)
-
-	mockStdin := &entitiesmocks.MockReader{}
-	defer mockStdin.AssertExpectations(t)
-
-	mockStdout := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
-
-	mockStderr := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
-
-	expectedParentPID := 1234
-
-	parentTerminationC := make(chan struct{})
-	interruptSignalC := make(chan os.Signal, 1)
-
-	expectedPIDToKill := 123654
-	messageC := make(chan transport.Message)
-
-	mockLoggerFactory.EXPECT().
-		GetGlobalLogger().
-		Return(mockLogger).
-		Once()
-
-	mockOSLayer.EXPECT().
-		Stdin().
-		Return(mockStdin).
-		Once()
-
-	mockOSLayer.EXPECT().
-		Stdout().
-		Return(mockStdout).
-		Once()
-
-	mockOSLayer.EXPECT().
-		Stderr().
-		Return(mockStderr).
-		Once()
-
-	mockTransportFactory.EXPECT().
-		NewReceiver(stdio.NewOSStdio(mockStdin, mockStdout, mockStderr)).
-		Return(mockReceiver, nil).
-		Once()
-
-	mockOSLayer.EXPECT().
-		Getppid().
-		Return(expectedParentPID).
-		Once()
-
-	mockReceiver.EXPECT().
-		C().
-		Return(messageC).
-		Once()
-
-	mockProcessHandler.EXPECT().
-		WatchProcessAndGetTerminationChan(expectedParentPID).
-		Return(parentTerminationC).
-		Once()
-
-	mockOSSignaler.EXPECT().
-		InterruptSignalChan().
-		Return(interruptSignalC).
-		Once()
-
-	mockProcessHandler.EXPECT().
-		KillProcess(expectedPIDToKill).
-		Return(nil).
-		Once()
-
-	watchdogInstance := watchdog.New(
-		mockLoggerFactory,
-		mockOSLayer,
-		mockProcessHandler,
-		mockOSSignaler,
-		mockTransportFactory,
-	)
-
-	// Act
-	errC := make(chan error)
-	go func() {
-		errC <- watchdogInstance.StartAndWaitForCompletion(t.Context())
-	}()
-
-	messageC <- transport.ProcessToKill{PID: expectedPIDToKill}
-
+	<-serverStarted
 	close(parentTerminationC)
 
 	// Assert
-	require.NoError(t, <-errC, "StartAndWatch should not return an error when parent is terminated")
+	require.NoError(t, <-errC)
 }
 
-func TestWatchdog_StartAndWatch_OSSignalInterrupt(t *testing.T) {
+func TestWatchdog_StartAndWaitForCompletion_OSSignalInterrupt(t *testing.T) {
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()
 
@@ -420,52 +316,58 @@ func TestWatchdog_StartAndWatch_OSSignalInterrupt(t *testing.T) {
 	mockOSSignaler := &mocks.MockOSSignaler{}
 	defer mockOSSignaler.AssertExpectations(t)
 
-	mockTransportFactory := &mocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockServerHandler := &mocks.MockServerHandler{}
+	defer mockServerHandler.AssertExpectations(t)
 
-	mockReceiver := &transportmocks.MockReceiver{}
-	defer mockReceiver.AssertExpectations(t)
+	mockServerFactory := &mocks.MockServerFactory{}
+	defer mockServerFactory.AssertExpectations(t)
 
-	mockStdin := &entitiesmocks.MockReader{}
-	defer mockStdin.AssertExpectations(t)
+	mockSocketFactory := &mocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
-	mockStdout := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
+	mockServer := &transportmocks.MockServer{}
+	defer mockServer.AssertExpectations(t)
 
-	mockStderr := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
 
+	socketPath := filepath.Join(t.TempDir(), "test.sock")
+	serverStarted := make(chan struct{})
 	expectedParentPID := 1234
-
 	parentTerminationC := make(chan struct{})
 	interruptSignalC := make(chan os.Signal, 1)
-
-	expectedPIDToKill := 123654
-	messageC := make(chan transport.Message)
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
 		Return(mockLogger).
 		Once()
 
-	mockOSLayer.EXPECT().
-		Stdin().
-		Return(mockStdin).
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
 		Once()
 
-	mockOSLayer.EXPECT().
-		Stdout().
-		Return(mockStdout).
+	mockSocket.EXPECT().
+		Path().
+		Return(socketPath).
 		Once()
 
-	mockOSLayer.EXPECT().
-		Stderr().
-		Return(mockStderr).
+	mockServerFactory.EXPECT().
+		New().
+		Return(mockServer, nil).
 		Once()
 
-	mockTransportFactory.EXPECT().
-		NewReceiver(stdio.NewOSStdio(mockStdin, mockStdout, mockStderr)).
-		Return(mockReceiver, nil).
+	mockServer.EXPECT().
+		Start(socketPath).
+		Run(func(_ string) {
+			close(serverStarted)
+		}).
+		Return(nil).
+		Once()
+
+	mockServer.EXPECT().
+		Stop().
+		Return(nil).
 		Once()
 
 	mockOSLayer.EXPECT().
@@ -473,9 +375,8 @@ func TestWatchdog_StartAndWatch_OSSignalInterrupt(t *testing.T) {
 		Return(expectedParentPID).
 		Once()
 
-	mockReceiver.EXPECT().
-		C().
-		Return(messageC).
+	mockServerHandler.EXPECT().
+		RegisterShutdownFunction(mock.AnythingOfType("func()")).
 		Once()
 
 	mockProcessHandler.EXPECT().
@@ -488,9 +389,8 @@ func TestWatchdog_StartAndWatch_OSSignalInterrupt(t *testing.T) {
 		Return(interruptSignalC).
 		Once()
 
-	mockProcessHandler.EXPECT().
-		KillProcess(expectedPIDToKill).
-		Return(nil).
+	mockServerHandler.EXPECT().
+		TerminateAllProcesses().
 		Once()
 
 	watchdogInstance := watchdog.New(
@@ -498,7 +398,9 @@ func TestWatchdog_StartAndWatch_OSSignalInterrupt(t *testing.T) {
 		mockOSLayer,
 		mockProcessHandler,
 		mockOSSignaler,
-		mockTransportFactory,
+		mockServerHandler,
+		mockServerFactory,
+		mockSocketFactory,
 	)
 
 	// Act
@@ -507,15 +409,14 @@ func TestWatchdog_StartAndWatch_OSSignalInterrupt(t *testing.T) {
 		errC <- watchdogInstance.StartAndWaitForCompletion(t.Context())
 	}()
 
-	messageC <- transport.ProcessToKill{PID: expectedPIDToKill}
-
+	<-serverStarted
 	interruptSignalC <- os.Interrupt
 
 	// Assert
-	require.NoError(t, <-errC, "StartAndWatch should not return an error when receiving SIGINT signal")
+	require.NoError(t, <-errC)
 }
 
-func TestWatchdog_StartAndWatch_KillProcessError(t *testing.T) {
+func TestWatchdog_StartAndWaitForCompletion_SocketFactoryError(t *testing.T) {
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()
 
@@ -531,29 +432,14 @@ func TestWatchdog_StartAndWatch_KillProcessError(t *testing.T) {
 	mockOSSignaler := &mocks.MockOSSignaler{}
 	defer mockOSSignaler.AssertExpectations(t)
 
-	mockTransportFactory := &mocks.MockTransportFactory{}
-	defer mockTransportFactory.AssertExpectations(t)
+	mockServerHandler := &mocks.MockServerHandler{}
+	defer mockServerHandler.AssertExpectations(t)
 
-	mockReceiver := &transportmocks.MockReceiver{}
-	defer mockReceiver.AssertExpectations(t)
+	mockServerFactory := &mocks.MockServerFactory{}
+	defer mockServerFactory.AssertExpectations(t)
 
-	mockStdin := &entitiesmocks.MockReader{}
-	defer mockStdin.AssertExpectations(t)
-
-	mockStdout := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
-
-	mockStderr := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
-
-	expectedParentPID := 1234
-
-	parentTerminationC := make(chan struct{})
-	interruptSignalC := make(chan os.Signal, 1)
-
-	expectedPIDToKill := 123654
-	expectedSecondPIDToKill := 64687
-	messageC := make(chan transport.Message)
+	mockSocketFactory := &mocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
 
 	expectedError := assert.AnError
 
@@ -562,59 +448,9 @@ func TestWatchdog_StartAndWatch_KillProcessError(t *testing.T) {
 		Return(mockLogger).
 		Once()
 
-	mockOSLayer.EXPECT().
-		Stdin().
-		Return(mockStdin).
-		Once()
-
-	mockOSLayer.EXPECT().
-		Stdout().
-		Return(mockStdout).
-		Once()
-
-	mockOSLayer.EXPECT().
-		Stderr().
-		Return(mockStderr).
-		Once()
-
-	mockTransportFactory.EXPECT().
-		NewReceiver(stdio.NewOSStdio(mockStdin, mockStdout, mockStderr)).
-		Return(mockReceiver, nil).
-		Once()
-
-	mockOSLayer.EXPECT().
-		Getppid().
-		Return(expectedParentPID).
-		Once()
-
-	mockReceiver.EXPECT().
-		C().
-		Return(messageC).
-		Once()
-
-	mockReceiver.EXPECT().
-		SendGracefulShutdownCompleted().
-		Return(nil).
-		Once()
-
-	mockProcessHandler.EXPECT().
-		WatchProcessAndGetTerminationChan(expectedParentPID).
-		Return(parentTerminationC).
-		Once()
-
-	mockOSSignaler.EXPECT().
-		InterruptSignalChan().
-		Return(interruptSignalC).
-		Once()
-
-	mockProcessHandler.EXPECT().
-		KillProcess(expectedPIDToKill).
-		Return(expectedError).
-		Once()
-
-	mockProcessHandler.EXPECT().
-		KillProcess(expectedSecondPIDToKill).
-		Return(nil).
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(nil, expectedError).
 		Once()
 
 	watchdogInstance := watchdog.New(
@@ -622,20 +458,76 @@ func TestWatchdog_StartAndWatch_KillProcessError(t *testing.T) {
 		mockOSLayer,
 		mockProcessHandler,
 		mockOSSignaler,
-		mockTransportFactory,
+		mockServerHandler,
+		mockServerFactory,
+		mockSocketFactory,
 	)
 
 	// Act
-	errC := make(chan error)
-	go func() {
-		errC <- watchdogInstance.StartAndWaitForCompletion(t.Context())
-	}()
-
-	messageC <- transport.ProcessToKill{PID: expectedPIDToKill}
-	messageC <- transport.ProcessToKill{PID: expectedSecondPIDToKill}
-
-	messageC <- transport.Shutdown{}
+	err := watchdogInstance.StartAndWaitForCompletion(t.Context())
 
 	// Assert
-	require.NoError(t, <-errC, "StartAndWatch should not return an error even if failing to kill a child on shutdown")
+	require.ErrorIs(t, err, expectedError)
+}
+
+func TestWatchdog_StartAndWaitForCompletion_ServerFactoryError(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockLoggerFactory := &mocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockOSLayer := &mocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockProcessHandler := &mocks.MockProcessHandler{}
+	defer mockProcessHandler.AssertExpectations(t)
+
+	mockOSSignaler := &mocks.MockOSSignaler{}
+	defer mockOSSignaler.AssertExpectations(t)
+
+	mockServerHandler := &mocks.MockServerHandler{}
+	defer mockServerHandler.AssertExpectations(t)
+
+	mockServerFactory := &mocks.MockServerFactory{}
+	defer mockServerFactory.AssertExpectations(t)
+
+	mockSocketFactory := &mocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
+
+	mockSocket := &socketmocks.MockSocket{}
+	defer mockSocket.AssertExpectations(t)
+
+	expectedError := assert.AnError
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	mockSocketFactory.EXPECT().
+		Socket().
+		Return(mockSocket, nil).
+		Once()
+
+	mockServerFactory.EXPECT().
+		New().
+		Return(nil, expectedError).
+		Once()
+
+	watchdogInstance := watchdog.New(
+		mockLoggerFactory,
+		mockOSLayer,
+		mockProcessHandler,
+		mockOSSignaler,
+		mockServerHandler,
+		mockServerFactory,
+		mockSocketFactory,
+	)
+
+	// Act
+	err := watchdogInstance.StartAndWaitForCompletion(t.Context())
+
+	// Assert
+	require.ErrorIs(t, err, expectedError)
 }

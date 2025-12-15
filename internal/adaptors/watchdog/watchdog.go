@@ -5,26 +5,30 @@ package watchdog
 import (
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport"
+	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/socket"
 )
 
 type WatchdogProcess interface {
 	Start() error
-	Stdio() entities.SubProcessStdio
 }
 
-type TransportFactory interface {
-	NewClient(subProcessStdio entities.SubProcessStdio) (transport.Client, error)
+type ClientFactory interface {
+	New() transport.Client
 }
 
 type LoggerFactory interface {
 	GetGlobalLogger() entities.Logger
 }
 
+type SocketFactory interface {
+	Socket() (socket.Socket, error)
+}
+
 type Watchdog struct {
 	logger entities.Logger
 
-	transportFactory TransportFactory
-	watchdogProcess  WatchdogProcess
+	watchdogProcess WatchdogProcess
+	socketFactory   SocketFactory
 
 	client transport.Client
 
@@ -33,14 +37,17 @@ type Watchdog struct {
 
 func New(
 	watchdogProcess WatchdogProcess,
-	transportFactory TransportFactory,
+	clientFactory ClientFactory,
 	loggerFactory LoggerFactory,
+	socketFactory SocketFactory,
 ) *Watchdog {
 	return &Watchdog{
 		logger: loggerFactory.GetGlobalLogger(),
 
-		transportFactory: transportFactory,
-		watchdogProcess:  watchdogProcess,
+		watchdogProcess: watchdogProcess,
+		socketFactory:   socketFactory,
+
+		client: clientFactory.New(),
 
 		startedC: make(chan struct{}),
 	}
@@ -49,16 +56,20 @@ func New(
 func (w *Watchdog) Start() error {
 	w.logger.Debug("Starting watchdog")
 
-	client, err := w.transportFactory.NewClient(w.watchdogProcess.Stdio())
+	socket, err := w.socketFactory.Socket()
 	if err != nil {
+		w.logger.WithError(err).Error("Failed to get socket")
 		return err
 	}
-
-	w.client = client
 
 	err = w.watchdogProcess.Start()
 	if err != nil {
 		w.logger.WithError(err).Error("Failed to start watchdog process")
+		return err
+	}
+
+	if err := w.client.Connect(socket.Path()); err != nil {
+		w.logger.WithError(err).Error("Failed to connect to watchdog socket")
 		return err
 	}
 
@@ -73,12 +84,14 @@ func (w *Watchdog) RegisterProcessPIDWithWatchdog(processPID int) error {
 	<-w.startedC
 
 	w.logger.With("pid", processPID).Debug("Adding child process to watchdog")
-	return w.client.SendProcessPID(processPID)
+	_, err := w.client.SendProcessPID(processPID)
+	return err
 }
 
 func (w *Watchdog) Stop() error {
 	<-w.startedC
 
 	w.logger.Debug("Sending graceful shutdown signal to watchdog")
-	return w.client.SendStop()
+	_, err := w.client.SendStop()
+	return err
 }

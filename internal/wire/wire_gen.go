@@ -57,11 +57,15 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/usecases/stopmatlabsession"
 	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/pathvalidator"
 	"github.com/matlab/matlab-mcp-core-server/internal/utils/httpclientfactory"
+	"github.com/matlab/matlab-mcp-core-server/internal/utils/httpserverfactory"
 	"github.com/matlab/matlab-mcp-core-server/internal/utils/ossignaler"
 	"github.com/matlab/matlab-mcp-core-server/internal/utils/oswrapper"
 	watchdog2 "github.com/matlab/matlab-mcp-core-server/internal/watchdog"
 	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/processhandler"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport"
+	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/client"
+	server2 "github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/server"
+	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/server/handler"
+	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/socket"
 )
 
 // Injectors from wire.go:
@@ -104,16 +108,17 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 	directoryFactory := directorymanager.NewFactory(osFacade, directoryDirectory, matlabFiles)
 	processDetails := processdetails.New(osFacade)
 	matlabProcessLauncher := processlauncher.New()
-	processProcess, err := process.New(osFacade, loggerFactory, directoryDirectory)
+	processProcess, err := process.New(osFacade, loggerFactory, directoryDirectory, configConfig)
 	if err != nil {
 		return nil, err
 	}
-	transportFactory := transport.NewFactory()
-	watchdogWatchdog := watchdog.New(processProcess, transportFactory, loggerFactory)
+	httpClientFactory := httpclientfactory.New()
+	clientFactory := client.NewFactory(osFacade, loggerFactory, httpClientFactory)
+	socketFactory := socket.NewFactory(directoryDirectory)
+	watchdogWatchdog := watchdog.New(processProcess, clientFactory, loggerFactory, socketFactory)
 	starter := localmatlabsession.NewStarter(directoryFactory, processDetails, matlabProcessLauncher, watchdogWatchdog)
 	matlabServices := matlabservices.New(matlabLocator, starter)
 	store := matlabsessionstore.New(loggerFactory, lifecycleSignaler)
-	httpClientFactory := httpclientfactory.New()
 	matlabsessionclientFactory := matlabsessionclient.NewFactory(httpClientFactory)
 	matlabManager := matlabmanager.New(matlabServices, store, matlabsessionclientFactory)
 	usecase := listavailablematlabs.New(matlabManager)
@@ -167,10 +172,13 @@ func initializeWatchdog() (*watchdog2.Watchdog, error) {
 		return nil, err
 	}
 	osWrapper := oswrapper.New(osFacade)
-	processHandler := processhandler.New(osWrapper)
+	processHandler := processhandler.New(loggerFactory, osWrapper)
 	osSignaler := ossignaler.New()
-	transportFactory := transport.NewFactory()
-	watchdogWatchdog := watchdog2.New(loggerFactory, osFacade, processHandler, osSignaler, transportFactory)
+	handlerHandler := handler.New(loggerFactory, processHandler)
+	httpServerFactory := httpserverfactory.New(osFacade)
+	serverFactory := server2.NewFactory(httpServerFactory, loggerFactory, handlerHandler)
+	socketFactory := socket.NewFactory(directoryDirectory)
+	watchdogWatchdog := watchdog2.New(loggerFactory, osFacade, processHandler, osSignaler, handlerHandler, serverFactory, socketFactory)
 	return watchdogWatchdog, nil
 }
 

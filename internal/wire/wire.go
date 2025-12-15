@@ -58,11 +58,15 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/usecases/stopmatlabsession"
 	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/pathvalidator"
 	"github.com/matlab/matlab-mcp-core-server/internal/utils/httpclientfactory"
+	"github.com/matlab/matlab-mcp-core-server/internal/utils/httpserverfactory"
 	"github.com/matlab/matlab-mcp-core-server/internal/utils/ossignaler"
 	"github.com/matlab/matlab-mcp-core-server/internal/utils/oswrapper"
 	watchdogprocess "github.com/matlab/matlab-mcp-core-server/internal/watchdog"
 	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/processhandler"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport"
+	transportclient "github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/client"
+	transportserver "github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/server"
+	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/server/handler"
+	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/socket"
 )
 
 type orchestratorFactory struct{}
@@ -123,17 +127,26 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 		// Watchdog Client
 		watchdogclient.New,
 		wire.Bind(new(watchdogclient.WatchdogProcess), new(*process.Process)),
-		wire.Bind(new(watchdogclient.TransportFactory), new(*transport.Factory)),
+		wire.Bind(new(watchdogclient.ClientFactory), new(*transportclient.Factory)),
 		wire.Bind(new(watchdogclient.LoggerFactory), new(*logger.Factory)),
+		wire.Bind(new(watchdogclient.SocketFactory), new(*socket.Factory)),
+
+		// Socket Path Factory
+		socket.NewFactory,
+		wire.Bind(new(socket.Directory), new(*directory.Directory)),
 
 		// Watchdog Process Handler for Watchdog Client
 		process.New,
 		wire.Bind(new(process.OSLayer), new(*osfacade.OsFacade)),
 		wire.Bind(new(process.LoggerFactory), new(*logger.Factory)),
 		wire.Bind(new(process.Directory), new(*directory.Directory)),
+		wire.Bind(new(process.Config), new(*config.Config)),
 
-		// Watchdog Transport Factory
-		transport.NewFactory,
+		// Watchdog Transport Client Factory
+		transportclient.NewFactory,
+		wire.Bind(new(transportclient.OSLayer), new(*osfacade.OsFacade)),
+		wire.Bind(new(transportclient.LoggerFactory), new(*logger.Factory)),
+		wire.Bind(new(transportclient.HTTPClientFactory), new(*httpclientfactory.HTTPClientFactory)),
 
 		// MCP Server
 		server.NewMCPSDKServer,
@@ -315,14 +328,33 @@ func initializeWatchdog() (*watchdogprocess.Watchdog, error) {
 		wire.Bind(new(watchdogprocess.OSLayer), new(*osfacade.OsFacade)),
 		wire.Bind(new(watchdogprocess.ProcessHandler), new(*processhandler.ProcessHandler)),
 		wire.Bind(new(watchdogprocess.OSSignaler), new(*ossignaler.OSSignaler)),
-		wire.Bind(new(watchdogprocess.TransportFactory), new(*transport.Factory)),
+		wire.Bind(new(watchdogprocess.ServerHandler), new(*handler.Handler)),
+		wire.Bind(new(watchdogprocess.ServerFactory), new(*transportserver.Factory)),
+		wire.Bind(new(watchdogprocess.SocketFactory), new(*socket.Factory)),
+
+		// Socket Path Factory
+		socket.NewFactory,
+		wire.Bind(new(socket.Directory), new(*directory.Directory)),
 
 		// Process Handler for Watchdog Process
 		processhandler.New,
+		wire.Bind(new(processhandler.LoggerFactory), new(*logger.Factory)),
 		wire.Bind(new(processhandler.OSWrapper), new(*oswrapper.OSWrapper)),
 
-		// Watchdog Transport Factory
-		transport.NewFactory,
+		// Watchdog Transport Server Factory
+		transportserver.NewFactory,
+		wire.Bind(new(transportserver.HTTPServerFactory), new(*httpserverfactory.HTTPServerFactory)),
+		wire.Bind(new(transportserver.LoggerFactory), new(*logger.Factory)),
+		wire.Bind(new(transportserver.Handler), new(*handler.Handler)),
+
+		// HTTP Server Factory
+		httpserverfactory.New,
+		wire.Bind(new(httpserverfactory.OSLayer), new(*osfacade.OsFacade)),
+
+		// HTTP Server Handler
+		handler.New,
+		wire.Bind(new(handler.LoggerFactory), new(*logger.Factory)),
+		wire.Bind(new(handler.ProcessHandler), new(*processhandler.ProcessHandler)),
 
 		// Low-level Interfaces
 		logger.NewFactory,

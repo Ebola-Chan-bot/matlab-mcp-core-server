@@ -2,27 +2,16 @@
 
 package transport
 
-type Message interface {
-	seal()
-}
-
-type ProcessToKill struct {
-	PID int
-}
-
-func (p ProcessToKill) seal() {}
-
-type Shutdown struct{}
-
-func (p Shutdown) seal() {}
+import "github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/messages"
 
 type Client interface {
-	SendProcessPID(processPID int) error
-	SendStop() error
+	Connect(socketPath string) error
+	SendProcessPID(pid int) (messages.ProcessToKillResponse, error)
+	SendStop() (messages.ShutdownResponse, error)
+	Close() error
 }
 
-type Receiver interface {
-	SendGracefulShutdownCompleted() error
-
-	C() <-chan Message
+type Server interface {
+	Start(socketPath string) error
+	Stop() error
 }
