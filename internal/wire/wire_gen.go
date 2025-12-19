@@ -30,6 +30,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionstore"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/codingguidelines"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/plaintextlivecodegeneration"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/configurator"
 	evalmatlabcode2 "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/evalmatlabcode"
@@ -146,7 +147,11 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 	if err != nil {
 		return nil, err
 	}
-	configuratorConfigurator := configurator.New(configConfig, tool, startmatlabsessionTool, stopmatlabsessionTool, evalmatlabcodeTool, tool2, checkmatlabcodeTool, detectmatlabtoolboxesTool, runmatlabfileTool, runmatlabtestfileTool, resource)
+	plaintextlivecodegenerationResource, err := plaintextlivecodegeneration.New(loggerFactory)
+	if err != nil {
+		return nil, err
+	}
+	configuratorConfigurator := configurator.New(configConfig, tool, startmatlabsessionTool, stopmatlabsessionTool, evalmatlabcodeTool, tool2, checkmatlabcodeTool, detectmatlabtoolboxesTool, runmatlabfileTool, runmatlabtestfileTool, resource, plaintextlivecodegenerationResource)
 	serverServer, err := server.New(mcpServer, loggerFactory, lifecycleSignaler, configuratorConfigurator)
 	if err != nil {
 		return nil, err

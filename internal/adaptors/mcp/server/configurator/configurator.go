@@ -5,6 +5,7 @@ package configurator
 import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/codingguidelines"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/plaintextlivecodegeneration"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	evalmatlabcodemultisession "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/evalmatlabcode"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/listavailablematlabs"
@@ -38,7 +39,8 @@ type Configurator struct {
 	runMATLABTestFileInGlobalMATLABSessionTool     tools.Tool
 
 	// Resources
-	codingGuidelinesResource resources.Resource
+	codingGuidelinesResource            resources.Resource
+	plaintextlivecodegenerationResource resources.Resource
 }
 
 func New(
@@ -56,6 +58,7 @@ func New(
 	runMATLABTestFileInGlobalMATLABSessionTool *runmatlabtestfile.Tool,
 
 	codingGuidelinesResource *codingguidelines.Resource,
+	plaintextlivecodegenerationResource *plaintextlivecodegeneration.Resource,
 ) *Configurator {
 	return &Configurator{
 		config: config,
@@ -71,7 +74,8 @@ func New(
 		runMATLABFileInGlobalMATLABSessionTool:         runMATLABFileInGlobalMATLABSessionTool,
 		runMATLABTestFileInGlobalMATLABSessionTool:     runMATLABTestFileInGlobalMATLABSessionTool,
 
-		codingGuidelinesResource: codingGuidelinesResource,
+		codingGuidelinesResource:            codingGuidelinesResource,
+		plaintextlivecodegenerationResource: plaintextlivecodegenerationResource,
 	}
 }
 
@@ -99,5 +103,6 @@ func (c *Configurator) GetToolsToAdd() []tools.Tool {
 func (c *Configurator) GetResourcesToAdd() []resources.Resource {
 	return []resources.Resource{
 		c.codingGuidelinesResource,
+		c.plaintextlivecodegenerationResource,
 	}
 }

@@ -1,6 +1,6 @@
 // Copyright 2025 The MathWorks, Inc.
 
-package codingguidelines
+package plaintextlivecodegeneration
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 )
 
-//go:embed assets/codingguidelines.md
-var codingGuidelines string
+//go:embed assets/plaintextlivecodegeneration.md
+var plaintextlivecodegeneration string
 
 type Resource struct {
 	*baseresource.Resource
@@ -39,13 +39,13 @@ func New(loggerFactory baseresource.LoggerFactory) (*Resource, error) {
 
 func Handler() baseresource.ResourceHandler {
 	return func(_ context.Context, logger entities.Logger) (*baseresource.ReadResourceResult, error) {
-		logger.Info("Returning MATLAB coding guidelines resource")
+		logger.Info("Returning MATLAB plain text Live Script generation resource")
 
 		return &baseresource.ReadResourceResult{
 			Contents: []baseresource.ResourceContents{
 				{
 					MIMEType: mimeType,
-					Text:     codingGuidelines,
+					Text:     plaintextlivecodegeneration,
 				},
 			},
 		}, nil

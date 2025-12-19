@@ -7,6 +7,7 @@ import (
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/codingguidelines"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/plaintextlivecodegeneration"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/configurator"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	evalmatlabmultisession "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/evalmatlabcode"
@@ -38,6 +39,7 @@ func TestNew_HappyPath(t *testing.T) {
 	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
 	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
 	codingGuidelinesResource := &codingguidelines.Resource{}
+	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
 
 	// Act
 	result := configurator.New(
@@ -52,6 +54,7 @@ func TestNew_HappyPath(t *testing.T) {
 		runMATLABFileInGlobalMATLABSessionTool,
 		runMATLABTestFileInGlobalMATLABSessionTool,
 		codingGuidelinesResource,
+		plaintextlivecodegenerationResource,
 	)
 
 	// Assert
@@ -73,6 +76,7 @@ func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T
 	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
 	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
 	codingGuidelinesResource := &codingguidelines.Resource{}
+	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
 
 	mockConfig.EXPECT().
 		UseSingleMATLABSession().
@@ -91,6 +95,7 @@ func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T
 		runMATLABFileInGlobalMATLABSessionTool,
 		runMATLABTestFileInGlobalMATLABSessionTool,
 		codingGuidelinesResource,
+		plaintextlivecodegenerationResource,
 	)
 
 	// Act
@@ -120,6 +125,7 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
 	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
 	codingGuidelinesResource := &codingguidelines.Resource{}
+	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
 
 	mockConfig.EXPECT().
 		UseSingleMATLABSession().
@@ -138,6 +144,7 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 		runMATLABFileInGlobalMATLABSessionTool,
 		runMATLABTestFileInGlobalMATLABSessionTool,
 		codingGuidelinesResource,
+		plaintextlivecodegenerationResource,
 	)
 
 	// Act
@@ -168,6 +175,7 @@ func TestConfigurator_GetResourcesToAdd_HappyPath(t *testing.T) {
 	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
 	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
 	codingGuidelinesResource := &codingguidelines.Resource{}
+	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
 
 	c := configurator.New(
 		mockConfig,
@@ -181,11 +189,12 @@ func TestConfigurator_GetResourcesToAdd_HappyPath(t *testing.T) {
 		runMATLABFileInGlobalMATLABSessionTool,
 		runMATLABTestFileInGlobalMATLABSessionTool,
 		codingGuidelinesResource,
+		plaintextlivecodegenerationResource,
 	)
 
 	// Act
 	result := c.GetResourcesToAdd()
 
 	// Assert
-	assert.ElementsMatch(t, []resources.Resource{codingGuidelinesResource}, result)
+	assert.ElementsMatch(t, []resources.Resource{codingGuidelinesResource, plaintextlivecodegenerationResource}, result)
 }

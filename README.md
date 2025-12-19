@@ -134,12 +134,18 @@ Customize the behavior of the server by providing arguments in the `args` array 
      - `script_path` (string): Absolute path to the MATLAB test script file. Must be a valid `.m` file containing MATLAB unit tests, within an allowed directory. Example: `C:\Users\username\tests\testMyFunction.m` or `/home/user/matlab/tests/test_analysis.m`.
 
 ## Resources
-The MCP server provides a [Resource (MCP)](https://modelcontextprotocol.io/specification/2025-03-26/server/resources) to help your AI application write MATLAB code. To see instructions for using this resource, refer to the documentation of your AI application that explains how to use resources. 
+The MCP server provides [Resources (MCP)](https://modelcontextprotocol.io/specification/2025-03-26/server/resources) to help your AI application write MATLAB code. To see instructions for using this resource, refer to the documentation of your AI application that explains how to use resources. 
 1. `matlab_coding_guidelines`
    - Provides comprehensive MATLAB coding standards for improving code readability, maintainability, and collaboration. The guidelines encompass naming conventions, formatting, commenting, performance optimization, and error handling.
    - URI: `guidelines://coding`
    - MIME Type: `text/markdown`
    - Source: [MATLAB Coding Standards (GitHub)](https://github.com/matlab/rules/blob/main/matlab-coding-standards.md)
+
+2. `plain_text_live_code_guidelines`
+   - Provides rules and guidelines for generating live scripts using the plain text Live Code `.m` file format, suitable for version control and AI-assisted development. Note that to run plain text live scripts you need MATLAB R2025a or newer. For details, see [Live Code File Format (MathWorks)](https://www.mathworks.com/help/matlab/matlab_prog/plain-text-file-format-for-live-scripts.html).
+   - URI: `guidelines://plain-text-live-code`
+   - MIME Type: `text/markdown`
+   - Source: [Plain Text Live Code Generation (GitHub)](https://github.com/matlab/rules/blob/main/live-script-generation.md)
 
 ## Data Collection
 

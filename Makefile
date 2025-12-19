@@ -95,13 +95,23 @@ fix-lint:
 # Resources
 
 CODING_GUIDELINES_URL := https://raw.githubusercontent.com/matlab/rules/main/matlab-coding-standards.md
-CODING_GUIDELINES_PATH := $(CURDIR)/internal/adaptors/mcp/resources/codingguidelines/codingguidelines.md
+CODING_GUIDELINES_PATH := $(CURDIR)/internal/adaptors/mcp/resources/codingguidelines/assets/codingguidelines.md
 
 update-coding-guidelines:
 ifeq ($(OS),Windows_NT)
 	Invoke-WebRequest -Uri "$(CODING_GUIDELINES_URL)" -OutFile "$(CODING_GUIDELINES_PATH)"
 else
 	curl -sSL "$(CODING_GUIDELINES_URL)" -o "$(CODING_GUIDELINES_PATH)"
+endif
+
+LIVE_CODE_GUIDELINES_URL := https://raw.githubusercontent.com/matlab/rules/main/live-script-generation.md
+LIVE_CODE_GUIDELINES_PATH := $(CURDIR)/internal/adaptors/mcp/resources/plaintextlivecodegeneration/assets/plaintextlivecodegeneration.md
+
+update-live-code-guidelines:
+ifeq ($(OS),Windows_NT)
+	Invoke-WebRequest -Uri "$(LIVE_CODE_GUIDELINES_URL)" -OutFile "$(LIVE_CODE_GUIDELINES_PATH)"
+else
+	curl -sSL "$(LIVE_CODE_GUIDELINES_URL)" -o "$(LIVE_CODE_GUIDELINES_PATH)"
 endif
 
 # Building
