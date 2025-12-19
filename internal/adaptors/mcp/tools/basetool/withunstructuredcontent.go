@@ -24,6 +24,7 @@ func NewToolWithUnstructuredContent[ToolInput any](
 	name string,
 	title string,
 	description string,
+	annotations AnnotationProvider,
 	loggerFactory LoggerFactory,
 	handler func(context.Context, entities.Logger, ToolInput) (tools.RichContent, error),
 ) ToolWithUnstructuredContentOutput[ToolInput] {
@@ -32,16 +33,21 @@ func NewToolWithUnstructuredContent[ToolInput any](
 			name:          name,
 			title:         title,
 			description:   description,
+			annotations:   annotations,
 			loggerFactory: loggerFactory,
 			// Manually inject adder as only have type information at compile time
 			toolAdder: mcpfacade.NewToolAdder[ToolInput, any](),
 		},
 		unstructuredContentHandler: handler,
-		logger:                     loggerFactory.GetGlobalLogger().With("name", "tool with structured content"),
+		logger:                     loggerFactory.GetGlobalLogger().With("name", "tool with unstructured content"),
 	}
 }
 
 func (t ToolWithUnstructuredContentOutput[_]) AddToServer(server *mcp.Server) error {
+	if t.annotations == nil {
+		return fmt.Errorf(UnexpectedErrorPrefixForLLM + "annotations must not be nil")
+	}
+
 	inputSchema, err := t.GetInputSchema()
 	if err != nil {
 		return err
@@ -53,6 +59,7 @@ func (t ToolWithUnstructuredContentOutput[_]) AddToServer(server *mcp.Server) er
 			Name:         t.name,
 			Title:        t.title,
 			Description:  t.description,
+			Annotations:  t.annotations.ToToolAnnotations(),
 			InputSchema:  inputSchema,
 			OutputSchema: nil,
 		},

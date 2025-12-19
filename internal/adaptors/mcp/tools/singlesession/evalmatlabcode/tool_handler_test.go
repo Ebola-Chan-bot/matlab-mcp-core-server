@@ -5,6 +5,7 @@ package evalmatlabcode_test
 import (
 	"testing"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/evalmatlabcode"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
@@ -230,4 +231,30 @@ func TestTool_Handler_UsecaseReturnsEmptyResponse(t *testing.T) {
 	require.Len(t, result.TextContent, 1, "Should have one text content item")
 	assert.Empty(t, result.TextContent[0], "Text content should be empty")
 	assert.Empty(t, result.ImageContent, "Image content should be empty")
+}
+
+func TestEvaluateMATLABCode_Annotations(t *testing.T) {
+	// Arrange
+	mockLoggerFactory := &basetoolsmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockGlobalMATLAB := &entitiesmocks.MockGlobalMATLAB{}
+	defer mockGlobalMATLAB.AssertExpectations(t)
+
+	mockUsecase := &mocks.MockUsecase{}
+	defer mockUsecase.AssertExpectations(t)
+
+	mockLogger := testutils.NewInspectableLogger()
+	expectedAnnotations := annotations.NewDestructiveAnnotations()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	// Act
+	tool := evalmatlabcode.New(mockLoggerFactory, mockUsecase, mockGlobalMATLAB)
+
+	// Assert
+	assert.Equal(t, expectedAnnotations, tool.Annotations(), "Tool should have destructive annotations")
 }

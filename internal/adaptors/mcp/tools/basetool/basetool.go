@@ -10,6 +10,11 @@ import (
 
 const UnexpectedErrorPrefixForLLM = "unexpected error occurred: "
 
+// AnnotationProvider provides tool annotation metadata.
+type AnnotationProvider interface {
+	ToToolAnnotations() *mcp.ToolAnnotations
+}
+
 type LoggerFactory interface {
 	NewMCPSessionLogger(session *mcp.ServerSession) entities.Logger
 	GetGlobalLogger() entities.Logger
@@ -23,6 +28,7 @@ type tool[ToolInput any, ToolOutput any] struct {
 	name          string
 	title         string
 	description   string
+	annotations   AnnotationProvider
 	loggerFactory LoggerFactory
 	toolAdder     ToolAdder[ToolInput, ToolOutput]
 }
@@ -37,6 +43,10 @@ func (t tool[_, _]) Title() string {
 
 func (t tool[_, _]) Description() string {
 	return t.description
+}
+
+func (t tool[_, _]) Annotations() AnnotationProvider {
+	return t.annotations
 }
 
 func (_ tool[ToolInput, _]) GetInputSchema() (any, error) {

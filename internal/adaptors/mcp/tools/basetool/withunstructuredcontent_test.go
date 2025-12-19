@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
@@ -22,18 +23,18 @@ type TestUnstructuredInput struct {
 	Query string `json:"query"`
 }
 
+const (
+	testUnstructuredToolName        = "test-unstructured-tool"
+	testUnstructuredToolTitle       = "Test Unstructured Tool"
+	testUnstructuredToolDescription = "A test tool for unstructured content"
+)
+
 func TestNewToolWithUnstructuredContentOutput_HappyPath(t *testing.T) {
 	// Arrange
 	mockLoggerFactory := &mocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
 	mockLogger := testutils.NewInspectableLogger()
-
-	const (
-		toolName        = "test-unstructured-tool"
-		toolTitle       = "Test Unstructured Tool"
-		toolDescription = "A test tool for unstructured content"
-	)
 
 	handler := func(ctx context.Context, logger entities.Logger, input TestUnstructuredInput) (tools.RichContent, error) {
 		return tools.RichContent{
@@ -48,17 +49,18 @@ func TestNewToolWithUnstructuredContentOutput_HappyPath(t *testing.T) {
 
 	// Act
 	tool := basetool.NewToolWithUnstructuredContent(
-		toolName,
-		toolTitle,
-		toolDescription,
+		testUnstructuredToolName,
+		testUnstructuredToolTitle,
+		testUnstructuredToolDescription,
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
 
 	// Assert
-	assert.Equal(t, toolName, tool.Name(), "Tool name should match")
-	assert.Equal(t, toolTitle, tool.Title(), "Tool title should match")
-	assert.Equal(t, toolDescription, tool.Description(), "Tool description should match")
+	assert.Equal(t, testUnstructuredToolName, tool.Name(), "Tool name should match")
+	assert.Equal(t, testUnstructuredToolTitle, tool.Title(), "Tool title should match")
+	assert.Equal(t, testUnstructuredToolDescription, tool.Description(), "Tool description should match")
 
 	expectedInputSchema, err := jsonschema.For[TestUnstructuredInput](&jsonschema.ForOptions{})
 	require.NoError(t, err, "Input schema generation should succeed")
@@ -79,17 +81,13 @@ func TestToolWithUnstructuredContentOutput_AddToServer_HappyPath(t *testing.T) {
 
 	expectedServer := mcp.NewServer(&mcp.Implementation{}, &mcp.ServerOptions{})
 
-	const (
-		toolName        = "test-unstructured-tool"
-		toolTitle       = "Test Unstructured Tool"
-		toolDescription = "A test tool for unstructured content"
-	)
-
 	handler := func(ctx context.Context, logger entities.Logger, input TestUnstructuredInput) (tools.RichContent, error) {
 		return tools.RichContent{
 			TextContent: []string{"test response"},
 		}, nil
 	}
+
+	expectedAnnotations := annotations.NewDestructiveAnnotations()
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
@@ -97,23 +95,25 @@ func TestToolWithUnstructuredContentOutput_AddToServer_HappyPath(t *testing.T) {
 		Once()
 
 	tool := basetool.NewToolWithUnstructuredContent(
-		toolName,
-		toolTitle,
-		toolDescription,
+		testUnstructuredToolName,
+		testUnstructuredToolTitle,
+		testUnstructuredToolDescription,
+		expectedAnnotations,
 		mockLoggerFactory,
 		handler,
 	)
 
-	toolInputSchema, err := tool.GetInputSchema()
+	expectedToolInputSchema, err := tool.GetInputSchema()
 	require.NoError(t, err, "GetInputSchema should not return an error")
 
 	mockAdder.EXPECT().AddTool(
 		expectedServer,
 		&mcp.Tool{
-			Name:         toolName,
-			Title:        toolTitle,
-			Description:  toolDescription,
-			InputSchema:  toolInputSchema,
+			Name:         testUnstructuredToolName,
+			Title:        testUnstructuredToolTitle,
+			Description:  testUnstructuredToolDescription,
+			Annotations:  expectedAnnotations.ToToolAnnotations(),
+			InputSchema:  expectedToolInputSchema,
 			OutputSchema: nil,
 		},
 		mock.Anything,
@@ -161,6 +161,7 @@ func TestToolWithUnstructuredContentOutput_Handler_HappyPath(t *testing.T) {
 		"test-tool",
 		"Test Tool",
 		"A test tool",
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
@@ -220,6 +221,7 @@ func TestToolWithUnstructuredContentOutput_Handler_TextContentOnly(t *testing.T)
 		"test-tool",
 		"Test Tool",
 		"A test tool",
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
@@ -281,6 +283,7 @@ func TestToolWithUnstructuredContentOutput_Handler_ImageContentOnly(t *testing.T
 		"test-tool",
 		"Test Tool",
 		"A test tool",
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
@@ -342,6 +345,7 @@ func TestToolWithUnstructuredContentOutput_Handler_NoContent(t *testing.T) {
 		"test-tool",
 		"Test Tool",
 		"A test tool",
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
@@ -389,6 +393,7 @@ func TestToolWithUnstructuredContentOutput_Handler_UnstructuredHandlerError(t *t
 		"test-tool",
 		"Test Tool",
 		"A test tool",
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
@@ -439,6 +444,7 @@ func TestToolWithUnstructuredContentOutput_Handler_ContextPropagation(t *testing
 		"test-tool",
 		"Test Tool",
 		"A test tool",
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
@@ -453,4 +459,73 @@ func TestToolWithUnstructuredContentOutput_Handler_ContextPropagation(t *testing
 	// Assert
 	require.NoError(t, err, "Handler should not return an error")
 	assert.Equal(t, t.Context(), <-contextReceived, "Context should be propagated to handler")
+}
+
+func TestToolWithUnstructuredContent_Annotations(t *testing.T) {
+	// Arrange
+	mockLoggerFactory := &mocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := testutils.NewInspectableLogger()
+
+	handler := func(ctx context.Context, logger entities.Logger, input TestUnstructuredInput) (tools.RichContent, error) {
+		return tools.RichContent{
+			TextContent: []string{"test response"},
+		}, nil
+	}
+
+	expectedAnnotations := annotations.NewReadOnlyAnnotations()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	// Act
+	tool := basetool.NewToolWithUnstructuredContent(
+		"",
+		"",
+		"",
+		expectedAnnotations,
+		mockLoggerFactory,
+		handler,
+	)
+
+	// Assert
+	assert.Equal(t, expectedAnnotations, tool.Annotations(), "Tool should have read-only annotations")
+}
+
+func TestToolWithUnstructuredContentOutput_AddToServer_NilAnnotationInterface(t *testing.T) {
+	// Arrange
+	mockLoggerFactory := &mocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := testutils.NewInspectableLogger()
+
+	handler := func(ctx context.Context, logger entities.Logger, input TestUnstructuredInput) (tools.RichContent, error) {
+		return tools.RichContent{
+			TextContent: []string{"test response"},
+		}, nil
+	}
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	tool := basetool.NewToolWithUnstructuredContent(
+		testUnstructuredToolName,
+		testUnstructuredToolTitle,
+		testUnstructuredToolDescription,
+		nil,
+		mockLoggerFactory,
+		handler,
+	)
+
+	// Act
+	err := tool.AddToServer(nil)
+
+	// Assert
+	require.Error(t, err, "AddToServer should return an error for nil annotations")
+	assert.Contains(t, err.Error(), "annotations must not be nil", "Error message should indicate nil annotations")
 }

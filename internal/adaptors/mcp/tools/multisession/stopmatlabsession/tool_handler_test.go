@@ -5,6 +5,7 @@ package stopmatlabsession_test
 import (
 	"testing"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/stopmatlabsession"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
@@ -85,4 +86,27 @@ func TestTool_Handler_UsecaseReturnsError(t *testing.T) {
 	// Assert
 	require.ErrorIs(t, err, expectedError, "Handler should return an error")
 	assert.Empty(t, result.ResponseText, "Response text should be empty when there's an error")
+}
+
+func TestStopMATLABSession_Annotations(t *testing.T) {
+	// Arrange
+	mockLoggerFactory := &basetoolsmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockUsecase := &mocks.MockUsecase{}
+	defer mockUsecase.AssertExpectations(t)
+
+	mockLogger := testutils.NewInspectableLogger()
+	expectedAnnotations := annotations.NewDestructiveAnnotations()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	// Act
+	tool := stopmatlabsession.New(mockLoggerFactory, mockUsecase)
+
+	// Assert
+	assert.Equal(t, expectedAnnotations, tool.Annotations(), "Tool should have destructive annotations")
 }

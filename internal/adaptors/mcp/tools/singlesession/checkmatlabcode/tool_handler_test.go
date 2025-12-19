@@ -5,6 +5,7 @@ package checkmatlabcode_test
 import (
 	"testing"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/checkmatlabcode"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
 	checkmatlabcodeusecase "github.com/matlab/matlab-mcp-core-server/internal/usecases/checkmatlabcode"
@@ -191,4 +192,30 @@ func TestTool_Handler_UsecaseError(t *testing.T) {
 	require.ErrorIs(t, err, expectedError, "Handler should return an error")
 	assert.NotNil(t, result.CheckCodeOutput, "Check code output should not be nil")
 	assert.Empty(t, result.CheckCodeOutput, "Check code output should be empty on error")
+}
+
+func TestCheckMATLABCode_Annotations(t *testing.T) {
+	// Arrange
+	mockLoggerFactory := &basetoolsmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockGlobalMATLAB := &entitiesmocks.MockGlobalMATLAB{}
+	defer mockGlobalMATLAB.AssertExpectations(t)
+
+	mockUsecase := &mocks.MockUsecase{}
+	defer mockUsecase.AssertExpectations(t)
+
+	mockLogger := testutils.NewInspectableLogger()
+	expectedAnnotations := annotations.NewReadOnlyAnnotations()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	// Act
+	tool := checkmatlabcode.New(mockLoggerFactory, mockUsecase, mockGlobalMATLAB)
+
+	// Assert
+	assert.Equal(t, expectedAnnotations, tool.Annotations(), "Tool should have read-only annotations")
 }

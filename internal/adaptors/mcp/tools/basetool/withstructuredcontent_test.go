@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/jsonschema-go/jsonschema"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
@@ -25,18 +26,18 @@ type TestOutput struct {
 	Result string `json:"result"`
 }
 
+const (
+	testToolName        = "test-tool"
+	testToolTitle       = "Test Tool"
+	testToolDescription = "A test tool for unit testing"
+)
+
 func TestNewToolWithStructuredContent_HappyPath(t *testing.T) {
 	// Arrange
 	mockLoggerFactory := &mocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
 	mockLogger := testutils.NewInspectableLogger()
-
-	const (
-		toolName        = "test-tool"
-		toolTitle       = "Test Tool"
-		toolDescription = "A test tool for unit testing"
-	)
 
 	handler := func(ctx context.Context, logger entities.Logger, input TestInput) (TestOutput, error) {
 		return TestOutput{Result: "success"}, nil
@@ -49,17 +50,18 @@ func TestNewToolWithStructuredContent_HappyPath(t *testing.T) {
 
 	// Act
 	tool := basetool.NewToolWithStructuredContent(
-		toolName,
-		toolTitle,
-		toolDescription,
+		testToolName,
+		testToolTitle,
+		testToolDescription,
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
 
 	// Assert
-	assert.Equal(t, toolName, tool.Name(), "Tool name should match")
-	assert.Equal(t, toolTitle, tool.Title(), "Tool title should match")
-	assert.Equal(t, toolDescription, tool.Description(), "Tool description should match")
+	assert.Equal(t, testToolName, tool.Name(), "Tool name should match")
+	assert.Equal(t, testToolTitle, tool.Title(), "Tool title should match")
+	assert.Equal(t, testToolDescription, tool.Description(), "Tool description should match")
 
 	expectedInputSchema, err := jsonschema.For[TestInput](&jsonschema.ForOptions{})
 	require.NoError(t, err, "Input schema generation should succeed")
@@ -84,15 +86,11 @@ func TestToolWithStructuredContentOutput_AddToServer_HappyPath(t *testing.T) {
 
 	mockLogger := testutils.NewInspectableLogger()
 
-	const (
-		toolName        = "test-tool"
-		toolTitle       = "Test Tool"
-		toolDescription = "A test tool for unit testing"
-	)
-
 	handler := func(ctx context.Context, logger entities.Logger, input TestInput) (TestOutput, error) {
 		return TestOutput{Result: "success"}, nil
 	}
+
+	expectedAnnotations := annotations.NewReadOnlyAnnotations()
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
@@ -100,17 +98,18 @@ func TestToolWithStructuredContentOutput_AddToServer_HappyPath(t *testing.T) {
 		Once()
 
 	tool := basetool.NewToolWithStructuredContent(
-		toolName,
-		toolTitle,
-		toolDescription,
+		testToolName,
+		testToolTitle,
+		testToolDescription,
+		expectedAnnotations,
 		mockLoggerFactory,
 		handler,
 	)
 
-	toolInputSchema, err := tool.GetInputSchema()
+	expectedToolInputSchema, err := tool.GetInputSchema()
 	require.NoError(t, err, "GetInputSchema should not return an error")
 
-	toolOutputSchema, err := tool.GetOutputSchema()
+	expectedToolOutputSchema, err := tool.GetOutputSchema()
 	require.NoError(t, err, "GetOutputSchema should not return an error")
 
 	expectedServer := mcp.NewServer(&mcp.Implementation{}, &mcp.ServerOptions{})
@@ -118,11 +117,12 @@ func TestToolWithStructuredContentOutput_AddToServer_HappyPath(t *testing.T) {
 	mockAdder.EXPECT().AddTool(
 		expectedServer,
 		&mcp.Tool{
-			Name:         toolName,
-			Title:        toolTitle,
-			Description:  toolDescription,
-			InputSchema:  toolInputSchema,
-			OutputSchema: toolOutputSchema,
+			Name:         testToolName,
+			Title:        testToolTitle,
+			Description:  testToolDescription,
+			Annotations:  expectedAnnotations.ToToolAnnotations(),
+			InputSchema:  expectedToolInputSchema,
+			OutputSchema: expectedToolOutputSchema,
 		},
 		mock.Anything,
 	)
@@ -165,6 +165,7 @@ func TestToolWithStructuredContentOutput_Handler_HappyPath(t *testing.T) {
 		"test-tool",
 		"Test Tool",
 		"A test tool",
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
@@ -211,6 +212,7 @@ func TestToolWithStructuredContentOutput_Handler_StructuredHandlerError(t *testi
 		"test-tool",
 		"Test Tool",
 		"A test tool",
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
@@ -259,6 +261,7 @@ func TestToolWithStructuredContentOutput_Handler_ContextPropagation(t *testing.T
 		"test-tool",
 		"Test Tool",
 		"A test tool",
+		annotations.NewReadOnlyAnnotations(),
 		mockLoggerFactory,
 		handler,
 	)
@@ -273,4 +276,69 @@ func TestToolWithStructuredContentOutput_Handler_ContextPropagation(t *testing.T
 	// Assert
 	require.NoError(t, err, "Handler should not return an error")
 	assert.Equal(t, t.Context(), capturedContext, "Context should be propagated to handler")
+}
+
+func TestToolWithStructuredContent_Annotations(t *testing.T) {
+	// Arrange
+	mockLoggerFactory := &mocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := testutils.NewInspectableLogger()
+
+	handler := func(ctx context.Context, logger entities.Logger, input TestInput) (TestOutput, error) {
+		return TestOutput{Result: "success"}, nil
+	}
+
+	expectedAnnotations := annotations.NewDestructiveAnnotations()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	// Act
+	tool := basetool.NewToolWithStructuredContent(
+		"",
+		"",
+		"",
+		expectedAnnotations,
+		mockLoggerFactory,
+		handler,
+	)
+
+	// Assert
+	assert.Equal(t, expectedAnnotations, tool.Annotations(), "Tool should have destructive annotations")
+}
+
+func TestToolWithStructuredContentOutput_AddToServer_NilAnnotationInterface(t *testing.T) {
+	// Arrange
+	mockLoggerFactory := &mocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := testutils.NewInspectableLogger()
+
+	handler := func(ctx context.Context, logger entities.Logger, input TestInput) (TestOutput, error) {
+		return TestOutput{Result: "success"}, nil
+	}
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	tool := basetool.NewToolWithStructuredContent(
+		testToolName,
+		testToolTitle,
+		testToolDescription,
+		nil,
+		mockLoggerFactory,
+		handler,
+	)
+
+	// Act
+	err := tool.AddToServer(nil)
+
+	// Assert
+	require.Error(t, err, "AddToServer should return an error for nil annotations")
+	assert.Contains(t, err.Error(), "annotations must not be nil", "Error message should indicate nil annotations")
 }

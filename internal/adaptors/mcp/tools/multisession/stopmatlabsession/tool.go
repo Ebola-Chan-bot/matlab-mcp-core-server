@@ -5,6 +5,7 @@ package stopmatlabsession
 import (
 	"context"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 )
@@ -22,7 +23,7 @@ func New(
 	usecase Usecase,
 ) *Tool {
 	return &Tool{
-		ToolWithStructuredContentOutput: basetool.NewToolWithStructuredContent(name, title, description, loggerFactory, Handler(usecase)),
+		ToolWithStructuredContentOutput: basetool.NewToolWithStructuredContent(name, title, description, annotations.NewDestructiveAnnotations(), loggerFactory, Handler(usecase)),
 	}
 }
 

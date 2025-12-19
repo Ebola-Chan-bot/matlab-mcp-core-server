@@ -5,6 +5,7 @@ package detectmatlabtoolboxes_test
 import (
 	"testing"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/detectmatlabtoolboxes"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
 	detectmatlabtoolboxesusecase "github.com/matlab/matlab-mcp-core-server/internal/usecases/detectmatlabtoolboxes"
@@ -137,4 +138,30 @@ func TestTool_Handler_UsecaseError(t *testing.T) {
 	// Assert
 	require.ErrorIs(t, err, expectedError)
 	assert.Empty(t, result.InstallationInfo, "InstallationInfo text should be empty on error")
+}
+
+func TestDetectMATLABToolboxes_Annotations(t *testing.T) {
+	// Arrange
+	mockLoggerFactory := &basetoolsmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockGlobalMATLAB := &entitiesmocks.MockGlobalMATLAB{}
+	defer mockGlobalMATLAB.AssertExpectations(t)
+
+	mockUsecase := &mocks.MockUsecase{}
+	defer mockUsecase.AssertExpectations(t)
+
+	mockLogger := testutils.NewInspectableLogger()
+	expectedAnnotations := annotations.NewReadOnlyAnnotations()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	// Act
+	tool := detectmatlabtoolboxes.New(mockLoggerFactory, mockUsecase, mockGlobalMATLAB)
+
+	// Assert
+	assert.Equal(t, expectedAnnotations, tool.Annotations(), "Tool should have read-only annotations")
 }

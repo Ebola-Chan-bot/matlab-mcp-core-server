@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/utils/responseconverter"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
@@ -26,7 +27,7 @@ func New(
 	globalMATLAB entities.GlobalMATLAB,
 ) *Tool {
 	return &Tool{
-		ToolWithUnstructuredContentOutput: basetool.NewToolWithUnstructuredContent(name, title, description, loggerFactory, Handler(usecase, globalMATLAB)),
+		ToolWithUnstructuredContentOutput: basetool.NewToolWithUnstructuredContent(name, title, description, annotations.NewDestructiveAnnotations(), loggerFactory, Handler(usecase, globalMATLAB)),
 	}
 }
 

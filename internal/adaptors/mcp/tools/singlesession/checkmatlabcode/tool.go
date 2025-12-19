@@ -5,6 +5,7 @@ package checkmatlabcode
 import (
 	"context"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/usecases/checkmatlabcode"
@@ -24,7 +25,7 @@ func New(
 	globalMATLAB entities.GlobalMATLAB,
 ) *Tool {
 	return &Tool{
-		ToolWithStructuredContentOutput: basetool.NewToolWithStructuredContent(name, title, description, loggerFactory, Handler(usecase, globalMATLAB)),
+		ToolWithStructuredContentOutput: basetool.NewToolWithStructuredContent(name, title, description, annotations.NewReadOnlyAnnotations(), loggerFactory, Handler(usecase, globalMATLAB)),
 	}
 }
 

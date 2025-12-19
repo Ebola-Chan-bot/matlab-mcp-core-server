@@ -23,6 +23,7 @@ func NewToolWithStructuredContent[ToolInput, ToolOutput any](
 	name string,
 	title string,
 	description string,
+	annotations AnnotationProvider,
 	loggerFactory LoggerFactory,
 	handler func(context.Context, entities.Logger, ToolInput) (ToolOutput, error),
 ) ToolWithStructuredContentOutput[ToolInput, ToolOutput] {
@@ -31,6 +32,7 @@ func NewToolWithStructuredContent[ToolInput, ToolOutput any](
 			name:          name,
 			title:         title,
 			description:   description,
+			annotations:   annotations,
 			loggerFactory: loggerFactory,
 			// Manually inject adder as only have type information at compile time
 			toolAdder: mcpfacade.NewToolAdder[ToolInput, ToolOutput](),
@@ -41,6 +43,10 @@ func NewToolWithStructuredContent[ToolInput, ToolOutput any](
 }
 
 func (t ToolWithStructuredContentOutput[_, _]) AddToServer(server *mcp.Server) error {
+	if t.annotations == nil {
+		return fmt.Errorf(UnexpectedErrorPrefixForLLM + "annotations must not be nil")
+	}
+
 	inputSchema, err := t.GetInputSchema()
 	if err != nil {
 		return err
@@ -57,6 +63,7 @@ func (t ToolWithStructuredContentOutput[_, _]) AddToServer(server *mcp.Server) e
 			Name:         t.name,
 			Title:        t.title,
 			Description:  t.description,
+			Annotations:  t.annotations.ToToolAnnotations(),
 			InputSchema:  inputSchema,
 			OutputSchema: outputSchema,
 		},
