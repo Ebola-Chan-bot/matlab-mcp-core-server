@@ -34,6 +34,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/plaintextlivecodegeneration"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/configurator"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/sdk"
 	evalmatlabcode2 "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/evalmatlabcode"
 	listavailablematlabs2 "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/listavailablematlabs"
 	startmatlabsession2 "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/startmatlabsession"
@@ -96,13 +97,13 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 	if err != nil {
 		return nil, err
 	}
-	mcpServer := server.NewMCPSDKServer(config)
-	factory := files.NewFactory(osFacade)
-	directoryDirectory, err := directory.New(config, factory, osFacade)
+	factory := sdk.NewFactory(config)
+	filesFactory := files.NewFactory(osFacade)
+	directoryDirectory, err := directory.New(config, filesFactory, osFacade)
 	if err != nil {
 		return nil, err
 	}
-	loggerFactory, err := logger.NewFactory(config, directoryDirectory, factory, osFacade)
+	loggerFactory, err := logger.NewFactory(config, directoryDirectory, filesFactory, osFacade)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +159,7 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 		return nil, err
 	}
 	configuratorConfigurator := configurator.New(config, tool, startmatlabsessionTool, stopmatlabsessionTool, evalmatlabcodeTool, tool2, checkmatlabcodeTool, detectmatlabtoolboxesTool, runmatlabfileTool, runmatlabtestfileTool, resource, plaintextlivecodegenerationResource)
-	serverServer, err := server.New(mcpServer, loggerFactory, lifecycleSignaler, configuratorConfigurator)
+	serverServer, err := server.New(factory, loggerFactory, lifecycleSignaler, configuratorConfigurator)
 	if err != nil {
 		return nil, err
 	}

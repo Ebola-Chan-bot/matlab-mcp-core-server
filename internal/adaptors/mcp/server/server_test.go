@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package server_test
 
@@ -20,6 +20,9 @@ import (
 
 func TestNew_HappyPath(t *testing.T) {
 	// Arrange
+	mockMCPSDKServerFactory := &mocks.MockMCPSDKServerFactory{}
+	defer mockMCPSDKServerFactory.AssertExpectations(t)
+
 	mockLoggerFactory := &mocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
@@ -38,17 +41,13 @@ func TestNew_HappyPath(t *testing.T) {
 	mockSecondTool := &toolsmocks.MockTool{}
 	defer mockSecondTool.AssertExpectations(t)
 
-	mockServerConfig := &mocks.MockServerConfig{}
-	defer mockServerConfig.AssertExpectations(t)
-
 	mockLogger := testutils.NewInspectableLogger()
+	expectedMCPServer := &mcp.Server{}
 
-	mockServerConfig.EXPECT().
-		Version().
-		Return("1.0.0").
+	mockMCPSDKServerFactory.EXPECT().
+		NewServer(server.Name(), server.Instructions()).
+		Return(expectedMCPServer).
 		Once()
-
-	expectedMCPServer := server.NewMCPSDKServer(mockServerConfig)
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
@@ -81,15 +80,18 @@ func TestNew_HappyPath(t *testing.T) {
 		Once()
 
 	// Act
-	server, err := server.New(expectedMCPServer, mockLoggerFactory, mockLifecycleSignaler, mockConfigurator)
+	svr, err := server.New(mockMCPSDKServerFactory, mockLoggerFactory, mockLifecycleSignaler, mockConfigurator)
 
 	// Assert
 	require.NoError(t, err, "New should not return an error")
-	assert.NotNil(t, server, "Server should not be nil")
+	assert.NotNil(t, svr, "Server should not be nil")
 }
 
 func TestNew_AddToServerReturnsError(t *testing.T) {
 	// Arrange
+	mockMCPSDKServerFactory := &mocks.MockMCPSDKServerFactory{}
+	defer mockMCPSDKServerFactory.AssertExpectations(t)
+
 	mockLoggerFactory := &mocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
@@ -102,18 +104,14 @@ func TestNew_AddToServerReturnsError(t *testing.T) {
 	mockTool := &toolsmocks.MockTool{}
 	defer mockTool.AssertExpectations(t)
 
-	mockServerConfig := &mocks.MockServerConfig{}
-	defer mockServerConfig.AssertExpectations(t)
-
 	mockLogger := testutils.NewInspectableLogger()
 	expectedError := assert.AnError
+	expectedMCPServer := &mcp.Server{}
 
-	mockServerConfig.EXPECT().
-		Version().
-		Return("1.0.0").
+	mockMCPSDKServerFactory.EXPECT().
+		NewServer(server.Name(), server.Instructions()).
+		Return(expectedMCPServer).
 		Once()
-
-	expectedMCPServer := server.NewMCPSDKServer(mockServerConfig)
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
@@ -131,16 +129,19 @@ func TestNew_AddToServerReturnsError(t *testing.T) {
 		Once()
 
 	// Act
-	server, err := server.New(expectedMCPServer, mockLoggerFactory, mockLifecycleSignaler, mockConfigurator)
+	svr, err := server.New(mockMCPSDKServerFactory, mockLoggerFactory, mockLifecycleSignaler, mockConfigurator)
 
 	// Assert
 	require.Error(t, err, "New should return an error")
 	assert.Equal(t, expectedError, err, "Error should match expected error")
-	assert.Empty(t, server, "Server should be nil when error occurs")
+	assert.Empty(t, svr, "Server should be nil when error occurs")
 }
 
 func TestNew_HandlesNoToolsOrResources(t *testing.T) {
 	// Arrange
+	mockMCPSDKServerFactory := &mocks.MockMCPSDKServerFactory{}
+	defer mockMCPSDKServerFactory.AssertExpectations(t)
+
 	mockLoggerFactory := &mocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
@@ -150,17 +151,13 @@ func TestNew_HandlesNoToolsOrResources(t *testing.T) {
 	mockConfigurator := &mocks.MockMCPServerConfigurator{}
 	defer mockConfigurator.AssertExpectations(t)
 
-	mockServerConfig := &mocks.MockServerConfig{}
-	defer mockServerConfig.AssertExpectations(t)
-
 	mockLogger := testutils.NewInspectableLogger()
+	expectedMCPServer := &mcp.Server{}
 
-	mockServerConfig.EXPECT().
-		Version().
-		Return("1.0.0").
+	mockMCPSDKServerFactory.EXPECT().
+		NewServer(server.Name(), server.Instructions()).
+		Return(expectedMCPServer).
 		Once()
-
-	expectedMCPServer := server.NewMCPSDKServer(mockServerConfig)
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
@@ -178,15 +175,18 @@ func TestNew_HandlesNoToolsOrResources(t *testing.T) {
 		Once()
 
 	// Act
-	server, err := server.New(expectedMCPServer, mockLoggerFactory, mockLifecycleSignaler, mockConfigurator)
+	svr, err := server.New(mockMCPSDKServerFactory, mockLoggerFactory, mockLifecycleSignaler, mockConfigurator)
 
 	// Assert
 	require.NoError(t, err, "New should not return an error")
-	assert.NotNil(t, server, "Server should not be nil")
+	assert.NotNil(t, svr, "Server should not be nil")
 }
 
 func TestServer_Run_HappyPath(t *testing.T) {
 	// Arrange
+	mockMCPSDKServerFactory := &mocks.MockMCPSDKServerFactory{}
+	defer mockMCPSDKServerFactory.AssertExpectations(t)
+
 	mockLoggerFactory := &mocks.MockLoggerFactory{}
 	defer mockLoggerFactory.AssertExpectations(t)
 
@@ -196,17 +196,13 @@ func TestServer_Run_HappyPath(t *testing.T) {
 	mockConfigurator := &mocks.MockMCPServerConfigurator{}
 	defer mockConfigurator.AssertExpectations(t)
 
-	mockServerConfig := &mocks.MockServerConfig{}
-	defer mockServerConfig.AssertExpectations(t)
-
 	mockLogger := testutils.NewInspectableLogger()
+	expectedMCPServer := &mcp.Server{}
 
-	mockServerConfig.EXPECT().
-		Version().
-		Return("1.0.0").
+	mockMCPSDKServerFactory.EXPECT().
+		NewServer(server.Name(), server.Instructions()).
+		Return(expectedMCPServer).
 		Once()
-
-	expectedMCPServer := server.NewMCPSDKServer(mockServerConfig)
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
@@ -232,17 +228,17 @@ func TestServer_Run_HappyPath(t *testing.T) {
 		Return().
 		Once()
 
-	server, err := server.New(expectedMCPServer, mockLoggerFactory, mockLifecycleSignaler, mockConfigurator)
+	svr, err := server.New(mockMCPSDKServerFactory, mockLoggerFactory, mockLifecycleSignaler, mockConfigurator)
 	require.NoError(t, err)
 
 	// The MCP STDIO transport will hijack os.Stdout, which will cause issues with code coverage reporting.
 	// To avoid this, we replace the transport with an in memory transport.
 	_, serverTransport := mcp.NewInMemoryTransports()
-	server.SetServerTransport(serverTransport)
+	svr.SetServerTransport(serverTransport)
 
 	errC := make(chan error)
 	go func() {
-		errC <- server.Run()
+		errC <- svr.Run()
 	}()
 
 	capturedShutdownFunc := <-capturedShutdownFuncC

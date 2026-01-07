@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 //go:build wireinject
 
@@ -34,6 +34,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/plaintextlivecodegeneration"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/configurator"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/sdk"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
 	evalmatlabcodemultisessiontool "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/evalmatlabcode"
 	listavailablematlabstool "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/multisession/listavailablematlabs"
@@ -162,12 +163,15 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 		wire.Bind(new(transportclient.HTTPClientFactory), new(*httpclientfactory.HTTPClientFactory)),
 
 		// MCP Server
-		server.NewMCPSDKServer,
-		wire.Bind(new(server.ServerConfig), new(*config.Config)),
 		server.New,
+		wire.Bind(new(server.MCPSDKServerFactory), new(*sdk.Factory)),
 		wire.Bind(new(server.LoggerFactory), new(*logger.Factory)),
 		wire.Bind(new(server.LifecycleSignaler), new(*lifecyclesignaler.LifecycleSignaler)),
 		wire.Bind(new(server.MCPServerConfigurator), new(*configurator.Configurator)),
+
+		// MCP Server (SDK)
+		sdk.NewFactory,
+		wire.Bind(new(sdk.Config), new(*config.Config)),
 
 		// MCP Server Configurator
 		configurator.New,

@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package server
 
@@ -19,6 +19,10 @@ type LifecycleSignaler interface {
 	AddShutdownFunction(shutdownFcn func() error)
 }
 
+type MCPSDKServerFactory interface {
+	NewServer(name string, instructions string) *mcp.Server
+}
+
 type MCPServerConfigurator interface {
 	GetToolsToAdd() []tools.Tool
 	GetResourcesToAdd() []resources.Resource
@@ -32,12 +36,14 @@ type Server struct {
 }
 
 func New(
-	mcpserver *mcp.Server,
+	mcpSDKServerfactory MCPSDKServerFactory,
 	loggerFactory LoggerFactory,
 	lifecycleSignaler LifecycleSignaler,
 	configurator MCPServerConfigurator,
 ) (*Server, error) {
 	logger := loggerFactory.GetGlobalLogger()
+
+	mcpserver := mcpSDKServerfactory.NewServer(name, instructions)
 
 	toolsToAdd := configurator.GetToolsToAdd()
 	for _, tool := range toolsToAdd {
