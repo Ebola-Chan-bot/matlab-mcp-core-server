@@ -1,11 +1,13 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package process
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/flags"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
 type OSLayer interface {
@@ -22,8 +24,8 @@ type Directory interface {
 	ID() string
 }
 
-type Config interface {
-	LogLevel() entities.LogLevel
+type ConfigFactory interface {
+	Config() (config.Config, messages.Error)
 }
 
 type Process struct {
@@ -36,14 +38,19 @@ func New(
 	osLayer OSLayer,
 	loggerFactory LoggerFactory,
 	directory Directory,
-	config Config,
+	configFactory ConfigFactory,
 ) (*Process, error) {
 	logger := loggerFactory.GetGlobalLogger()
 
-	programPath, err := osLayer.Executable()
+	config, err := configFactory.Config()
 	if err != nil {
-		logger.WithError(err).Error("Failed to get executable path")
 		return nil, err
+	}
+
+	programPath, execErr := osLayer.Executable()
+	if execErr != nil {
+		logger.WithError(execErr).Error("Failed to get executable path")
+		return nil, execErr
 	}
 	cmd := osLayer.Command(programPath,
 		"--"+flags.WatchdogMode,

@@ -8,6 +8,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -20,11 +21,11 @@ type LifecycleSignaler interface {
 }
 
 type MCPSDKServerFactory interface {
-	NewServer(name string, instructions string) *mcp.Server
+	NewServer(name string, instructions string) (*mcp.Server, messages.Error)
 }
 
 type MCPServerConfigurator interface {
-	GetToolsToAdd() []tools.Tool
+	GetToolsToAdd() ([]tools.Tool, error)
 	GetResourcesToAdd() []resources.Resource
 }
 
@@ -43,9 +44,16 @@ func New(
 ) (*Server, error) {
 	logger := loggerFactory.GetGlobalLogger()
 
-	mcpserver := mcpSDKServerfactory.NewServer(name, instructions)
+	mcpserver, messageErr := mcpSDKServerfactory.NewServer(name, instructions)
+	if messageErr != nil {
+		return nil, messageErr
+	}
 
-	toolsToAdd := configurator.GetToolsToAdd()
+	toolsToAdd, err := configurator.GetToolsToAdd()
+	if err != nil {
+		return nil, err
+	}
+
 	for _, tool := range toolsToAdd {
 		if err := tool.AddToServer(mcpserver); err != nil {
 			return nil, err

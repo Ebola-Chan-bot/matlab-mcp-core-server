@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package logger
 
@@ -10,8 +10,10 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -23,9 +25,8 @@ const (
 	logFileExt          = ".log"
 )
 
-type Config interface {
-	LogLevel() entities.LogLevel
-	WatchdogMode() bool
+type ConfigFactory interface {
+	Config() (config.Config, messages.Error)
 }
 
 type Directory interface {
@@ -49,11 +50,16 @@ type Factory struct {
 }
 
 func NewFactory(
-	config Config,
+	configFactory ConfigFactory,
 	directory Directory,
 	filenameFactory FilenameFactory,
 	osLayer OSLayer,
 ) (*Factory, error) {
+	config, configErr := configFactory.Config()
+	if configErr != nil {
+		return nil, configErr
+	}
+
 	logLevel, err := parseLogLevel(config.LogLevel())
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package matlabrootselector
 
@@ -6,11 +6,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
-type Config interface {
-	PreferredLocalMATLABRoot() string
+type ConfigFactory interface {
+	Config() (config.Config, messages.Error)
 }
 
 type MATLABManager interface {
@@ -18,22 +20,27 @@ type MATLABManager interface {
 }
 
 type MATLABRootSelector struct {
-	config        Config
+	configFactory ConfigFactory
 	matlabManager MATLABManager
 }
 
 func New(
-	config Config,
+	configFactory ConfigFactory,
 	matlabManager MATLABManager,
 ) *MATLABRootSelector {
 	return &MATLABRootSelector{
-		config:        config,
+		configFactory: configFactory,
 		matlabManager: matlabManager,
 	}
 }
 
 func (m *MATLABRootSelector) SelectMATLABRoot(ctx context.Context, logger entities.Logger) (string, error) {
-	if preferredLocalMATLABRoot := m.config.PreferredLocalMATLABRoot(); preferredLocalMATLABRoot != "" {
+	config, err := m.configFactory.Config()
+	if err != nil {
+		return "", err
+	}
+
+	if preferredLocalMATLABRoot := config.PreferredLocalMATLABRoot(); preferredLocalMATLABRoot != "" {
 		return preferredLocalMATLABRoot, nil
 	}
 

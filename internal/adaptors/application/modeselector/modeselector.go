@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package modeselector
 
@@ -7,14 +7,13 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
-type Config interface {
-	Version() string
-	HelpMode() bool
-	VersionMode() bool
-	WatchdogMode() bool
+type ConfigFactory interface {
+	Config() (config.Config, messages.Error)
 }
 
 type Parser interface {
@@ -37,7 +36,7 @@ type OSLayer interface {
 // It will be imported in `main.go` to start the application, and wait for it's completion.
 // It will select which mode to run in based on the configuration, and defer construction of the required objects until the mode is known.
 type ModeSelector struct {
-	config                 Config
+	configFactory          ConfigFactory
 	watchdogProcessFactory WatchdogProcessFactory
 	orchestratorFactory    OrchestratorFactory
 	osLayer                OSLayer
@@ -45,14 +44,14 @@ type ModeSelector struct {
 }
 
 func New(
-	config Config,
+	configFactory ConfigFactory,
 	parser Parser,
 	watchdogProcessFactory WatchdogProcessFactory,
 	orchestratorFactory OrchestratorFactory,
 	osLayer OSLayer,
 ) *ModeSelector {
 	return &ModeSelector{
-		config:                 config,
+		configFactory:          configFactory,
 		parser:                 parser,
 		watchdogProcessFactory: watchdogProcessFactory,
 		orchestratorFactory:    orchestratorFactory,
@@ -61,14 +60,19 @@ func New(
 }
 
 func (a *ModeSelector) StartAndWaitForCompletion(ctx context.Context) error {
+	config, err := a.configFactory.Config()
+	if err != nil {
+		return err
+	}
+
 	switch {
-	case a.config.HelpMode():
+	case config.HelpMode():
 		_, err := fmt.Fprintf(a.osLayer.Stdout(), "%s\n", a.parser.Usage())
 		return err
-	case a.config.VersionMode():
-		_, err := fmt.Fprintf(a.osLayer.Stdout(), "%s\n", a.config.Version())
+	case config.VersionMode():
+		_, err := fmt.Fprintf(a.osLayer.Stdout(), "%s\n", config.Version())
 		return err
-	case a.config.WatchdogMode():
+	case config.WatchdogMode():
 		watchdogProcess, err := a.watchdogProcessFactory.Create()
 		if err != nil {
 			return err

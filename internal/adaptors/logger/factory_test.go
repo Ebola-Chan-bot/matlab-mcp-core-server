@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package logger_test
 
@@ -8,6 +8,8 @@ import (
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/logger"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	loggermocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/logger"
 	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -24,7 +26,10 @@ func TestNewFactory_HappyPath(t *testing.T) {
 	} {
 		t.Run(string(logLevel), func(t *testing.T) {
 			// Arrange
-			mockConfig := &loggermocks.MockConfig{}
+			mockConfigFactory := &loggermocks.MockConfigFactory{}
+			defer mockConfigFactory.AssertExpectations(t)
+
+			mockConfig := &configmocks.MockConfig{}
 			defer mockConfig.AssertExpectations(t)
 
 			mockDirectory := &loggermocks.MockDirectory{}
@@ -36,6 +41,11 @@ func TestNewFactory_HappyPath(t *testing.T) {
 			mockOSLayer := &loggermocks.MockOSLayer{}
 			defer mockOSLayer.AssertExpectations(t)
 
+			mockConfigFactory.EXPECT().
+				Config().
+				Return(mockConfig, nil).
+				Once()
+
 			mockConfig.EXPECT().
 				LogLevel().
 				Return(logLevel).
@@ -46,7 +56,7 @@ func TestNewFactory_HappyPath(t *testing.T) {
 				Return(false).
 				Once()
 
-			expectedBaseDir := "/some/directory"
+			expectedBaseDir := filepath.Join("some", "directory")
 			mockDirectory.EXPECT().
 				BaseDir().
 				Return(expectedBaseDir).
@@ -71,7 +81,7 @@ func TestNewFactory_HappyPath(t *testing.T) {
 				Once()
 
 			// Act
-			factory, err := logger.NewFactory(mockConfig, mockDirectory, mockFilenameFactory, mockOSLayer)
+			factory, err := logger.NewFactory(mockConfigFactory, mockDirectory, mockFilenameFactory, mockOSLayer)
 
 			// Assert
 			require.NoError(t, err, "NewFactory should not return an error for valid log level")
@@ -80,9 +90,41 @@ func TestNewFactory_HappyPath(t *testing.T) {
 	}
 }
 
+func TestNewFactory_ConfigError(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &loggermocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockDirectory := &loggermocks.MockDirectory{}
+	defer mockDirectory.AssertExpectations(t)
+
+	mockFilenameFactory := &loggermocks.MockFilenameFactory{}
+	defer mockFilenameFactory.AssertExpectations(t)
+
+	mockOSLayer := &loggermocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(nil, expectedError).
+		Once()
+
+	// Act
+	factory, err := logger.NewFactory(mockConfigFactory, mockDirectory, mockFilenameFactory, mockOSLayer)
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "NewFactory should return the error from Config")
+	assert.Nil(t, factory, "Factory should be nil when error occurs")
+}
+
 func TestNewFactory_LogFileCreateError(t *testing.T) {
 	// Arrange
-	mockConfig := &loggermocks.MockConfig{}
+	mockConfigFactory := &loggermocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockDirectory := &loggermocks.MockDirectory{}
@@ -94,9 +136,14 @@ func TestNewFactory_LogFileCreateError(t *testing.T) {
 	mockOSLayer := &loggermocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		LogLevel().
-		Return("info").
+		Return(entities.LogLevelInfo).
 		Once()
 
 	mockConfig.EXPECT().
@@ -104,7 +151,7 @@ func TestNewFactory_LogFileCreateError(t *testing.T) {
 		Return(false).
 		Once()
 
-	expectedBaseDir := "/some/directory"
+	expectedBaseDir := filepath.Join("some", "directory")
 	mockDirectory.EXPECT().
 		BaseDir().
 		Return(expectedBaseDir).
@@ -129,15 +176,19 @@ func TestNewFactory_LogFileCreateError(t *testing.T) {
 		Once()
 
 	// Act
-	factory, err := logger.NewFactory(mockConfig, mockDirectory, mockFilenameFactory, mockOSLayer)
+	factory, err := logger.NewFactory(mockConfigFactory, mockDirectory, mockFilenameFactory, mockOSLayer)
 
 	// Assert
 	require.ErrorIs(t, err, expectedError)
-	assert.Nil(t, factory, "Factory should not be nil")
+	assert.Nil(t, factory, "Factory should be nil")
 }
+
 func TestNewFactory_InvalidLogLevel(t *testing.T) {
 	// Arrange
-	mockConfig := &loggermocks.MockConfig{}
+	mockConfigFactory := &loggermocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockDirectory := &loggermocks.MockDirectory{}
@@ -149,13 +200,18 @@ func TestNewFactory_InvalidLogLevel(t *testing.T) {
 	mockOSLayer := &loggermocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		LogLevel().
 		Return("invalid").
 		Once()
 
-		// Act
-	factory, err := logger.NewFactory(mockConfig, mockDirectory, mockFilenameFactory, mockOSLayer)
+	// Act
+	factory, err := logger.NewFactory(mockConfigFactory, mockDirectory, mockFilenameFactory, mockOSLayer)
 
 	// Assert
 	require.Error(t, err, "NewFactory should return an error for invalid log level")
@@ -165,7 +221,10 @@ func TestNewFactory_InvalidLogLevel(t *testing.T) {
 
 func TestFactory_NewMCPSessionLogger_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &loggermocks.MockConfig{}
+	mockConfigFactory := &loggermocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockDirectory := &loggermocks.MockDirectory{}
@@ -177,9 +236,14 @@ func TestFactory_NewMCPSessionLogger_HappyPath(t *testing.T) {
 	mockOSLayer := &loggermocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		LogLevel().
-		Return("info").
+		Return(entities.LogLevelInfo).
 		Once()
 
 	mockConfig.EXPECT().
@@ -187,7 +251,7 @@ func TestFactory_NewMCPSessionLogger_HappyPath(t *testing.T) {
 		Return(false).
 		Once()
 
-	expectedBaseDir := "/some/directory"
+	expectedBaseDir := filepath.Join("some", "directory")
 	mockDirectory.EXPECT().
 		BaseDir().
 		Return(expectedBaseDir).
@@ -211,7 +275,7 @@ func TestFactory_NewMCPSessionLogger_HappyPath(t *testing.T) {
 		Return(mockLogFile, nil).
 		Once()
 
-	factory, err := logger.NewFactory(mockConfig, mockDirectory, mockFilenameFactory, mockOSLayer)
+	factory, err := logger.NewFactory(mockConfigFactory, mockDirectory, mockFilenameFactory, mockOSLayer)
 	require.NoError(t, err, "Factory creation should not fail")
 
 	// Act
@@ -223,7 +287,10 @@ func TestFactory_NewMCPSessionLogger_HappyPath(t *testing.T) {
 
 func TestFactory_GetGlobalLogger_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &loggermocks.MockConfig{}
+	mockConfigFactory := &loggermocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockDirectory := &loggermocks.MockDirectory{}
@@ -235,9 +302,14 @@ func TestFactory_GetGlobalLogger_HappyPath(t *testing.T) {
 	mockOSLayer := &loggermocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		LogLevel().
-		Return("debug").
+		Return(entities.LogLevelDebug).
 		Once()
 
 	mockConfig.EXPECT().
@@ -245,7 +317,7 @@ func TestFactory_GetGlobalLogger_HappyPath(t *testing.T) {
 		Return(false).
 		Once()
 
-	expectedBaseDir := "/some/directory"
+	expectedBaseDir := filepath.Join("some", "directory")
 	mockDirectory.EXPECT().
 		BaseDir().
 		Return(expectedBaseDir).
@@ -269,7 +341,7 @@ func TestFactory_GetGlobalLogger_HappyPath(t *testing.T) {
 		Return(mockLogFile, nil).
 		Once()
 
-	factory, err := logger.NewFactory(mockConfig, mockDirectory, mockFilenameFactory, mockOSLayer)
+	factory, err := logger.NewFactory(mockConfigFactory, mockDirectory, mockFilenameFactory, mockOSLayer)
 	require.NoError(t, err, "Factory creation should not fail")
 
 	// Act
@@ -281,7 +353,10 @@ func TestFactory_GetGlobalLogger_HappyPath(t *testing.T) {
 
 func TestFactory_GetGlobalLogger_UsesWatchdogLogFileInWatchdogMode(t *testing.T) {
 	// Arrange
-	mockConfig := &loggermocks.MockConfig{}
+	mockConfigFactory := &loggermocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockDirectory := &loggermocks.MockDirectory{}
@@ -293,9 +368,14 @@ func TestFactory_GetGlobalLogger_UsesWatchdogLogFileInWatchdogMode(t *testing.T)
 	mockOSLayer := &loggermocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		LogLevel().
-		Return("debug").
+		Return(entities.LogLevelDebug).
 		Once()
 
 	mockConfig.EXPECT().
@@ -303,7 +383,7 @@ func TestFactory_GetGlobalLogger_UsesWatchdogLogFileInWatchdogMode(t *testing.T)
 		Return(true).
 		Once()
 
-	expectedBaseDir := "/some/directory"
+	expectedBaseDir := filepath.Join("some", "directory")
 	mockDirectory.EXPECT().
 		BaseDir().
 		Return(expectedBaseDir).
@@ -327,7 +407,7 @@ func TestFactory_GetGlobalLogger_UsesWatchdogLogFileInWatchdogMode(t *testing.T)
 		Return(mockLogFile, nil).
 		Once()
 
-	factory, err := logger.NewFactory(mockConfig, mockDirectory, mockFilenameFactory, mockOSLayer)
+	factory, err := logger.NewFactory(mockConfigFactory, mockDirectory, mockFilenameFactory, mockOSLayer)
 	require.NoError(t, err, "Factory creation should not fail")
 
 	// Act
@@ -339,7 +419,10 @@ func TestFactory_GetGlobalLogger_UsesWatchdogLogFileInWatchdogMode(t *testing.T)
 
 func TestFactory_GetGlobalLogger_IsSingleton(t *testing.T) {
 	// Arrange
-	mockConfig := &loggermocks.MockConfig{}
+	mockConfigFactory := &loggermocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockDirectory := &loggermocks.MockDirectory{}
@@ -351,9 +434,14 @@ func TestFactory_GetGlobalLogger_IsSingleton(t *testing.T) {
 	mockOSLayer := &loggermocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		LogLevel().
-		Return("warn").
+		Return(entities.LogLevelWarn).
 		Once()
 
 	mockConfig.EXPECT().
@@ -361,7 +449,7 @@ func TestFactory_GetGlobalLogger_IsSingleton(t *testing.T) {
 		Return(false).
 		Once()
 
-	expectedBaseDir := "/some/directory"
+	expectedBaseDir := filepath.Join("some", "directory")
 	mockDirectory.EXPECT().
 		BaseDir().
 		Return(expectedBaseDir).
@@ -385,7 +473,7 @@ func TestFactory_GetGlobalLogger_IsSingleton(t *testing.T) {
 		Return(mockLogFile, nil).
 		Once()
 
-	factory, err := logger.NewFactory(mockConfig, mockDirectory, mockFilenameFactory, mockOSLayer)
+	factory, err := logger.NewFactory(mockConfigFactory, mockDirectory, mockFilenameFactory, mockOSLayer)
 	require.NoError(t, err, "Factory creation should not fail")
 
 	// Act

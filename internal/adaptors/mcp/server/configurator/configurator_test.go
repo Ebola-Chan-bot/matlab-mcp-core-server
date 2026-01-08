@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package configurator_test
 
@@ -19,6 +19,8 @@ import (
 	evalmatlabsinglesession "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/evalmatlabcode"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/runmatlabfile"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/runmatlabtestfile"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/server/configurator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,8 +28,8 @@ import (
 
 func TestNew_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &mocks.MockConfig{}
-	defer mockConfig.AssertExpectations(t)
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
 
 	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
 	startMATLABSessionTool := &startmatlabsession.Tool{}
@@ -43,7 +45,7 @@ func TestNew_HappyPath(t *testing.T) {
 
 	// Act
 	result := configurator.New(
-		mockConfig,
+		mockConfigFactory,
 		listAvailableMATLABsTool,
 		startMATLABSessionTool,
 		stopMATLABSessionTool,
@@ -63,7 +65,10 @@ func TestNew_HappyPath(t *testing.T) {
 
 func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &mocks.MockConfig{}
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
@@ -78,13 +83,18 @@ func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T
 	codingGuidelinesResource := &codingguidelines.Resource{}
 	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		UseSingleMATLABSession().
 		Return(false).
 		Once()
 
 	c := configurator.New(
-		mockConfig,
+		mockConfigFactory,
 		listAvailableMATLABsTool,
 		startMATLABSessionTool,
 		stopMATLABSessionTool,
@@ -99,9 +109,10 @@ func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T
 	)
 
 	// Act
-	toolsToAdd := c.GetToolsToAdd()
+	toolsToAdd, err := c.GetToolsToAdd()
 
 	// Assert
+	require.NoError(t, err, "GetToolsToAdd should not return an error")
 	assert.ElementsMatch(t, toolsToAdd, []tools.Tool{
 		listAvailableMATLABsTool,
 		startMATLABSessionTool,
@@ -110,10 +121,10 @@ func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T
 	}, "GetToolsToAdd should return all the injected tools for multi session")
 }
 
-func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) {
+func TestConfigurator_GetToolsToAdd_ConfigError(t *testing.T) {
 	// Arrange
-	mockConfig := &mocks.MockConfig{}
-	defer mockConfig.AssertExpectations(t)
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
 
 	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
 	startMATLABSessionTool := &startmatlabsession.Tool{}
@@ -127,13 +138,15 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 	codingGuidelinesResource := &codingguidelines.Resource{}
 	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
 
-	mockConfig.EXPECT().
-		UseSingleMATLABSession().
-		Return(true).
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(nil, expectedError).
 		Once()
 
 	c := configurator.New(
-		mockConfig,
+		mockConfigFactory,
 		listAvailableMATLABsTool,
 		startMATLABSessionTool,
 		stopMATLABSessionTool,
@@ -148,9 +161,63 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 	)
 
 	// Act
-	toolsToAdd := c.GetToolsToAdd()
+	toolsToAdd, err := c.GetToolsToAdd()
 
 	// Assert
+	require.ErrorIs(t, err, expectedError, "GetToolsToAdd should return the error from Config")
+	assert.Nil(t, toolsToAdd, "Tools should be nil when error occurs")
+}
+
+func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
+	defer mockConfig.AssertExpectations(t)
+
+	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
+	startMATLABSessionTool := &startmatlabsession.Tool{}
+	stopMATLABSessionTool := &stopmatlabsession.Tool{}
+	evalInMATLABSessionTool := &evalmatlabmultisession.Tool{}
+	evalInGlobalMATLABSessionTool := &evalmatlabsinglesession.Tool{}
+	checkMATLABCodeInGlobalMATLABSession := &checkmatlabcode.Tool{}
+	detectMATLABToolboxesInSingleSessionTool := &detectmatlabtoolboxes.Tool{}
+	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
+	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
+	codingGuidelinesResource := &codingguidelines.Resource{}
+	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
+	mockConfig.EXPECT().
+		UseSingleMATLABSession().
+		Return(true).
+		Once()
+
+	c := configurator.New(
+		mockConfigFactory,
+		listAvailableMATLABsTool,
+		startMATLABSessionTool,
+		stopMATLABSessionTool,
+		evalInMATLABSessionTool,
+		evalInGlobalMATLABSessionTool,
+		checkMATLABCodeInGlobalMATLABSession,
+		detectMATLABToolboxesInSingleSessionTool,
+		runMATLABFileInGlobalMATLABSessionTool,
+		runMATLABTestFileInGlobalMATLABSessionTool,
+		codingGuidelinesResource,
+		plaintextlivecodegenerationResource,
+	)
+
+	// Act
+	toolsToAdd, err := c.GetToolsToAdd()
+
+	// Assert
+	require.NoError(t, err, "GetToolsToAdd should not return an error")
 	assert.ElementsMatch(t, toolsToAdd, []tools.Tool{
 		evalInGlobalMATLABSessionTool,
 		checkMATLABCodeInGlobalMATLABSession,
@@ -162,8 +229,8 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 
 func TestConfigurator_GetResourcesToAdd_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &mocks.MockConfig{}
-	defer mockConfig.AssertExpectations(t)
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
 
 	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
 	startMATLABSessionTool := &startmatlabsession.Tool{}
@@ -178,7 +245,7 @@ func TestConfigurator_GetResourcesToAdd_HappyPath(t *testing.T) {
 	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
 
 	c := configurator.New(
-		mockConfig,
+		mockConfigFactory,
 		listAvailableMATLABsTool,
 		startMATLABSessionTool,
 		stopMATLABSessionTool,

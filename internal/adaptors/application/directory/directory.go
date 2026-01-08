@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package directory
 
@@ -8,8 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
 const (
@@ -17,9 +19,8 @@ const (
 	markerFileName       = ".matlab-mcp-core-server"
 )
 
-type Config interface {
-	BaseDir() string
-	ServerInstanceID() string
+type ConfigFactory interface {
+	Config() (config.Config, messages.Error)
 }
 
 type FilenameFactory interface {
@@ -40,10 +41,15 @@ type Directory struct {
 }
 
 func New(
-	config Config,
+	configFactory ConfigFactory,
 	filenameFactory FilenameFactory,
 	osFacade OSLayer,
 ) (*Directory, error) {
+	config, err := configFactory.Config()
+	if err != nil {
+		return nil, err
+	}
+
 	baseDir := config.BaseDir()
 
 	if baseDir == "" {

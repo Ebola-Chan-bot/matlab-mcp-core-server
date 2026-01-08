@@ -6,41 +6,77 @@ import (
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/sdk"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/server/sdk"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewFactory_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &mocks.MockConfig{}
-	defer mockConfig.AssertExpectations(t)
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
 
 	// Act
-	factory := sdk.NewFactory(mockConfig)
+	factory := sdk.NewFactory(mockConfigFactory)
 
 	// Assert
 	assert.NotNil(t, factory, "Factory should not be nil")
 }
 
-func TestFactory_New_HappyPath(t *testing.T) {
+func TestFactory_NewServer_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &mocks.MockConfig{}
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	expectedVersion := "1.0.0"
 	expectedName := "test-server"
 	expectedInstructions := "test instructions"
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		Version().
 		Return(expectedVersion).
 		Once()
 
-	factory := sdk.NewFactory(mockConfig)
+	factory := sdk.NewFactory(mockConfigFactory)
 
 	// Act
-	server := factory.NewServer(expectedName, expectedInstructions)
+	server, err := factory.NewServer(expectedName, expectedInstructions)
 
 	// Assert
-	assert.NotNil(t, server, "Server should not be nil") // We can't easily qualify that the correct version is used. Further qualifications take place in system tests.
+	require.NoError(t, err, "NewServer should not return an error")
+	assert.NotNil(t, server, "Server should not be nil")
+}
+
+func TestFactory_NewServer_ConfigError(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	expectedName := "test-server"
+	expectedInstructions := "test instructions"
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(nil, expectedError).
+		Once()
+
+	factory := sdk.NewFactory(mockConfigFactory)
+
+	// Act
+	server, err := factory.NewServer(expectedName, expectedInstructions)
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "NewServer should return the error from Config")
+	assert.Nil(t, server, "Server should be nil when error occurs")
 }

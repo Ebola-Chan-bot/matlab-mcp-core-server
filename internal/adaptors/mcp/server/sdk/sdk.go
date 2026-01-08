@@ -3,32 +3,40 @@
 package sdk
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-type Config interface {
-	Version() string
+type ConfigFactory interface {
+	Config() (config.Config, messages.Error)
 }
 
 type Factory struct {
-	config Config
+	configFactory ConfigFactory
 }
 
 func NewFactory(
-	config Config,
+	configFactory ConfigFactory,
 ) *Factory {
 	return &Factory{
-		config: config,
+		configFactory: configFactory,
 	}
 }
 
-func (f *Factory) NewServer(name string, instructions string) *mcp.Server {
+func (f *Factory) NewServer(name string, instructions string) (*mcp.Server, messages.Error) {
+	config, err := f.configFactory.Config()
+	if err != nil {
+		return nil, err
+	}
+
 	impl := &mcp.Implementation{
 		Name:    name,
-		Version: f.config.Version(),
+		Version: config.Version(),
 	}
 	options := &mcp.ServerOptions{
 		Instructions: instructions,
 	}
-	return mcp.NewServer(impl, options)
+
+	return mcp.NewServer(impl, options), nil
 }

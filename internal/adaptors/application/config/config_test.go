@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package config_test
 
@@ -10,11 +10,160 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/parser"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
 	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestNewFactory_HappyPath(t *testing.T) {
+	// Arrange
+	mockOSLayer := &configmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockParser := &configmocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	// Act
+	factory := config.NewFactory(mockParser, mockOSLayer)
+
+	// Assert
+	assert.NotNil(t, factory, "Factory should not be nil")
+}
+
+func TestFactory_Config_HappyPath(t *testing.T) {
+	// Arrange
+	mockOSLayer := &configmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockParser := &configmocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	programName := "testprocess"
+	args := []string{programName}
+
+	mockOSLayer.EXPECT().
+		Args().
+		Return(args).
+		Once()
+
+	mockParser.EXPECT().
+		Parse(args[1:]).
+		Return(parser.SpecifiedArguments{}, nil).
+		Once()
+
+	factory := config.NewFactory(mockParser, mockOSLayer)
+
+	// Act
+	cfg, err := factory.Config()
+
+	// Assert
+	require.NoError(t, err, "Config should not return an error")
+	assert.NotNil(t, cfg, "Config should not be nil")
+}
+
+func TestFactory_Config_ParseError(t *testing.T) {
+	// Arrange
+	mockOSLayer := &configmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockParser := &configmocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	programName := "testprocess"
+	args := []string{programName}
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockOSLayer.EXPECT().
+		Args().
+		Return(args).
+		Once()
+
+	mockParser.EXPECT().
+		Parse(args[1:]).
+		Return(parser.SpecifiedArguments{}, expectedError).
+		Once()
+
+	factory := config.NewFactory(mockParser, mockOSLayer)
+
+	// Act
+	cfg, err := factory.Config()
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "Config should return the expected error")
+	assert.Nil(t, cfg, "Config should be nil")
+}
+
+func TestFactory_Config_IsSingleton(t *testing.T) {
+	// Arrange
+	mockOSLayer := &configmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockParser := &configmocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	programName := "testprocess"
+	args := []string{programName}
+
+	mockOSLayer.EXPECT().
+		Args().
+		Return(args).
+		Once()
+
+	mockParser.EXPECT().
+		Parse(args[1:]).
+		Return(parser.SpecifiedArguments{}, nil).
+		Once()
+
+	factory := config.NewFactory(mockParser, mockOSLayer)
+
+	// Act
+	cfg1, err1 := factory.Config()
+	cfg2, err2 := factory.Config()
+
+	// Assert
+	require.NoError(t, err1, "First Config call should not return an error")
+	require.NoError(t, err2, "Second Config call should not return an error")
+	assert.Same(t, cfg1, cfg2, "Config should return the same instance on multiple calls")
+}
+
+func TestFactory_Config_SingletonPreservesError(t *testing.T) {
+	// Arrange
+	mockOSLayer := &configmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockParser := &configmocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	programName := "testprocess"
+	args := []string{programName}
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockOSLayer.EXPECT().
+		Args().
+		Return(args).
+		Once()
+
+	mockParser.EXPECT().
+		Parse(args[1:]).
+		Return(parser.SpecifiedArguments{}, expectedError).
+		Once()
+
+	factory := config.NewFactory(mockParser, mockOSLayer)
+
+	// Act
+	cfg1, err1 := factory.Config()
+	cfg2, err2 := factory.Config()
+
+	// Assert
+	require.Error(t, err1, "First Config call should return an error")
+	require.Error(t, err2, "Second Config call should return the same error")
+	assert.Equal(t, expectedError, err1, "First error should match expected")
+	assert.Equal(t, expectedError, err2, "Second error should match expected")
+	assert.Nil(t, cfg1, "First config should be nil")
+	assert.Nil(t, cfg2, "Second config should be nil")
+}
 
 func TestConfig_Version(t *testing.T) {
 	modulePath := "github.com/matlab/matlab-mcp-core-server"
@@ -125,7 +274,9 @@ func TestConfig_Log_HappyPath(t *testing.T) {
 
 	programName := "testprocess"
 	args := []string{programName}
-	mockParser.EXPECT().Parse(args[1:]).Return(specifiedArguments, nil)
+	mockParser.EXPECT().
+		Parse(args[1:]).
+		Return(specifiedArguments, nil)
 
 	mockOSLayer.EXPECT().
 		Args().

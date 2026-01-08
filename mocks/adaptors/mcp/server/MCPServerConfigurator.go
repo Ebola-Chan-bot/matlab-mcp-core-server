@@ -84,7 +84,7 @@ func (_c *MockMCPServerConfigurator_GetResourcesToAdd_Call) RunAndReturn(run fun
 }
 
 // GetToolsToAdd provides a mock function for the type MockMCPServerConfigurator
-func (_mock *MockMCPServerConfigurator) GetToolsToAdd() []tools.Tool {
+func (_mock *MockMCPServerConfigurator) GetToolsToAdd() ([]tools.Tool, error) {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
@@ -92,6 +92,10 @@ func (_mock *MockMCPServerConfigurator) GetToolsToAdd() []tools.Tool {
 	}
 
 	var r0 []tools.Tool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() ([]tools.Tool, error)); ok {
+		return returnFunc()
+	}
 	if returnFunc, ok := ret.Get(0).(func() []tools.Tool); ok {
 		r0 = returnFunc()
 	} else {
@@ -99,7 +103,12 @@ func (_mock *MockMCPServerConfigurator) GetToolsToAdd() []tools.Tool {
 			r0 = ret.Get(0).([]tools.Tool)
 		}
 	}
-	return r0
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // MockMCPServerConfigurator_GetToolsToAdd_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetToolsToAdd'
@@ -119,12 +128,12 @@ func (_c *MockMCPServerConfigurator_GetToolsToAdd_Call) Run(run func()) *MockMCP
 	return _c
 }
 
-func (_c *MockMCPServerConfigurator_GetToolsToAdd_Call) Return(tools1 []tools.Tool) *MockMCPServerConfigurator_GetToolsToAdd_Call {
-	_c.Call.Return(tools1)
+func (_c *MockMCPServerConfigurator_GetToolsToAdd_Call) Return(tools1 []tools.Tool, err error) *MockMCPServerConfigurator_GetToolsToAdd_Call {
+	_c.Call.Return(tools1, err)
 	return _c
 }
 
-func (_c *MockMCPServerConfigurator_GetToolsToAdd_Call) RunAndReturn(run func() []tools.Tool) *MockMCPServerConfigurator_GetToolsToAdd_Call {
+func (_c *MockMCPServerConfigurator_GetToolsToAdd_Call) RunAndReturn(run func() ([]tools.Tool, error)) *MockMCPServerConfigurator_GetToolsToAdd_Call {
 	_c.Call.Return(run)
 	return _c
 }

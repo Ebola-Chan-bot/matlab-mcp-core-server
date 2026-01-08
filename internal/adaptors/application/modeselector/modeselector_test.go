@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package modeselector_test
 
@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/modeselector"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	modeselectormocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/modeselector"
 	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
 	"github.com/stretchr/testify/assert"
@@ -15,8 +17,8 @@ import (
 
 func TestNew_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
-	defer mockConfig.AssertExpectations(t)
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
 	defer mockWatchdogProcessFactory.AssertExpectations(t)
@@ -32,7 +34,7 @@ func TestNew_HappyPath(t *testing.T) {
 
 	// Act
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,
@@ -43,9 +45,51 @@ func TestNew_HappyPath(t *testing.T) {
 	assert.NotNil(t, modeSelectorInstance, "ModeSelector instance should not be nil")
 }
 
+func TestStartAndWaitForCompletion_ConfigError(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
+	defer mockWatchdogProcessFactory.AssertExpectations(t)
+
+	mockOrchestratorFactory := &modeselectormocks.MockOrchestratorFactory{}
+	defer mockOrchestratorFactory.AssertExpectations(t)
+
+	mockOsLayer := &modeselectormocks.MockOSLayer{}
+	defer mockOsLayer.AssertExpectations(t)
+
+	mockParser := &modeselectormocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(nil, expectedError).
+		Once()
+
+	modeSelectorInstance := modeselector.New(
+		mockConfigFactory,
+		mockParser,
+		mockWatchdogProcessFactory,
+		mockOrchestratorFactory,
+		mockOsLayer,
+	)
+
+	// Act
+	err := modeSelectorInstance.StartAndWaitForCompletion(t.Context())
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "StartAndWaitForCompletion should return the error from Config")
+}
+
 func TestStartAndWaitForCompletion_VersionMode_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
@@ -64,6 +108,11 @@ func TestStartAndWaitForCompletion_VersionMode_HappyPath(t *testing.T) {
 	defer mockStdout.AssertExpectations(t)
 
 	expectedVersion := "25.6.68"
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		HelpMode().
@@ -91,7 +140,7 @@ func TestStartAndWaitForCompletion_VersionMode_HappyPath(t *testing.T) {
 		Once()
 
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,
@@ -107,7 +156,10 @@ func TestStartAndWaitForCompletion_VersionMode_HappyPath(t *testing.T) {
 
 func TestStartAndWaitForCompletion_VersionMode_WriteError(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
@@ -127,6 +179,11 @@ func TestStartAndWaitForCompletion_VersionMode_WriteError(t *testing.T) {
 
 	expectedVersion := "25.6.68"
 	expectedError := assert.AnError
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		HelpMode().
@@ -154,7 +211,7 @@ func TestStartAndWaitForCompletion_VersionMode_WriteError(t *testing.T) {
 		Once()
 
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,
@@ -170,7 +227,10 @@ func TestStartAndWaitForCompletion_VersionMode_WriteError(t *testing.T) {
 
 func TestStartAndWaitForCompletion_WatchdogMode_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
@@ -189,6 +249,11 @@ func TestStartAndWaitForCompletion_WatchdogMode_HappyPath(t *testing.T) {
 	defer mockParser.AssertExpectations(t)
 
 	ctx := t.Context()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		HelpMode().
@@ -216,7 +281,7 @@ func TestStartAndWaitForCompletion_WatchdogMode_HappyPath(t *testing.T) {
 		Once()
 
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,
@@ -232,7 +297,10 @@ func TestStartAndWaitForCompletion_WatchdogMode_HappyPath(t *testing.T) {
 
 func TestStartAndWaitForCompletion_WatchdogMode_CreateError(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
@@ -248,6 +316,11 @@ func TestStartAndWaitForCompletion_WatchdogMode_CreateError(t *testing.T) {
 	defer mockParser.AssertExpectations(t)
 
 	expectedError := assert.AnError
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		HelpMode().
@@ -270,7 +343,7 @@ func TestStartAndWaitForCompletion_WatchdogMode_CreateError(t *testing.T) {
 		Once()
 
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,
@@ -286,7 +359,10 @@ func TestStartAndWaitForCompletion_WatchdogMode_CreateError(t *testing.T) {
 
 func TestStartAndWaitForCompletion_WatchdogMode_StartAndWaitError(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
@@ -306,6 +382,11 @@ func TestStartAndWaitForCompletion_WatchdogMode_StartAndWaitError(t *testing.T) 
 
 	expectedError := assert.AnError
 	ctx := t.Context()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		HelpMode().
@@ -333,7 +414,7 @@ func TestStartAndWaitForCompletion_WatchdogMode_StartAndWaitError(t *testing.T) 
 		Once()
 
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,
@@ -349,7 +430,10 @@ func TestStartAndWaitForCompletion_WatchdogMode_StartAndWaitError(t *testing.T) 
 
 func TestStartAndWaitForCompletion_DefaultMode_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
@@ -368,6 +452,11 @@ func TestStartAndWaitForCompletion_DefaultMode_HappyPath(t *testing.T) {
 	defer mockParser.AssertExpectations(t)
 
 	ctx := t.Context()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		HelpMode().
@@ -395,7 +484,7 @@ func TestStartAndWaitForCompletion_DefaultMode_HappyPath(t *testing.T) {
 		Once()
 
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,
@@ -411,7 +500,10 @@ func TestStartAndWaitForCompletion_DefaultMode_HappyPath(t *testing.T) {
 
 func TestStartAndWaitForCompletion_DefaultMode_CreateError(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
@@ -427,6 +519,11 @@ func TestStartAndWaitForCompletion_DefaultMode_CreateError(t *testing.T) {
 	defer mockParser.AssertExpectations(t)
 
 	expectedError := assert.AnError
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		HelpMode().
@@ -449,7 +546,7 @@ func TestStartAndWaitForCompletion_DefaultMode_CreateError(t *testing.T) {
 		Once()
 
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,
@@ -465,7 +562,10 @@ func TestStartAndWaitForCompletion_DefaultMode_CreateError(t *testing.T) {
 
 func TestStartAndWaitForCompletion_DefaultMode_StartAndWaitError(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
@@ -485,6 +585,11 @@ func TestStartAndWaitForCompletion_DefaultMode_StartAndWaitError(t *testing.T) {
 
 	expectedError := assert.AnError
 	ctx := t.Context()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		HelpMode().
@@ -512,7 +617,7 @@ func TestStartAndWaitForCompletion_DefaultMode_StartAndWaitError(t *testing.T) {
 		Once()
 
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,
@@ -528,7 +633,10 @@ func TestStartAndWaitForCompletion_DefaultMode_StartAndWaitError(t *testing.T) {
 
 func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
@@ -552,6 +660,11 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) 
 	dummyHelpText := "Help me get my feet back on the ground."
 	ctx := t.Context()
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		HelpMode().
 		Return(true).
@@ -563,7 +676,7 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) 
 		Once()
 
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,
@@ -589,7 +702,10 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) 
 
 func TestStartAndWaitForCompletion_HelpMode_StartAndWaitWriteError(t *testing.T) {
 	// Arrange
-	mockConfig := &modeselectormocks.MockConfig{}
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockWatchdogProcessFactory := &modeselectormocks.MockWatchdogProcessFactory{}
@@ -614,6 +730,11 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitWriteError(t *testing.T)
 	dummyError := assert.AnError
 	ctx := t.Context()
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		HelpMode().
 		Return(true).
@@ -625,7 +746,7 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitWriteError(t *testing.T)
 		Once()
 
 	modeSelectorInstance := modeselector.New(
-		mockConfig,
+		mockConfigFactory,
 		mockParser,
 		mockWatchdogProcessFactory,
 		mockOrchestratorFactory,

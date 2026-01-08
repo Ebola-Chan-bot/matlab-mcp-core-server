@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package directory_test
 
@@ -8,7 +8,9 @@ import (
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/directory"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
+	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	directorymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/directory"
 	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +19,10 @@ import (
 
 func TestNew_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -34,6 +39,11 @@ func TestNew_HappyPath(t *testing.T) {
 	expectedMarkerExtension := ""
 	markerFileName := filepath.Join(logDir, ".matlab-mcp-core-server-123")
 	suffix := "1337"
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -56,16 +66,45 @@ func TestNew_HappyPath(t *testing.T) {
 		Once()
 
 	// Act
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 
 	// Assert
 	require.NoError(t, err, "New should not return an error")
 	assert.NotNil(t, directoryInstance, "Directory instance should not be nil")
 }
 
+func TestNew_ConfigError(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
+	defer mockFileNameFactory.AssertExpectations(t)
+
+	mockOSLayer := &directorymocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(nil, expectedError).
+		Once()
+
+	// Act
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "New should return the error from Config")
+	assert.Nil(t, directoryInstance, "Directory instance should be nil when error occurs")
+}
+
 func TestNew_MkdirTempError(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -75,6 +114,11 @@ func TestNew_MkdirTempError(t *testing.T) {
 	defer mockOSLayer.AssertExpectations(t)
 
 	expectedError := assert.AnError
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -87,7 +131,7 @@ func TestNew_MkdirTempError(t *testing.T) {
 		Once()
 
 	// Act
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 
 	// Assert
 	require.ErrorIs(t, err, expectedError, "New should return the error from MkdirTemp")
@@ -96,7 +140,10 @@ func TestNew_MkdirTempError(t *testing.T) {
 
 func TestNew_SuppliedBaseDir_MkdirAllErrors(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -107,6 +154,11 @@ func TestNew_SuppliedBaseDir_MkdirAllErrors(t *testing.T) {
 
 	expectedLogDir := filepath.Join("logs", "subdir")
 	expectedError := assert.AnError
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -119,7 +171,7 @@ func TestNew_SuppliedBaseDir_MkdirAllErrors(t *testing.T) {
 		Once()
 
 	// Act
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 
 	// Assert
 	require.ErrorIs(t, err, expectedError, "New should return the error from MkdirAll")
@@ -128,7 +180,10 @@ func TestNew_SuppliedBaseDir_MkdirAllErrors(t *testing.T) {
 
 func TestNew_CreateFileWithUniqueSuffixErrors(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -141,6 +196,11 @@ func TestNew_CreateFileWithUniqueSuffixErrors(t *testing.T) {
 	expectedMarkerFileBaseName := filepath.Join(logDir, directory.MarkerFileName)
 	expectedMarkerExtension := ""
 	expectedError := assert.AnError
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -163,7 +223,7 @@ func TestNew_CreateFileWithUniqueSuffixErrors(t *testing.T) {
 		Once()
 
 	// Act
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 
 	// Assert
 	require.ErrorIs(t, err, expectedError, "New should return the error from CreateFileWithUniqueSuffix")
@@ -172,7 +232,10 @@ func TestNew_CreateFileWithUniqueSuffixErrors(t *testing.T) {
 
 func TestNew_SuppliedServerInstanceID_NoMarkerFile(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -183,6 +246,11 @@ func TestNew_SuppliedServerInstanceID_NoMarkerFile(t *testing.T) {
 
 	logDir := filepath.Join("tmp", "logs")
 	id := "1337"
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -200,7 +268,7 @@ func TestNew_SuppliedServerInstanceID_NoMarkerFile(t *testing.T) {
 		Once()
 
 	// Act
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 
 	// Assert
 	require.NoError(t, err, "New should not return an error")
@@ -209,7 +277,10 @@ func TestNew_SuppliedServerInstanceID_NoMarkerFile(t *testing.T) {
 
 func TestDirectory_BaseDir_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -226,6 +297,11 @@ func TestDirectory_BaseDir_HappyPath(t *testing.T) {
 	expectedMarkerExtension := ""
 	markerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
 	suffix := "1337"
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -247,7 +323,7 @@ func TestDirectory_BaseDir_HappyPath(t *testing.T) {
 		Return(markerFileName, suffix, nil).
 		Once()
 
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 	require.NoError(t, err)
 
 	// Act
@@ -259,7 +335,10 @@ func TestDirectory_BaseDir_HappyPath(t *testing.T) {
 
 func TestDirectory_BaseDir_SuppliedBaseDir_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -276,6 +355,11 @@ func TestDirectory_BaseDir_SuppliedBaseDir_HappyPath(t *testing.T) {
 	expectedMarkerExtension := ""
 	markerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
 	suffix := "123"
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -297,7 +381,7 @@ func TestDirectory_BaseDir_SuppliedBaseDir_HappyPath(t *testing.T) {
 		Return(markerFileName, suffix, nil).
 		Once()
 
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 	require.NoError(t, err)
 
 	// Act
@@ -309,7 +393,10 @@ func TestDirectory_BaseDir_SuppliedBaseDir_HappyPath(t *testing.T) {
 
 func TestDirectory_ID_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -326,6 +413,11 @@ func TestDirectory_ID_HappyPath(t *testing.T) {
 	expectedMarkerExtension := ""
 	markerFileName := filepath.Join(logDir, ".matlab-mcp-core-server")
 	expectedSuffix := "1337"
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -347,7 +439,7 @@ func TestDirectory_ID_HappyPath(t *testing.T) {
 		Return(markerFileName, expectedSuffix, nil).
 		Once()
 
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 	require.NoError(t, err)
 
 	// Act
@@ -360,7 +452,10 @@ func TestDirectory_ID_HappyPath(t *testing.T) {
 
 func TestDirectory_ID_SuppliedID_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -374,6 +469,11 @@ func TestDirectory_ID_SuppliedID_HappyPath(t *testing.T) {
 
 	expectedID := "1337"
 	logDir := filepath.Join("tmp", "matlab-mcp-core-server-12345")
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -390,7 +490,7 @@ func TestDirectory_ID_SuppliedID_HappyPath(t *testing.T) {
 		Return(logDir, nil).
 		Once()
 
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 	require.NoError(t, err)
 
 	// Act
@@ -403,7 +503,10 @@ func TestDirectory_ID_SuppliedID_HappyPath(t *testing.T) {
 
 func TestDirectory_CreateSubDir_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -423,6 +526,11 @@ func TestDirectory_CreateSubDir_HappyPath(t *testing.T) {
 	expectedMarkerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
 	expectedSuffix := "1337"
 	expectedPattern := pattern + expectedSuffix + "-"
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -449,7 +557,7 @@ func TestDirectory_CreateSubDir_HappyPath(t *testing.T) {
 		Return(expectedTempDir, nil).
 		Once()
 
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 	require.NoError(t, err)
 
 	// Act
@@ -462,7 +570,10 @@ func TestDirectory_CreateSubDir_HappyPath(t *testing.T) {
 
 func TestDirectory_CreateSubDir_EnforcesDashSuffix(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -483,6 +594,11 @@ func TestDirectory_CreateSubDir_EnforcesDashSuffix(t *testing.T) {
 	expectedSuffix := "1337"
 	expectedPattern := pattern + "-" + expectedSuffix + "-"
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		BaseDir().
 		Return("").
@@ -508,7 +624,7 @@ func TestDirectory_CreateSubDir_EnforcesDashSuffix(t *testing.T) {
 		Return(expectedTempDir, nil).
 		Once()
 
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 	require.NoError(t, err)
 
 	// Act
@@ -521,7 +637,10 @@ func TestDirectory_CreateSubDir_EnforcesDashSuffix(t *testing.T) {
 
 func TestDirectory_CreateSubDir_MkdirTempError(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -541,6 +660,11 @@ func TestDirectory_CreateSubDir_MkdirTempError(t *testing.T) {
 	expectedSuffix := "1337"
 	expectedPattern := pattern + expectedSuffix + "-"
 	expectedError := assert.AnError
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -567,7 +691,7 @@ func TestDirectory_CreateSubDir_MkdirTempError(t *testing.T) {
 		Return("", expectedError).
 		Once()
 
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 	require.NoError(t, err)
 
 	// Act
@@ -580,7 +704,10 @@ func TestDirectory_CreateSubDir_MkdirTempError(t *testing.T) {
 
 func TestDirectory_CreateSubDir_SuppliedBaseDir_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -600,6 +727,11 @@ func TestDirectory_CreateSubDir_SuppliedBaseDir_HappyPath(t *testing.T) {
 	pattern := "test-pattern-"
 	expectedDirPattern := pattern + suffix + "-"
 	expectedTempDir := filepath.Join("logs", "subdir", "test-pattern-22222")
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -626,7 +758,7 @@ func TestDirectory_CreateSubDir_SuppliedBaseDir_HappyPath(t *testing.T) {
 		Return(expectedTempDir, nil).
 		Once()
 
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 	require.NoError(t, err)
 
 	// Act
@@ -639,7 +771,10 @@ func TestDirectory_CreateSubDir_SuppliedBaseDir_HappyPath(t *testing.T) {
 
 func TestDirectory_RecordToLogger_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &directorymocks.MockConfig{}
+	mockConfigFactory := &directorymocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileNameFactory := &directorymocks.MockFilenameFactory{}
@@ -656,6 +791,11 @@ func TestDirectory_RecordToLogger_HappyPath(t *testing.T) {
 	expectedMarkerExtension := ""
 	expectedMarkerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
 	expectedSuffix := "1337"
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -677,7 +817,7 @@ func TestDirectory_RecordToLogger_HappyPath(t *testing.T) {
 		Return(expectedMarkerFileName, expectedSuffix, nil).
 		Once()
 
-	directoryInstance, err := directory.New(mockConfig, mockFileNameFactory, mockOSLayer)
+	directoryInstance, err := directory.New(mockConfigFactory, mockFileNameFactory, mockOSLayer)
 	require.NoError(t, err)
 
 	testLogger := testutils.NewInspectableLogger()

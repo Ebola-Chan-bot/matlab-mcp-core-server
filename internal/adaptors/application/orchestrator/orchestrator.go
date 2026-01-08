@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package orchestrator
 
@@ -6,7 +6,9 @@ import (
 	"context"
 	"os"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
 type LifecycleSignaler interface {
@@ -14,10 +16,8 @@ type LifecycleSignaler interface {
 	WaitForShutdownToComplete() error
 }
 
-type Config interface {
-	UseSingleMATLABSession() bool
-	InitializeMATLABOnStartup() bool
-	RecordToLogger(logger entities.Logger)
+type ConfigFactory interface {
+	Config() (config.Config, messages.Error)
 }
 
 type Server interface {
@@ -48,7 +48,7 @@ type Directory interface {
 // Orchestrator
 type Orchestrator struct {
 	lifecycleSignaler LifecycleSignaler
-	config            Config
+	configFactory     ConfigFactory
 	server            Server
 	watchdogClient    WatchdogClient
 	loggerFactory     LoggerFactory
@@ -59,7 +59,7 @@ type Orchestrator struct {
 
 func New(
 	lifecycleSignaler LifecycleSignaler,
-	config Config,
+	configFactory ConfigFactory,
 	server Server,
 	watchdogClient WatchdogClient,
 	loggerFactory LoggerFactory,
@@ -69,7 +69,7 @@ func New(
 ) *Orchestrator {
 	orchestrator := &Orchestrator{
 		lifecycleSignaler: lifecycleSignaler,
-		config:            config,
+		configFactory:     configFactory,
 		server:            server,
 		watchdogClient:    watchdogClient,
 		loggerFactory:     loggerFactory,
@@ -82,6 +82,11 @@ func New(
 
 func (o *Orchestrator) StartAndWaitForCompletion(ctx context.Context) error {
 	logger := o.loggerFactory.GetGlobalLogger()
+
+	config, messageErr := o.configFactory.Config()
+	if messageErr != nil {
+		return messageErr
+	}
 
 	defer func() {
 		logger.Info("Initiating MATLAB MCP Core Server application shutdown")
@@ -102,7 +107,7 @@ func (o *Orchestrator) StartAndWaitForCompletion(ctx context.Context) error {
 	}()
 
 	logger.Info("Initiating MATLAB MCP Core Server application startup")
-	o.config.RecordToLogger(logger)
+	config.RecordToLogger(logger)
 	o.directory.RecordToLogger(logger)
 
 	err := o.watchdogClient.Start()
@@ -115,7 +120,7 @@ func (o *Orchestrator) StartAndWaitForCompletion(ctx context.Context) error {
 		serverErrC <- o.server.Run()
 	}()
 
-	if o.config.UseSingleMATLABSession() && o.config.InitializeMATLABOnStartup() {
+	if config.UseSingleMATLABSession() && config.InitializeMATLABOnStartup() {
 		_, err := o.globalMATLAB.Client(ctx, o.loggerFactory.GetGlobalLogger())
 		if err != nil {
 			logger.WithError(err).Warn("MATLAB global initialization failed")

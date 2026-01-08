@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -37,7 +38,7 @@ func (_m *MockMCPSDKServerFactory) EXPECT() *MockMCPSDKServerFactory_Expecter {
 }
 
 // NewServer provides a mock function for the type MockMCPSDKServerFactory
-func (_mock *MockMCPSDKServerFactory) NewServer(name string, instructions string) *mcp.Server {
+func (_mock *MockMCPSDKServerFactory) NewServer(name string, instructions string) (*mcp.Server, messages.Error) {
 	ret := _mock.Called(name, instructions)
 
 	if len(ret) == 0 {
@@ -45,6 +46,10 @@ func (_mock *MockMCPSDKServerFactory) NewServer(name string, instructions string
 	}
 
 	var r0 *mcp.Server
+	var r1 messages.Error
+	if returnFunc, ok := ret.Get(0).(func(string, string) (*mcp.Server, messages.Error)); ok {
+		return returnFunc(name, instructions)
+	}
 	if returnFunc, ok := ret.Get(0).(func(string, string) *mcp.Server); ok {
 		r0 = returnFunc(name, instructions)
 	} else {
@@ -52,7 +57,14 @@ func (_mock *MockMCPSDKServerFactory) NewServer(name string, instructions string
 			r0 = ret.Get(0).(*mcp.Server)
 		}
 	}
-	return r0
+	if returnFunc, ok := ret.Get(1).(func(string, string) messages.Error); ok {
+		r1 = returnFunc(name, instructions)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(messages.Error)
+		}
+	}
+	return r0, r1
 }
 
 // MockMCPSDKServerFactory_NewServer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewServer'
@@ -85,12 +97,12 @@ func (_c *MockMCPSDKServerFactory_NewServer_Call) Run(run func(name string, inst
 	return _c
 }
 
-func (_c *MockMCPSDKServerFactory_NewServer_Call) Return(server *mcp.Server) *MockMCPSDKServerFactory_NewServer_Call {
-	_c.Call.Return(server)
+func (_c *MockMCPSDKServerFactory_NewServer_Call) Return(server *mcp.Server, error messages.Error) *MockMCPSDKServerFactory_NewServer_Call {
+	_c.Call.Return(server, error)
 	return _c
 }
 
-func (_c *MockMCPSDKServerFactory_NewServer_Call) RunAndReturn(run func(name string, instructions string) *mcp.Server) *MockMCPSDKServerFactory_NewServer_Call {
+func (_c *MockMCPSDKServerFactory_NewServer_Call) RunAndReturn(run func(name string, instructions string) (*mcp.Server, messages.Error)) *MockMCPSDKServerFactory_NewServer_Call {
 	_c.Call.Return(run)
 	return _c
 }

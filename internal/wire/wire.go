@@ -83,11 +83,6 @@ func (f *orchestratorFactory) Create() (entities.Mode, error) {
 	return initializeOrchestrator()
 }
 
-func NewConfig(oslayer config.OSLayer, parser config.Parser) (*config.Config, error) {
-	config, err := config.New(oslayer, parser)
-	return config, error(err)
-}
-
 type watchdogProcessFactory struct{}
 
 func newWatchdogProcessFactory() *watchdogProcessFactory {
@@ -102,7 +97,7 @@ func InitializeModeSelector() (*modeselector.ModeSelector, error) {
 	wire.Build(
 		// Application
 		modeselector.New,
-		wire.Bind(new(modeselector.Config), new(*config.Config)),
+		wire.Bind(new(modeselector.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(modeselector.Parser), new(*parser.Parser)),
 		wire.Bind(new(modeselector.WatchdogProcessFactory), new(*watchdogProcessFactory)),
 		wire.Bind(new(modeselector.OrchestratorFactory), new(*orchestratorFactory)),
@@ -113,7 +108,7 @@ func InitializeModeSelector() (*modeselector.ModeSelector, error) {
 		newOrchestratorFactory,
 
 		// Low-level Interfaces
-		NewConfig,
+		config.NewFactory,
 		wire.Bind(new(config.OSLayer), new(*osfacade.OsFacade)),
 		wire.Bind(new(config.Parser), new(*parser.Parser)),
 		parser.New,
@@ -130,7 +125,7 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 		// Orchestrator
 		orchestrator.New,
 		wire.Bind(new(orchestrator.LifecycleSignaler), new(*lifecyclesignaler.LifecycleSignaler)),
-		wire.Bind(new(orchestrator.Config), new(*config.Config)),
+		wire.Bind(new(orchestrator.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(orchestrator.Server), new(*server.Server)),
 		wire.Bind(new(orchestrator.WatchdogClient), new(*watchdogclient.Watchdog)),
 		wire.Bind(new(orchestrator.LoggerFactory), new(*logger.Factory)),
@@ -154,7 +149,7 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 		wire.Bind(new(process.OSLayer), new(*osfacade.OsFacade)),
 		wire.Bind(new(process.LoggerFactory), new(*logger.Factory)),
 		wire.Bind(new(process.Directory), new(*directory.Directory)),
-		wire.Bind(new(process.Config), new(*config.Config)),
+		wire.Bind(new(process.ConfigFactory), new(*config.Factory)),
 
 		// Watchdog Transport Client Factory
 		transportclient.NewFactory,
@@ -171,11 +166,11 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 
 		// MCP Server (SDK)
 		sdk.NewFactory,
-		wire.Bind(new(sdk.Config), new(*config.Config)),
+		wire.Bind(new(sdk.ConfigFactory), new(*config.Factory)),
 
 		// MCP Server Configurator
 		configurator.New,
-		wire.Bind(new(configurator.Config), new(*config.Config)),
+		wire.Bind(new(configurator.ConfigFactory), new(*config.Factory)),
 
 		// Tools
 		wire.Bind(new(basetool.LoggerFactory), new(*logger.Factory)),
@@ -257,12 +252,12 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 
 		// MATLAB Root Selector
 		matlabrootselector.New,
-		wire.Bind(new(matlabrootselector.Config), new(*config.Config)),
+		wire.Bind(new(matlabrootselector.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(matlabrootselector.MATLABManager), new(*matlabmanager.MATLABManager)),
 
 		// MATLAB Starting Dir Selector
 		matlabstartingdirselector.New,
-		wire.Bind(new(matlabstartingdirselector.Config), new(*config.Config)),
+		wire.Bind(new(matlabstartingdirselector.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(matlabstartingdirselector.OSLayer), new(*osfacade.OsFacade)),
 
 		// MATLAB Services
@@ -310,16 +305,16 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 
 		// Low-level Interfaces
 		logger.NewFactory,
-		wire.Bind(new(logger.Config), new(*config.Config)),
+		wire.Bind(new(logger.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(logger.Directory), new(*directory.Directory)),
 		wire.Bind(new(logger.FilenameFactory), new(*files.Factory)),
 		wire.Bind(new(logger.OSLayer), new(*osfacade.OsFacade)),
 		directory.New,
-		wire.Bind(new(directory.Config), new(*config.Config)),
+		wire.Bind(new(directory.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(directory.FilenameFactory), new(*files.Factory)),
 		wire.Bind(new(directory.OSLayer), new(*osfacade.OsFacade)),
 		lifecyclesignaler.New,
-		NewConfig,
+		config.NewFactory,
 		wire.Bind(new(config.OSLayer), new(*osfacade.OsFacade)),
 		wire.Bind(new(config.Parser), new(*parser.Parser)),
 		parser.New,
@@ -374,15 +369,15 @@ func initializeWatchdog() (*watchdogprocess.Watchdog, error) {
 
 		// Low-level Interfaces
 		logger.NewFactory,
-		wire.Bind(new(logger.Config), new(*config.Config)),
+		wire.Bind(new(logger.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(logger.Directory), new(*directory.Directory)),
 		wire.Bind(new(logger.FilenameFactory), new(*files.Factory)),
 		wire.Bind(new(logger.OSLayer), new(*osfacade.OsFacade)),
 		directory.New,
-		wire.Bind(new(directory.Config), new(*config.Config)),
+		wire.Bind(new(directory.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(directory.FilenameFactory), new(*files.Factory)),
 		wire.Bind(new(directory.OSLayer), new(*osfacade.OsFacade)),
-		NewConfig,
+		config.NewFactory,
 		wire.Bind(new(config.OSLayer), new(*osfacade.OsFacade)),
 		wire.Bind(new(config.Parser), new(*parser.Parser)),
 		parser.New,

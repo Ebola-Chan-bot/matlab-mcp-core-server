@@ -8,6 +8,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
 	resourcemocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/resources"
 	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/server"
@@ -46,7 +47,7 @@ func TestNew_HappyPath(t *testing.T) {
 
 	mockMCPSDKServerFactory.EXPECT().
 		NewServer(server.Name(), server.Instructions()).
-		Return(expectedMCPServer).
+		Return(expectedMCPServer, nil).
 		Once()
 
 	mockLoggerFactory.EXPECT().
@@ -56,7 +57,7 @@ func TestNew_HappyPath(t *testing.T) {
 
 	mockConfigurator.EXPECT().
 		GetToolsToAdd().
-		Return([]tools.Tool{mockFirstTool, mockSecondTool}).
+		Return([]tools.Tool{mockFirstTool, mockSecondTool}, nil).
 		Once()
 
 	mockConfigurator.EXPECT().
@@ -87,6 +88,41 @@ func TestNew_HappyPath(t *testing.T) {
 	assert.NotNil(t, svr, "Server should not be nil")
 }
 
+func TestNew_MCPSDKServerFactoryError(t *testing.T) {
+	// Arrange
+	mockMCPSDKServerFactory := &mocks.MockMCPSDKServerFactory{}
+	defer mockMCPSDKServerFactory.AssertExpectations(t)
+
+	mockLoggerFactory := &mocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLifecycleSignaler := &mocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	mockConfigurator := &mocks.MockMCPServerConfigurator{}
+	defer mockConfigurator.AssertExpectations(t)
+
+	mockLogger := testutils.NewInspectableLogger()
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	mockMCPSDKServerFactory.EXPECT().
+		NewServer(server.Name(), server.Instructions()).
+		Return(nil, expectedError).
+		Once()
+
+	// Act
+	svr, err := server.New(mockMCPSDKServerFactory, mockLoggerFactory, mockLifecycleSignaler, mockConfigurator)
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "New should return the error from NewServer")
+	assert.Nil(t, svr, "Server should be nil when error occurs")
+}
+
 func TestNew_AddToServerReturnsError(t *testing.T) {
 	// Arrange
 	mockMCPSDKServerFactory := &mocks.MockMCPSDKServerFactory{}
@@ -110,7 +146,7 @@ func TestNew_AddToServerReturnsError(t *testing.T) {
 
 	mockMCPSDKServerFactory.EXPECT().
 		NewServer(server.Name(), server.Instructions()).
-		Return(expectedMCPServer).
+		Return(expectedMCPServer, nil).
 		Once()
 
 	mockLoggerFactory.EXPECT().
@@ -120,7 +156,7 @@ func TestNew_AddToServerReturnsError(t *testing.T) {
 
 	mockConfigurator.EXPECT().
 		GetToolsToAdd().
-		Return([]tools.Tool{mockTool}).
+		Return([]tools.Tool{mockTool}, nil).
 		Once()
 
 	mockTool.EXPECT().
@@ -156,7 +192,7 @@ func TestNew_HandlesNoToolsOrResources(t *testing.T) {
 
 	mockMCPSDKServerFactory.EXPECT().
 		NewServer(server.Name(), server.Instructions()).
-		Return(expectedMCPServer).
+		Return(expectedMCPServer, nil).
 		Once()
 
 	mockLoggerFactory.EXPECT().
@@ -166,7 +202,7 @@ func TestNew_HandlesNoToolsOrResources(t *testing.T) {
 
 	mockConfigurator.EXPECT().
 		GetToolsToAdd().
-		Return(nil).
+		Return(nil, nil).
 		Once()
 
 	mockConfigurator.EXPECT().
@@ -201,7 +237,7 @@ func TestServer_Run_HappyPath(t *testing.T) {
 
 	mockMCPSDKServerFactory.EXPECT().
 		NewServer(server.Name(), server.Instructions()).
-		Return(expectedMCPServer).
+		Return(expectedMCPServer, nil).
 		Once()
 
 	mockLoggerFactory.EXPECT().
@@ -211,7 +247,7 @@ func TestServer_Run_HappyPath(t *testing.T) {
 
 	mockConfigurator.EXPECT().
 		GetToolsToAdd().
-		Return(nil).
+		Return(nil, nil).
 		Once()
 
 	mockConfigurator.EXPECT().

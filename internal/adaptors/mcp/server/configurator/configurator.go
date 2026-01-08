@@ -1,8 +1,9 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package configurator
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/codingguidelines"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/plaintextlivecodegeneration"
@@ -16,14 +17,15 @@ import (
 	evalmatlabcodesinglesession "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/evalmatlabcode"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/runmatlabfile"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/runmatlabtestfile"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
-type Config interface {
-	UseSingleMATLABSession() bool
+type ConfigFactory interface {
+	Config() (config.Config, messages.Error)
 }
 
 type Configurator struct {
-	config Config
+	configFactory ConfigFactory
 
 	// Multi Session tools
 	listAvailableMATLABsTool tools.Tool
@@ -44,7 +46,7 @@ type Configurator struct {
 }
 
 func New(
-	config Config,
+	configFactory ConfigFactory,
 
 	listAvailableMATLABsTool *listavailablematlabs.Tool,
 	startMATLABSessionTool *startmatlabsession.Tool,
@@ -61,7 +63,7 @@ func New(
 	plaintextlivecodegenerationResource *plaintextlivecodegeneration.Resource,
 ) *Configurator {
 	return &Configurator{
-		config: config,
+		configFactory: configFactory,
 
 		listAvailableMATLABsTool: listAvailableMATLABsTool,
 		startMATLABSessionTool:   startMATLABSessionTool,
@@ -79,17 +81,20 @@ func New(
 	}
 }
 
-func (c *Configurator) GetToolsToAdd() []tools.Tool {
-	// Choose which tool to expose
+func (c *Configurator) GetToolsToAdd() ([]tools.Tool, error) {
+	config, err := c.configFactory.Config()
+	if err != nil {
+		return nil, err
+	}
 
-	if c.config.UseSingleMATLABSession() {
+	if config.UseSingleMATLABSession() {
 		return []tools.Tool{
 			c.evalInGlobalMATLABSessionTool,
 			c.checkMATLABCodeInGlobalMATLABSessionTool,
 			c.detectMATLABToolboxesInGlobalMATLABSessionTool,
 			c.runMATLABFileInGlobalMATLABSessionTool,
 			c.runMATLABTestFileInGlobalMATLABSessionTool,
-		}
+		}, nil
 	}
 
 	return []tools.Tool{
@@ -97,7 +102,7 @@ func (c *Configurator) GetToolsToAdd() []tools.Tool {
 		c.startMATLABSessionTool,
 		c.stopMATLABSessionTool,
 		c.evalInMATLABSessionTool,
-	}
+	}, nil
 }
 
 func (c *Configurator) GetResourcesToAdd() []resources.Resource {

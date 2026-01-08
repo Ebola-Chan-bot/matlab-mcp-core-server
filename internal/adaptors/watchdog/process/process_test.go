@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package process_test
 
@@ -10,9 +10,10 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/flags"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/watchdog/process"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
+	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	processmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/watchdog/process"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
 	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -32,29 +33,28 @@ func TestNew_HappyPath(t *testing.T) {
 	mockDirectory := &processmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
 
-	mockConfig := &processmocks.MockConfig{}
+	mockConfigFactory := &processmocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockCmd := &osfacademocks.MockCmd{}
 	defer mockCmd.AssertExpectations(t)
 
-	mockStdin := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
-
-	mockStdout := &entitiesmocks.MockReader{}
-	defer mockStdout.AssertExpectations(t)
-
-	mockStderr := &entitiesmocks.MockReader{}
-	defer mockStderr.AssertExpectations(t)
-
 	expectedProgramPath := filepath.Join("path", "to", "program")
 	expectedBaseDir := filepath.Join("tmp", "base", "dir")
 	expectedServerID := "server-id"
-	expectedLogLevel := string(entities.LogLevelInfo)
+	expectedLogLevel := entities.LogLevelInfo
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
 		Return(mockLogger).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
 		Once()
 
 	mockOSLayer.EXPECT().
@@ -74,7 +74,7 @@ func TestNew_HappyPath(t *testing.T) {
 
 	mockConfig.EXPECT().
 		LogLevel().
-		Return(entities.LogLevel(expectedLogLevel)).
+		Return(expectedLogLevel).
 		Once()
 
 	mockOSLayer.EXPECT().
@@ -82,7 +82,7 @@ func TestNew_HappyPath(t *testing.T) {
 			"--" + flags.WatchdogMode,
 			"--" + flags.BaseDir, expectedBaseDir,
 			"--" + flags.ServerInstanceID, expectedServerID,
-			"--" + flags.LogLevel, expectedLogLevel,
+			"--" + flags.LogLevel, string(expectedLogLevel),
 		}).
 		Return(mockCmd).
 		Once()
@@ -92,11 +92,47 @@ func TestNew_HappyPath(t *testing.T) {
 		Once()
 
 	// Act
-	processInstance, err := process.New(mockOSLayer, mockLoggerFactory, mockDirectory, mockConfig)
+	processInstance, err := process.New(mockOSLayer, mockLoggerFactory, mockDirectory, mockConfigFactory)
 
 	// Assert
 	require.NoError(t, err, "New should not return an error")
 	assert.NotNil(t, processInstance, "Process instance should not be nil")
+}
+
+func TestNew_ConfigError(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockOSLayer := &processmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockLoggerFactory := &processmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockDirectory := &processmocks.MockDirectory{}
+	defer mockDirectory.AssertExpectations(t)
+
+	mockConfigFactory := &processmocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(nil, expectedError).
+		Once()
+
+	// Act
+	processInstance, err := process.New(mockOSLayer, mockLoggerFactory, mockDirectory, mockConfigFactory)
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "New should return the error from Config")
+	assert.Nil(t, processInstance, "Process instance should be nil on error")
 }
 
 func TestNew_ExecutableError(t *testing.T) {
@@ -112,7 +148,10 @@ func TestNew_ExecutableError(t *testing.T) {
 	mockDirectory := &processmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
 
-	mockConfig := &processmocks.MockConfig{}
+	mockConfigFactory := &processmocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	expectedError := errors.New("executable error")
@@ -122,13 +161,18 @@ func TestNew_ExecutableError(t *testing.T) {
 		Return(mockLogger).
 		Once()
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockOSLayer.EXPECT().
 		Executable().
 		Return("", expectedError).
 		Once()
 
 	// Act
-	processInstance, err := process.New(mockOSLayer, mockLoggerFactory, mockDirectory, mockConfig)
+	processInstance, err := process.New(mockOSLayer, mockLoggerFactory, mockDirectory, mockConfigFactory)
 
 	// Assert
 	require.ErrorIs(t, err, expectedError, "Error should be the executable error")
@@ -148,30 +192,29 @@ func TestProcess_Start_HappyPath(t *testing.T) {
 	mockDirectory := &processmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
 
-	mockConfig := &processmocks.MockConfig{}
+	mockConfigFactory := &processmocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockCmd := &osfacademocks.MockCmd{}
 	defer mockCmd.AssertExpectations(t)
 
-	mockStdin := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
-
-	mockStdout := &entitiesmocks.MockReader{}
-	defer mockStdout.AssertExpectations(t)
-
-	mockStderr := &entitiesmocks.MockReader{}
-	defer mockStderr.AssertExpectations(t)
-
 	expectedProgramPath := filepath.Join("path", "to", "program")
 	expectedBaseDir := filepath.Join("tmp", "base", "dir")
 	expectedServerID := "server-id"
-	expectedLogLevel := string(entities.LogLevelInfo)
+	expectedLogLevel := entities.LogLevelInfo
 
 	// Setup mocks for New
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
 		Return(mockLogger).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
 		Once()
 
 	mockOSLayer.EXPECT().
@@ -191,7 +234,7 @@ func TestProcess_Start_HappyPath(t *testing.T) {
 
 	mockConfig.EXPECT().
 		LogLevel().
-		Return(entities.LogLevel(expectedLogLevel)).
+		Return(expectedLogLevel).
 		Once()
 
 	mockOSLayer.EXPECT().
@@ -199,7 +242,7 @@ func TestProcess_Start_HappyPath(t *testing.T) {
 			"--" + flags.WatchdogMode,
 			"--" + flags.BaseDir, expectedBaseDir,
 			"--" + flags.ServerInstanceID, expectedServerID,
-			"--" + flags.LogLevel, expectedLogLevel,
+			"--" + flags.LogLevel, string(expectedLogLevel),
 		}).
 		Return(mockCmd).
 		Once()
@@ -213,7 +256,7 @@ func TestProcess_Start_HappyPath(t *testing.T) {
 		Return(nil).
 		Once()
 
-	processInstance, err := process.New(mockOSLayer, mockLoggerFactory, mockDirectory, mockConfig)
+	processInstance, err := process.New(mockOSLayer, mockLoggerFactory, mockDirectory, mockConfigFactory)
 	require.NoError(t, err, "New should not return an error")
 
 	// Act
@@ -236,31 +279,30 @@ func TestProcess_Start_Error(t *testing.T) {
 	mockDirectory := &processmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
 
-	mockConfig := &processmocks.MockConfig{}
+	mockConfigFactory := &processmocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockCmd := &osfacademocks.MockCmd{}
 	defer mockCmd.AssertExpectations(t)
 
-	mockStdin := &entitiesmocks.MockWriter{}
-	defer mockStdin.AssertExpectations(t)
-
-	mockStdout := &entitiesmocks.MockReader{}
-	defer mockStdout.AssertExpectations(t)
-
-	mockStderr := &entitiesmocks.MockReader{}
-	defer mockStderr.AssertExpectations(t)
-
 	expectedProgramPath := filepath.Join("path", "to", "program")
 	expectedBaseDir := filepath.Join("tmp", "base", "dir")
 	expectedServerID := "server-id"
-	expectedLogLevel := string(entities.LogLevelInfo)
+	expectedLogLevel := entities.LogLevelInfo
 	expectedError := errors.New("start process error")
 
 	// Setup mocks for New
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
 		Return(mockLogger).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
 		Once()
 
 	mockOSLayer.EXPECT().
@@ -280,7 +322,7 @@ func TestProcess_Start_Error(t *testing.T) {
 
 	mockConfig.EXPECT().
 		LogLevel().
-		Return(entities.LogLevel(expectedLogLevel)).
+		Return(expectedLogLevel).
 		Once()
 
 	mockOSLayer.EXPECT().
@@ -288,7 +330,7 @@ func TestProcess_Start_Error(t *testing.T) {
 			"--" + flags.WatchdogMode,
 			"--" + flags.BaseDir, expectedBaseDir,
 			"--" + flags.ServerInstanceID, expectedServerID,
-			"--" + flags.LogLevel, expectedLogLevel,
+			"--" + flags.LogLevel, string(expectedLogLevel),
 		}).
 		Return(mockCmd).
 		Once()
@@ -302,7 +344,7 @@ func TestProcess_Start_Error(t *testing.T) {
 		Return(expectedError).
 		Once()
 
-	processInstance, err := process.New(mockOSLayer, mockLoggerFactory, mockDirectory, mockConfig)
+	processInstance, err := process.New(mockOSLayer, mockLoggerFactory, mockDirectory, mockConfigFactory)
 	require.NoError(t, err, "New should not return an error")
 
 	// Act

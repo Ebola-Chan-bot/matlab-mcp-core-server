@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package matlabrootselector_test
 
@@ -11,23 +11,53 @@ import (
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabrootselector"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
+	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/globalmatlab/matlabrootselector"
 )
 
 func TestNew_HappyPath(t *testing.T) {
 	// Arrange
-	mockConfig := &mocks.MockConfig{}
-	defer mockConfig.AssertExpectations(t)
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
 
 	mockMATLABManager := &mocks.MockMATLABManager{}
 	defer mockMATLABManager.AssertExpectations(t)
 
 	// Act
-	selector := matlabrootselector.New(mockConfig, mockMATLABManager)
+	selector := matlabrootselector.New(mockConfigFactory, mockMATLABManager)
 
 	// Assert
 	assert.NotNil(t, selector)
+}
+
+func TestMATLABRootSelector_SelectMATLABRoot_ConfigError(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockMATLABManager := &mocks.MockMATLABManager{}
+	defer mockMATLABManager.AssertExpectations(t)
+
+	ctx := t.Context()
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(nil, expectedError).
+		Once()
+
+	selector := matlabrootselector.New(mockConfigFactory, mockMATLABManager)
+
+	// Act
+	result, err := selector.SelectMATLABRoot(ctx, mockLogger)
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "SelectMATLABRoot should return the error from Config")
+	assert.Empty(t, result)
 }
 
 func TestMATLABRootSelector_SelectMATLABRoot_HappyPath(t *testing.T) {
@@ -85,13 +115,21 @@ func TestMATLABRootSelector_SelectMATLABRoot_HappyPath(t *testing.T) {
 			// Arrange
 			mockLogger := testutils.NewInspectableLogger()
 
-			mockConfig := &mocks.MockConfig{}
+			mockConfigFactory := &mocks.MockConfigFactory{}
+			defer mockConfigFactory.AssertExpectations(t)
+
+			mockConfig := &configmocks.MockConfig{}
 			defer mockConfig.AssertExpectations(t)
 
 			mockMATLABManager := &mocks.MockMATLABManager{}
 			defer mockMATLABManager.AssertExpectations(t)
 
 			ctx := t.Context()
+
+			mockConfigFactory.EXPECT().
+				Config().
+				Return(mockConfig, nil).
+				Once()
 
 			mockConfig.EXPECT().
 				PreferredLocalMATLABRoot().
@@ -103,7 +141,7 @@ func TestMATLABRootSelector_SelectMATLABRoot_HappyPath(t *testing.T) {
 				Return(tc.environments).
 				Once()
 
-			selector := matlabrootselector.New(mockConfig, mockMATLABManager)
+			selector := matlabrootselector.New(mockConfigFactory, mockMATLABManager)
 
 			// Act
 			result, err := selector.SelectMATLABRoot(ctx, mockLogger)
@@ -119,7 +157,10 @@ func TestMATLABRootSelector_SelectMATLABRoot_PreferredMATLABRootSet_HappyPath(t 
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()
 
-	mockConfig := &mocks.MockConfig{}
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockMATLABManager := &mocks.MockMATLABManager{}
@@ -129,12 +170,17 @@ func TestMATLABRootSelector_SelectMATLABRoot_PreferredMATLABRootSet_HappyPath(t 
 
 	expectedPreferredMATLABRoot := filepath.Join("usr", "local", "MATLAB", "R2024b")
 
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
 	mockConfig.EXPECT().
 		PreferredLocalMATLABRoot().
 		Return(expectedPreferredMATLABRoot).
 		Once()
 
-	selector := matlabrootselector.New(mockConfig, mockMATLABManager)
+	selector := matlabrootselector.New(mockConfigFactory, mockMATLABManager)
 
 	// Act
 	result, err := selector.SelectMATLABRoot(ctx, mockLogger)
@@ -164,13 +210,21 @@ func TestMATLABRootSelector_SelectMATLABRoot_ListEnvironmentsEmpty(t *testing.T)
 			// Arrange
 			mockLogger := testutils.NewInspectableLogger()
 
-			mockConfig := &mocks.MockConfig{}
+			mockConfigFactory := &mocks.MockConfigFactory{}
+			defer mockConfigFactory.AssertExpectations(t)
+
+			mockConfig := &configmocks.MockConfig{}
 			defer mockConfig.AssertExpectations(t)
 
 			mockMATLABManager := &mocks.MockMATLABManager{}
 			defer mockMATLABManager.AssertExpectations(t)
 
 			ctx := t.Context()
+
+			mockConfigFactory.EXPECT().
+				Config().
+				Return(mockConfig, nil).
+				Once()
 
 			mockConfig.EXPECT().
 				PreferredLocalMATLABRoot().
@@ -182,7 +236,7 @@ func TestMATLABRootSelector_SelectMATLABRoot_ListEnvironmentsEmpty(t *testing.T)
 				Return(tc.environments).
 				Once()
 
-			selector := matlabrootselector.New(mockConfig, mockMATLABManager)
+			selector := matlabrootselector.New(mockConfigFactory, mockMATLABManager)
 
 			// Act
 			result, err := selector.SelectMATLABRoot(ctx, mockLogger)

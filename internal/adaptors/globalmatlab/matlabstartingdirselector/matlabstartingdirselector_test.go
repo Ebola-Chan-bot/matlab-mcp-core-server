@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package matlabstartingdirselector_test
 
@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabstartingdirselector"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/globalmatlab/matlabstartingdirselector"
 	osFacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
 	"github.com/stretchr/testify/assert"
@@ -18,14 +20,39 @@ func TestNew_HappyPath(t *testing.T) {
 	mockOSLayer := &mocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	mockConfig := &mocks.MockConfig{}
-	defer mockConfig.AssertExpectations(t)
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
 
 	// Act
-	selector := matlabstartingdirselector.New(mockConfig, mockOSLayer)
+	selector := matlabstartingdirselector.New(mockConfigFactory, mockOSLayer)
 
 	// Assert
 	assert.NotNil(t, selector)
+}
+
+func TestMATLABStartingDirSelector_GetMatlabStartDir_ConfigError(t *testing.T) {
+	// Arrange
+	mockOSLayer := &mocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(nil, expectedError).
+		Once()
+
+	selector := matlabstartingdirselector.New(mockConfigFactory, mockOSLayer)
+
+	// Act
+	result, err := selector.SelectMatlabStartingDir()
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "SelectMatlabStartingDir should return the error from Config")
+	assert.Empty(t, result)
 }
 
 func TestMATLABStartingDirSelector_GetMatlabStartDir_HappyPath(t *testing.T) {
@@ -61,13 +88,21 @@ func TestMATLABStartingDirSelector_GetMatlabStartDir_HappyPath(t *testing.T) {
 			mockOSLayer := &mocks.MockOSLayer{}
 			defer mockOSLayer.AssertExpectations(t)
 
-			mockConfig := &mocks.MockConfig{}
+			mockConfigFactory := &mocks.MockConfigFactory{}
+			defer mockConfigFactory.AssertExpectations(t)
+
+			mockConfig := &configmocks.MockConfig{}
 			defer mockConfig.AssertExpectations(t)
 
 			mockFileInfo := &osFacademocks.MockFileInfo{}
 			defer mockFileInfo.AssertExpectations(t)
 
-			selector := matlabstartingdirselector.New(mockConfig, mockOSLayer)
+			selector := matlabstartingdirselector.New(mockConfigFactory, mockOSLayer)
+
+			mockConfigFactory.EXPECT().
+				Config().
+				Return(mockConfig, nil).
+				Once()
 
 			mockConfig.EXPECT().
 				PreferredMATLABStartingDirectory().
@@ -104,13 +139,21 @@ func TestMATLABStartingDirSelector_GetMatlabStartDir_PreferredStartingDirectoryS
 	mockOSLayer := &mocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	mockConfig := &mocks.MockConfig{}
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileInfo := &osFacademocks.MockFileInfo{}
 	defer mockFileInfo.AssertExpectations(t)
 
 	expectedPreferredMATLABStartingDir := filepath.Join("custom", "preferred", "directory")
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		PreferredMATLABStartingDirectory().
@@ -122,7 +165,7 @@ func TestMATLABStartingDirSelector_GetMatlabStartDir_PreferredStartingDirectoryS
 		Return(mockFileInfo, nil).
 		Once()
 
-	selector := matlabstartingdirselector.New(mockConfig, mockOSLayer)
+	selector := matlabstartingdirselector.New(mockConfigFactory, mockOSLayer)
 
 	// Act
 	result, err := selector.SelectMatlabStartingDir()
@@ -137,16 +180,24 @@ func TestMATLABStartingDirSelector_GetMatlabStartDir_UnknownOS_HappyPath(t *test
 	mockOSLayer := &mocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	mockConfig := &mocks.MockConfig{}
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockFileInfo := &osFacademocks.MockFileInfo{}
 	defer mockFileInfo.AssertExpectations(t)
 
-	selector := matlabstartingdirselector.New(mockConfig, mockOSLayer)
+	selector := matlabstartingdirselector.New(mockConfigFactory, mockOSLayer)
 
 	expectedHomeDir := filepath.Join("home", "testuser")
 	unknownOS := "freebsd"
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		PreferredMATLABStartingDirectory().
@@ -181,11 +232,19 @@ func TestMATLABStartingDirSelector_GetMatlabStartDir_UserHomeDirError(t *testing
 	mockOSLayer := &mocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	mockConfig := &mocks.MockConfig{}
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
-	selector := matlabstartingdirselector.New(mockConfig, mockOSLayer)
+	selector := matlabstartingdirselector.New(mockConfigFactory, mockOSLayer)
 	expectedError := assert.AnError
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		PreferredMATLABStartingDirectory().
@@ -234,16 +293,24 @@ func TestMATLABStartingDirSelector_GetMatlabStartDir_StatErrorOnHomeDir(t *testi
 			mockOSLayer := &mocks.MockOSLayer{}
 			defer mockOSLayer.AssertExpectations(t)
 
-			mockConfig := &mocks.MockConfig{}
+			mockConfigFactory := &mocks.MockConfigFactory{}
+			defer mockConfigFactory.AssertExpectations(t)
+
+			mockConfig := &configmocks.MockConfig{}
 			defer mockConfig.AssertExpectations(t)
 
-			selector := matlabstartingdirselector.New(mockConfig, mockOSLayer)
+			selector := matlabstartingdirselector.New(mockConfigFactory, mockOSLayer)
 
 			expectedDir := tc.homeDir
 			expectedError := assert.AnError
 			if tc.os == "windows" || tc.os == "darwin" {
 				expectedDir = filepath.Join(tc.homeDir, "Documents")
 			}
+
+			mockConfigFactory.EXPECT().
+				Config().
+				Return(mockConfig, nil).
+				Once()
 
 			mockConfig.EXPECT().
 				PreferredMATLABStartingDirectory().
@@ -280,12 +347,20 @@ func TestMATLABStartingDirSelector_GetMatlabStartDir_StatErrorOnPreferredMATLABS
 	mockOSLayer := &mocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	mockConfig := &mocks.MockConfig{}
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
-	selector := matlabstartingdirselector.New(mockConfig, mockOSLayer)
+	selector := matlabstartingdirselector.New(mockConfigFactory, mockOSLayer)
 	expectedPreferredMATLABStartingDir := filepath.Join("some", "path", "that", "doesnt", "exist")
 	expectedError := assert.AnError
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		PreferredMATLABStartingDirectory().

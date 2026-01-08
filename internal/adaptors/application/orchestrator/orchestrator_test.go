@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package orchestrator_test
 
@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/orchestrator"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
+	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	orchestratormocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/orchestrator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,8 +21,8 @@ func TestNew_HappyPath(t *testing.T) {
 	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
 	defer mockLifecycleSignaler.AssertExpectations(t)
 
-	mockConfig := &orchestratormocks.MockConfig{}
-	defer mockConfig.AssertExpectations(t)
+	mockConfigFactory := &orchestratormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
 
 	mockServer := &orchestratormocks.MockServer{}
 	defer mockServer.AssertExpectations(t)
@@ -43,7 +45,7 @@ func TestNew_HappyPath(t *testing.T) {
 	//Act
 	orchestratorInstance := orchestrator.New(
 		mockLifecycleSignaler,
-		mockConfig,
+		mockConfigFactory,
 		mockServer,
 		mockWatchdogClient,
 		mockLoggerFactory,
@@ -56,12 +58,74 @@ func TestNew_HappyPath(t *testing.T) {
 	assert.NotNil(t, orchestratorInstance, "Orchestrator instance should not be nil")
 }
 
+func TestOrchestrator_StartAndWaitForCompletion_ConfigError(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	mockConfigFactory := &orchestratormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockServer := &orchestratormocks.MockServer{}
+	defer mockServer.AssertExpectations(t)
+
+	mockWatchdogClient := &orchestratormocks.MockWatchdogClient{}
+	defer mockWatchdogClient.AssertExpectations(t)
+
+	mockLoggerFactory := &orchestratormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockSignalLayer := &orchestratormocks.MockOSSignaler{}
+	defer mockSignalLayer.AssertExpectations(t)
+
+	mockGlobalMATLABManager := &orchestratormocks.MockGlobalMATLAB{}
+	defer mockGlobalMATLABManager.AssertExpectations(t)
+
+	mockDirectory := &orchestratormocks.MockDirectory{}
+	defer mockDirectory.AssertExpectations(t)
+
+	ctx := t.Context()
+	expectedError := &messages.StartupErrors_BadFlag_Error{}
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(nil, expectedError).
+		Once()
+
+	orchestratorInstance := orchestrator.New(
+		mockLifecycleSignaler,
+		mockConfigFactory,
+		mockServer,
+		mockWatchdogClient,
+		mockLoggerFactory,
+		mockSignalLayer,
+		mockGlobalMATLABManager,
+		mockDirectory,
+	)
+
+	// Act
+	err := orchestratorInstance.StartAndWaitForCompletion(ctx)
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "StartAndWaitForCompletion should return the error from Config")
+}
+
 func TestOrchestrator_StartAndWaitForCompletion_HappyPath(t *testing.T) {
 	// Arrange
 	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
 	defer mockLifecycleSignaler.AssertExpectations(t)
 
-	mockConfig := &orchestratormocks.MockConfig{}
+	mockConfigFactory := &orchestratormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockServer := &orchestratormocks.MockServer{}
@@ -93,6 +157,11 @@ func TestOrchestrator_StartAndWaitForCompletion_HappyPath(t *testing.T) {
 		GetGlobalLogger().
 		Return(mockLogger).
 		Twice()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		RecordToLogger(mockLogger.AsMockArg()).
@@ -156,7 +225,7 @@ func TestOrchestrator_StartAndWaitForCompletion_HappyPath(t *testing.T) {
 
 	orchestratorInstance := orchestrator.New(
 		mockLifecycleSignaler,
-		mockConfig,
+		mockConfigFactory,
 		mockServer,
 		mockWatchdogClient,
 		mockLoggerFactory,
@@ -186,7 +255,10 @@ func TestOrchestrator_StartAndWaitForCompletion_InitializeMATLABOnStartup_False(
 	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
 	defer mockLifecycleSignaler.AssertExpectations(t)
 
-	mockConfig := &orchestratormocks.MockConfig{}
+	mockConfigFactory := &orchestratormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockServer := &orchestratormocks.MockServer{}
@@ -213,6 +285,11 @@ func TestOrchestrator_StartAndWaitForCompletion_InitializeMATLABOnStartup_False(
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
 		Return(mockLogger).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
 		Once()
 
 	mockConfig.EXPECT().
@@ -275,7 +352,7 @@ func TestOrchestrator_StartAndWaitForCompletion_InitializeMATLABOnStartup_False(
 
 	orchestratorInstance := orchestrator.New(
 		mockLifecycleSignaler,
-		mockConfig,
+		mockConfigFactory,
 		mockServer,
 		mockWatchdogClient,
 		mockLoggerFactory,
@@ -302,7 +379,10 @@ func TestOrchestrator_StartAndWaitForCompletion_ServerError(t *testing.T) {
 	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
 	defer mockLifecycleSignaler.AssertExpectations(t)
 
-	mockConfig := &orchestratormocks.MockConfig{}
+	mockConfigFactory := &orchestratormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockServer := &orchestratormocks.MockServer{}
@@ -332,6 +412,11 @@ func TestOrchestrator_StartAndWaitForCompletion_ServerError(t *testing.T) {
 		GetGlobalLogger().
 		Return(mockLogger).
 		Twice()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		RecordToLogger(mockLogger.AsMockArg()).
@@ -390,7 +475,7 @@ func TestOrchestrator_StartAndWaitForCompletion_ServerError(t *testing.T) {
 
 	orchestratorInstance := orchestrator.New(
 		mockLifecycleSignaler,
-		mockConfig,
+		mockConfigFactory,
 		mockServer,
 		mockWatchdogClient,
 		mockLoggerFactory,
@@ -411,7 +496,10 @@ func TestOrchestrator_StartAndWaitForCompletion_InitializeMATLABErrorDoesNotTrig
 	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
 	defer mockLifecycleSignaler.AssertExpectations(t)
 
-	mockConfig := &orchestratormocks.MockConfig{}
+	mockConfigFactory := &orchestratormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockServer := &orchestratormocks.MockServer{}
@@ -442,6 +530,11 @@ func TestOrchestrator_StartAndWaitForCompletion_InitializeMATLABErrorDoesNotTrig
 		GetGlobalLogger().
 		Return(mockLogger).
 		Twice()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		RecordToLogger(mockLogger.AsMockArg()).
@@ -506,7 +599,7 @@ func TestOrchestrator_StartAndWaitForCompletion_InitializeMATLABErrorDoesNotTrig
 
 	orchestratorInstance := orchestrator.New(
 		mockLifecycleSignaler,
-		mockConfig,
+		mockConfigFactory,
 		mockServer,
 		mockWatchdogClient,
 		mockLoggerFactory,
@@ -538,7 +631,10 @@ func TestOrchestrator_StartAndWaitForCompletion_WaitForShutdownToCompleteError(t
 	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
 	defer mockLifecycleSignaler.AssertExpectations(t)
 
-	mockConfig := &orchestratormocks.MockConfig{}
+	mockConfigFactory := &orchestratormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockServer := &orchestratormocks.MockServer{}
@@ -568,6 +664,11 @@ func TestOrchestrator_StartAndWaitForCompletion_WaitForShutdownToCompleteError(t
 		GetGlobalLogger().
 		Return(mockLogger).
 		Twice()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		RecordToLogger(mockLogger.AsMockArg()).
@@ -626,7 +727,7 @@ func TestOrchestrator_StartAndWaitForCompletion_WaitForShutdownToCompleteError(t
 
 	orchestratorInstance := orchestrator.New(
 		mockLifecycleSignaler,
-		mockConfig,
+		mockConfigFactory,
 		mockServer,
 		mockWatchdogClient,
 		mockLoggerFactory,
@@ -665,7 +766,10 @@ func TestOrchestrator_StartAndWaitForCompletion_WatchdogStopError(t *testing.T) 
 	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
 	defer mockLifecycleSignaler.AssertExpectations(t)
 
-	mockConfig := &orchestratormocks.MockConfig{}
+	mockConfigFactory := &orchestratormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockServer := &orchestratormocks.MockServer{}
@@ -694,6 +798,11 @@ func TestOrchestrator_StartAndWaitForCompletion_WatchdogStopError(t *testing.T) 
 		GetGlobalLogger().
 		Return(mockLogger).
 		Twice()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
 
 	mockConfig.EXPECT().
 		RecordToLogger(mockLogger.AsMockArg()).
@@ -762,7 +871,7 @@ func TestOrchestrator_StartAndWaitForCompletion_WatchdogStopError(t *testing.T) 
 		Once()
 
 	orchestratorInstance := orchestrator.New(
-		mockLifecycleSignaler, mockConfig, mockServer, mockWatchdogClient,
+		mockLifecycleSignaler, mockConfigFactory, mockServer, mockWatchdogClient,
 		mockLoggerFactory, mockSignalLayer, mockGlobalMATLABManager, mockDirectory,
 	)
 
@@ -791,7 +900,10 @@ func TestOrchestrator_runMATLABMCPServerMain_MultipleSession_HappyPath(t *testin
 	mockLifecycleSignaler := &orchestratormocks.MockLifecycleSignaler{}
 	defer mockLifecycleSignaler.AssertExpectations(t)
 
-	mockConfig := &orchestratormocks.MockConfig{}
+	mockConfigFactory := &orchestratormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
 	mockServer := &orchestratormocks.MockServer{}
@@ -819,6 +931,11 @@ func TestOrchestrator_runMATLABMCPServerMain_MultipleSession_HappyPath(t *testin
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().
 		Return(mockLogger).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
 		Once()
 
 	mockConfig.EXPECT().
@@ -868,7 +985,7 @@ func TestOrchestrator_runMATLABMCPServerMain_MultipleSession_HappyPath(t *testin
 
 	orchestratorInstance := orchestrator.New(
 		mockLifecycleSignaler,
-		mockConfig,
+		mockConfigFactory,
 		mockServer,
 		mockWatchdogClient,
 		mockLoggerFactory,

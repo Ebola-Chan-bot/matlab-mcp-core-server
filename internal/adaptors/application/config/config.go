@@ -1,9 +1,10 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package config
 
 import (
 	"runtime/debug"
+	"sync"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/flags"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/parser"
@@ -20,22 +21,74 @@ type OSLayer interface {
 	ReadBuildInfo() (info *debug.BuildInfo, ok bool)
 }
 
-type Config struct {
+type Config interface {
+	Version() string
+	HelpMode() bool
+	VersionMode() bool
+	WatchdogMode() bool
+	BaseDir() string
+	ServerInstanceID() string
+	UseSingleMATLABSession() bool
+	InitializeMATLABOnStartup() bool
+	RecordToLogger(logger entities.Logger)
+	LogLevel() entities.LogLevel
+	PreferredLocalMATLABRoot() string
+	PreferredMATLABStartingDirectory() string
+}
+
+type Factory struct {
+	parser  Parser
+	osLayer OSLayer
+
+	singletonInitialization sync.Once
+	configInstance          *config
+	initializationError     messages.Error
+}
+
+func NewFactory(parser Parser, osLayer OSLayer) *Factory {
+	return &Factory{
+		parser:  parser,
+		osLayer: osLayer,
+	}
+}
+
+func (f *Factory) Config() (Config, messages.Error) {
+	f.singletonInitialization.Do(func() {
+		configInstance, err := newConfig(f.osLayer, f.parser)
+		if err != nil {
+			f.initializationError = err
+			return
+		}
+
+		f.configInstance = configInstance
+	})
+
+	if f.initializationError != nil {
+		return nil, f.initializationError
+	}
+
+	return f.configInstance, nil
+}
+
+type config struct {
 	osLayer            OSLayer
 	specifiedArguments parser.SpecifiedArguments
 }
 
-func New(osLayer OSLayer, parser Parser) (*Config, messages.Error) {
+func newConfig(osLayer OSLayer, parser Parser) (*config, messages.Error) {
 	specifiedArguments, err := parser.Parse(osLayer.Args()[1:])
-
 	if err != nil {
 		return nil, err
 	}
-	return &Config{osLayer: osLayer, specifiedArguments: specifiedArguments}, nil
+
+	return &config{
+		osLayer:            osLayer,
+		specifiedArguments: specifiedArguments,
+	}, nil
 }
 
 // Version returns the application version string from Go's build info.
-func (c *Config) Version() string {
+func (c *config) Version() string {
 	buildInfo, ok := c.osLayer.ReadBuildInfo()
 	if !ok {
 		return "(unknown)"
@@ -49,51 +102,51 @@ func (c *Config) Version() string {
 	return buildInfo.Main.Path + " " + version
 }
 
-func (c *Config) VersionMode() bool {
+func (c *config) VersionMode() bool {
 	return c.specifiedArguments.VersionMode
 }
 
-func (c *Config) HelpMode() bool {
+func (c *config) HelpMode() bool {
 	return c.specifiedArguments.HelpMode
 }
 
-func (c *Config) DisableTelemetry() bool {
+func (c *config) DisableTelemetry() bool {
 	return c.specifiedArguments.DisableTelemetry
 }
 
-func (c *Config) UseSingleMATLABSession() bool {
+func (c *config) UseSingleMATLABSession() bool {
 	return c.specifiedArguments.UseSingleMATLABSession
 }
 
-func (c *Config) LogLevel() entities.LogLevel {
+func (c *config) LogLevel() entities.LogLevel {
 	return c.specifiedArguments.LogLevel
 }
 
-func (c *Config) PreferredLocalMATLABRoot() string {
+func (c *config) PreferredLocalMATLABRoot() string {
 	return c.specifiedArguments.PreferredLocalMATLABRoot
 }
 
-func (c *Config) PreferredMATLABStartingDirectory() string {
+func (c *config) PreferredMATLABStartingDirectory() string {
 	return c.specifiedArguments.PreferredMATLABStartingDirectory
 }
 
-func (c *Config) BaseDir() string {
+func (c *config) BaseDir() string {
 	return c.specifiedArguments.BaseDirectory
 }
 
-func (c *Config) WatchdogMode() bool {
+func (c *config) WatchdogMode() bool {
 	return c.specifiedArguments.WatchdogMode
 }
 
-func (c *Config) ServerInstanceID() string {
+func (c *config) ServerInstanceID() string {
 	return c.specifiedArguments.ServerInstanceID
 }
 
-func (c *Config) InitializeMATLABOnStartup() bool {
+func (c *config) InitializeMATLABOnStartup() bool {
 	return c.specifiedArguments.InitializeMATLABOnStartup
 }
 
-func (c *Config) RecordToLogger(logger entities.Logger) {
+func (c *config) RecordToLogger(logger entities.Logger) {
 	logger.
 		With(flags.DisableTelemetry, c.specifiedArguments.DisableTelemetry).
 		With(flags.UseSingleMATLABSession, c.specifiedArguments.UseSingleMATLABSession).

@@ -1,15 +1,17 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package matlabstartingdirselector
 
 import (
 	"path/filepath"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
-type Config interface {
-	PreferredMATLABStartingDirectory() string
+type ConfigFactory interface {
+	Config() (config.Config, messages.Error)
 }
 
 type OSLayer interface {
@@ -20,24 +22,28 @@ type OSLayer interface {
 }
 
 type MATLABStartingDirSelector struct {
-	config  Config
-	osLayer OSLayer
+	configFactory ConfigFactory
+	osLayer       OSLayer
 }
 
 func New(
-	config Config,
+	configFactory ConfigFactory,
 	osLayer OSLayer,
 ) *MATLABStartingDirSelector {
 	return &MATLABStartingDirSelector{
-		config:  config,
-		osLayer: osLayer,
+		configFactory: configFactory,
+		osLayer:       osLayer,
 	}
 }
 
 func (s *MATLABStartingDirSelector) SelectMatlabStartingDir() (string, error) {
-	var err error
+	config, configErr := s.configFactory.Config()
+	if configErr != nil {
+		return "", configErr
+	}
+
 	// Try preferred directory first
-	if preferredDir := s.config.PreferredMATLABStartingDirectory(); preferredDir != "" {
+	if preferredDir := config.PreferredMATLABStartingDirectory(); preferredDir != "" {
 		if _, err := s.osLayer.Stat(preferredDir); err != nil {
 			return "", err
 		}
