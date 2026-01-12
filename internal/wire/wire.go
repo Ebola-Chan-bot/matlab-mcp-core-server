@@ -143,6 +143,7 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 		// Socket Path Factory
 		socket.NewFactory,
 		wire.Bind(new(socket.Directory), new(*directory.Directory)),
+		wire.Bind(new(socket.OSLayer), new(*osfacade.OsFacade)),
 
 		// Watchdog Process Handler for Watchdog Client
 		process.New,
@@ -346,6 +347,7 @@ func initializeWatchdog() (*watchdogprocess.Watchdog, error) {
 		// Socket Path Factory
 		socket.NewFactory,
 		wire.Bind(new(socket.Directory), new(*directory.Directory)),
+		wire.Bind(new(socket.OSLayer), new(*osfacade.OsFacade)),
 
 		// Process Handler for Watchdog Process
 		processhandler.New,

@@ -116,7 +116,7 @@ func initializeOrchestrator() (*orchestrator.Orchestrator, error) {
 	}
 	httpClientFactory := httpclientfactory.New()
 	clientFactory := client.NewFactory(osFacade, loggerFactory, httpClientFactory)
-	socketFactory := socket.NewFactory(directoryDirectory)
+	socketFactory := socket.NewFactory(directoryDirectory, osFacade)
 	watchdogWatchdog := watchdog.New(processProcess, clientFactory, loggerFactory, socketFactory)
 	starter := localmatlabsession.NewStarter(directoryFactory, processDetails, matlabProcessLauncher, watchdogWatchdog)
 	matlabServices := matlabservices.New(matlabLocator, starter)
@@ -182,7 +182,7 @@ func initializeWatchdog() (*watchdog2.Watchdog, error) {
 	handlerHandler := handler.New(loggerFactory, processHandler)
 	httpServerFactory := httpserverfactory.New(osFacade)
 	serverFactory := server2.NewFactory(httpServerFactory, loggerFactory, handlerHandler)
-	socketFactory := socket.NewFactory(directoryDirectory)
+	socketFactory := socket.NewFactory(directoryDirectory, osFacade)
 	watchdogWatchdog := watchdog2.New(loggerFactory, osFacade, processHandler, osSignaler, handlerHandler, serverFactory, socketFactory)
 	return watchdogWatchdog, nil
 }

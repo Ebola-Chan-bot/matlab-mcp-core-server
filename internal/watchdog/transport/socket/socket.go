@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package socket
 
@@ -14,12 +14,17 @@ type Directory interface {
 	ID() string
 }
 
+type OSLayer interface {
+	GOOS() string
+}
+
 type Socket interface {
 	Path() string
 }
 
 type Factory struct {
 	directory Directory
+	osLayer   OSLayer
 
 	socketInstance Socket
 	socketError    error
@@ -27,9 +32,11 @@ type Factory struct {
 
 func NewFactory(
 	directory Directory,
+	osLayer OSLayer,
 ) *Factory {
 	return &Factory{
 		directory: directory,
+		osLayer:   osLayer,
 	}
 }
 
@@ -41,6 +48,7 @@ func (f *Factory) Socket() (Socket, error) {
 	if f.socketInstance == nil {
 		socket, err := newSocket(
 			f.directory,
+			f.osLayer,
 		)
 		if err != nil {
 			f.socketError = err
@@ -59,12 +67,17 @@ type socket struct {
 
 func newSocket(
 	directory Directory,
+	osLayer OSLayer,
 ) (*socket, error) {
 	socketPath := filepath.Join(directory.BaseDir(), "watchdog-"+directory.ID()+".sock")
 
 	// Socket path max length is 108 characters, but for safety using 105
 	if len(socketPath) > 105 {
-		return nil, ErrSocketPathTooLong
+		if osLayer.GOOS() == "darwin" {
+			socketPath = filepath.Join("/tmp", "watchdog-"+directory.ID()+".sock")
+		} else {
+			return nil, ErrSocketPathTooLong
+		}
 	}
 
 	return &socket{

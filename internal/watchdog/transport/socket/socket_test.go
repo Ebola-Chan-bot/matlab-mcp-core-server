@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package socket_test
 
@@ -17,8 +17,11 @@ func TestNewFactory_HappyPath(t *testing.T) {
 	mockDirectory := &socketmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
 
+	mockOSLayer := &socketmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
 	// Act
-	factory := socket.NewFactory(mockDirectory)
+	factory := socket.NewFactory(mockDirectory, mockOSLayer)
 
 	// Assert
 	assert.NotNil(t, factory)
@@ -28,6 +31,9 @@ func TestFactory_Socket_HappyPath(t *testing.T) {
 	// Arrange
 	mockDirectory := &socketmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
+
+	mockOSLayer := &socketmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
 
 	baseDir := filepath.Join("tmp", "watchdog")
 	id := "abc123"
@@ -42,7 +48,7 @@ func TestFactory_Socket_HappyPath(t *testing.T) {
 		Return(id).
 		Once()
 
-	factory := socket.NewFactory(mockDirectory)
+	factory := socket.NewFactory(mockDirectory, mockOSLayer)
 
 	// Act
 	socketInstance, err := factory.Socket()
@@ -57,6 +63,9 @@ func TestFactory_Socket_Singleton(t *testing.T) {
 	mockDirectory := &socketmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
 
+	mockOSLayer := &socketmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
 	baseDir := filepath.Join("tmp", "watchdog")
 	id := "abc123"
 
@@ -70,7 +79,7 @@ func TestFactory_Socket_Singleton(t *testing.T) {
 		Return(id).
 		Once()
 
-	factory := socket.NewFactory(mockDirectory)
+	factory := socket.NewFactory(mockDirectory, mockOSLayer)
 
 	// Act
 	firstSocketInstance, firstErr := factory.Socket()
@@ -87,6 +96,9 @@ func TestFactory_Socket_ReturnCachedError(t *testing.T) {
 	mockDirectory := &socketmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
 
+	mockOSLayer := &socketmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
 	baseDir := filepath.Join("tmp", "s_super_long_path_that_causes_an_error_for_the_socket_to_be_created_due_to_os_limits")
 	id := "abc123"
 
@@ -100,7 +112,12 @@ func TestFactory_Socket_ReturnCachedError(t *testing.T) {
 		Return(id).
 		Once()
 
-	factory := socket.NewFactory(mockDirectory)
+	mockOSLayer.EXPECT().
+		GOOS().
+		Return("linux").
+		Once()
+
+	factory := socket.NewFactory(mockDirectory, mockOSLayer)
 
 	// Act
 	firstSocketInstance, firstErr := factory.Socket()
@@ -117,6 +134,9 @@ func TestSocket_HappyPath(t *testing.T) {
 	mockDirectory := &socketmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
 
+	mockOSLayer := &socketmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
 	baseDir := filepath.Join("tmp", "watchdog")
 	id := "abc123"
 
@@ -131,7 +151,7 @@ func TestSocket_HappyPath(t *testing.T) {
 		Once()
 
 	// Act
-	socketInstance, err := socket.NewSocket(mockDirectory)
+	socketInstance, err := socket.NewSocket(mockDirectory, mockOSLayer)
 
 	// Assert
 	require.NoError(t, err)
@@ -142,6 +162,9 @@ func TestSocket_PathTooLong(t *testing.T) {
 	// Arrange
 	mockDirectory := &socketmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
+
+	mockOSLayer := &socketmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
 
 	baseDir := filepath.Join("tmp", "s_super_long_path_that_causes_an_error_for_the_socket_to_be_created_due_to_os_limits")
 	id := "abc123"
@@ -156,8 +179,13 @@ func TestSocket_PathTooLong(t *testing.T) {
 		Return(id).
 		Once()
 
+	mockOSLayer.EXPECT().
+		GOOS().
+		Return("linux").
+		Once()
+
 	// Act
-	socketInstance, err := socket.NewSocket(mockDirectory)
+	socketInstance, err := socket.NewSocket(mockDirectory, mockOSLayer)
 
 	// Assert
 	require.ErrorIs(t, err, socket.ErrSocketPathTooLong)
@@ -168,6 +196,9 @@ func TestSocket_Path_HappyPath(t *testing.T) {
 	// Arrange
 	mockDirectory := &socketmocks.MockDirectory{}
 	defer mockDirectory.AssertExpectations(t)
+
+	mockOSLayer := &socketmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
 
 	baseDir := filepath.Join("tmp", "watchdog")
 	id := "abc123"
@@ -183,7 +214,7 @@ func TestSocket_Path_HappyPath(t *testing.T) {
 		Return(id).
 		Once()
 
-	socketInstance, err := socket.NewSocket(mockDirectory)
+	socketInstance, err := socket.NewSocket(mockDirectory, mockOSLayer)
 	require.NoError(t, err)
 
 	// Act
@@ -191,4 +222,39 @@ func TestSocket_Path_HappyPath(t *testing.T) {
 
 	// Assert
 	assert.Equal(t, expectedPath, path)
+}
+
+func TestSocket_PathTooLong_DarwinFallback(t *testing.T) {
+	// Arrange
+	mockDirectory := &socketmocks.MockDirectory{}
+	defer mockDirectory.AssertExpectations(t)
+
+	mockOSLayer := &socketmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	baseDir := filepath.Join("tmp", "s_super_long_path_that_causes_an_error_for_the_socket_to_be_created_due_to_os_limits")
+	id := "abc123"
+	expectedPath := filepath.Join("/tmp", "watchdog-"+id+".sock")
+
+	mockDirectory.EXPECT().
+		BaseDir().
+		Return(baseDir).
+		Once()
+
+	mockDirectory.EXPECT().
+		ID().
+		Return(id).
+		Twice()
+
+	mockOSLayer.EXPECT().
+		GOOS().
+		Return("darwin").
+		Once()
+
+	// Act
+	socketInstance, err := socket.NewSocket(mockDirectory, mockOSLayer)
+
+	// Assert
+	require.NoError(t, err)
+	assert.Equal(t, expectedPath, socketInstance.Path())
 }
