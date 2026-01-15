@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- Copyright 2025-2026 The MathWorks, Inc. -->
-<rsccat version="1.0" locale="en_US" product="matlab-batch">
+<rsccat version="1.0" locale="en_US" product="matlab-mcp-core-server">
      <message>
          <entry key="BadFlag" context="error">Error with supplied arguments: non-existent option {0}.{1}{2}</entry>
          <entry key="BadSyntax" context="error">Error with supplied arguments: invalid syntax {0}.{1}{2}</entry>

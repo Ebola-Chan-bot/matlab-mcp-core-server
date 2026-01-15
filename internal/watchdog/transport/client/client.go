@@ -4,6 +4,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/utils/httpclientfactory"
 	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/messages"
@@ -53,9 +55,9 @@ func newClient(
 }
 
 func (c *Client) Connect(socketPath string) error {
-	logger, err := c.loggerFactory.GetGlobalLogger()
-	if err != nil {
-		return err
+	logger, messagesErr := c.loggerFactory.GetGlobalLogger()
+	if messagesErr != nil {
+		return messagesErr
 	}
 	c.logger = logger
 
@@ -63,27 +65,36 @@ func (c *Client) Connect(socketPath string) error {
 		With("socketPath", socketPath).
 		Debug("Connecting to socket")
 
-	timeout := time.After(c.socketWaitTimeout)
-	tick := time.Tick(c.socketRetryInterval)
+	ctx, cancel := context.WithTimeout(context.Background(), c.socketWaitTimeout)
+	defer cancel()
 
-	for {
+	httpClient, err := retry.Retry(ctx, func() (httpclientfactory.HttpClient, bool, error) {
 		_, err := c.osLayer.Stat(socketPath)
+
 		if err == nil {
 			c.logger.Debug("Socket file found")
-			c.httpClient = c.httpClientFactory.NewClientOverUDS(socketPath)
-			return nil
+			httpClient := c.httpClientFactory.NewClientOverUDS(socketPath)
+			return httpClient, true, nil
 		}
 
 		if !os.IsNotExist(err) {
-			return ErrSocketFileInaccessible
+			c.logger.Debug("Socket file inaccessible")
+			return nil, false, ErrSocketFileInaccessible
 		}
 
-		select {
-		case <-timeout:
+		return nil, false, nil
+	}, retry.NewLinearRetryStrategy(c.socketRetryInterval))
+
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
 			return ErrTimeoutWaitingForSocketFile
-		case <-tick:
 		}
+
+		return err
 	}
+
+	c.httpClient = httpClient
+	return nil
 }
 
 func (c *Client) SendProcessPID(pid int) (messages.ProcessToKillResponse, error) {

@@ -4,8 +4,6 @@ package server_test
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -14,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
 	"github.com/matlab/matlab-mcp-core-server/internal/utils/httpserverfactory"
 	"github.com/stretchr/testify/assert"
@@ -58,7 +57,7 @@ func TestHTTPServerFactory_NewServerOverUDS_HappyPath(t *testing.T) {
 
 	socketFileExists := make(chan error, 1)
 	go func() {
-		socketFileExists <- waitForSocketFile(socketPath)
+		socketFileExists <- waitForSocketFile(t, socketPath)
 	}()
 
 	select {
@@ -113,24 +112,25 @@ func newUDSClient(socketPath string) *http.Client {
 	}
 }
 
-func waitForSocketFile(socketPath string) error {
-	timeout := time.After(1 * time.Second)
-	tick := time.Tick(100 * time.Millisecond)
+func waitForSocketFile(t *testing.T, socketPath string) error {
+	ctx, cancel := context.WithTimeout(t.Context(), 1*time.Second)
+	defer cancel()
 
-	for {
+	_, err := retry.Retry(ctx, func() (struct{}, bool, error) {
+		var zeroValues struct{}
+
 		_, err := os.Stat(socketPath)
+
 		if err == nil {
-			return nil
+			return zeroValues, true, nil
 		}
 
-		if !errors.Is(err, os.ErrNotExist) {
-			return err
+		if !os.IsNotExist(err) {
+			return zeroValues, false, err
 		}
 
-		select {
-		case <-timeout:
-			return fmt.Errorf("Failed to wait for socket file: %v", err)
-		case <-tick:
-		}
-	}
+		return zeroValues, false, nil
+	}, retry.NewLinearRetryStrategy(100*time.Millisecond))
+
+	return err
 }

@@ -63,32 +63,29 @@ else
 	LDFLAGS_ARG :=
 endif
 
-all: install wire mockery lint unit-tests integration-tests build
+all: wire mockery lint unit-tests integration-tests build
 
 mcp-inspector: build
 	npx @modelcontextprotocol/inspector matlab-mcp-core-server
 
 # File checks
 
-install:
-	go install github.com/google/wire/cmd/wire@latest
-	go install github.com/vektra/mockery/v3@latest
-	go install gotest.tools/gotestsum@latest
-	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2
-
 wire:
-	wire github.com/matlab/matlab-mcp-core-server/internal/wire
+	go tool wire github.com/matlab/matlab-mcp-core-server/internal/wire
+
+install:
+	@echo "No longer needed"
 
 mockery:
 	@$(call RM_DIR,./mocks)
 	@$(call RM_DIR,./tests/mocks)
-	mockery
+	go tool mockery
 
 lint:
-	golangci-lint run ./...
+	go tool golangci-lint run ./...
 
 fix-lint:
-	golangci-lint run ./... --fix
+	go tool golangci-lint run ./... --fix
 
 # Resources
 
@@ -147,13 +144,13 @@ endif
 # Testing
 
 unit-tests:
-	gotestsum --packages="./internal/... ./tests/testutils/..." -- -race -coverprofile cover.out
+	go tool gotestsum --packages="./internal/... ./tests/testutils/..." -- -race -coverprofile cover.out
 	
 integration-tests:
-	gotestsum --packages="./tests/integration/..." -- -race
+	go tool gotestsum --packages="./tests/integration/..." -- -race
 
 system-tests:
-	gotestsum --packages="./tests/system/..." -- -race -count=1 -timeout 30m
+	go tool gotestsum --packages="./tests/system/..." -- -race -count=1 -timeout 30m
 	@$(MAKE) --no-print-directory check-matlab-leaks
 
 ci-unit-tests:

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- Copyright 2025 The MathWorks, Inc. -->
-<rsccat version="1.0" locale="en_US" product="matlab-batch">
+<!-- Copyright 2025-2026 The MathWorks, Inc. -->
+<rsccat version="1.0" locale="en_US" product="matlab-mcp-core-server">
      <message>
          <entry key="HelpDescription">Show this help text</entry>
          <entry key="VersionDescription">Display the version of the MATLAB MCP Core Server.</entry>
