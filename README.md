@@ -115,23 +115,23 @@ Customize the behavior of the server by providing arguments in the `args` array 
 2. `check_matlab_code`
    - Performs static code analysis on a MATLAB script. Returns warnings about coding style, potential errors, deprecated functions, performance issues, and best practice violations. This is a non-destructive, read-only operation that helps identify code quality issues without executing the script.
    - Inputs:
-     - `script_path` (string): Absolute path to the MATLAB script file to analyze. Must be a `.m` file within an allowed directory. The file is not modified during analysis. Example: `C:\Users\username\matlab\myFunction.m` or `/home/user/scripts/analysis.m`.
+     - `script_path` (string): Absolute path to the MATLAB script file to analyze. Must be a valid `.m` file. The file is not modified during analysis. Example: `C:\Users\username\matlab\myFunction.m` or `/home/user/scripts/analysis.m`.
  
 3. `evaluate_matlab_code`
    - Evaluates a string of MATLAB code and returns the output.
    - Inputs:
      - `code` (string): MATLAB code to evaluate.
-     - `project_path` (string): Absolute path to an allowed project directory. MATLAB sets this directory as the current working folder. Example: `C:\Users\username\matlab-project` or `/home/user/research`.
+     - `project_path` (string): Absolute path to your project directory. MATLAB sets this directory as the current working folder. Example: `C:\Users\username\matlab-project` or `/home/user/research`.
  
 4. `run_matlab_file`
    - Executes a MATLAB script and returns the output. The script must be a valid `.m file`.
    - Inputs:
-     - `script_path` (string): Absolute path to the MATLAB script file to execute. Must be a valid `.m` file within an allowed directory. Example: `C:\Users\username\projects\analysis.m` or `/home/user/matlab/simulation.m`.
+     - `script_path` (string): Absolute path to the MATLAB script file to execute. Must be a valid `.m` file. Example: `C:\Users\username\projects\analysis.m` or `/home/user/matlab/simulation.m`.
  
 5. `run_matlab_test_file`
    - Executes a MATLAB test script and returns comprehensive test results. Designed specifically for MATLAB unit test files that follow MATLAB testing framework conventions.
    - Inputs:
-     - `script_path` (string): Absolute path to the MATLAB test script file. Must be a valid `.m` file containing MATLAB unit tests, within an allowed directory. Example: `C:\Users\username\tests\testMyFunction.m` or `/home/user/matlab/tests/test_analysis.m`.
+     - `script_path` (string): Absolute path to the MATLAB test script file. Must be a valid `.m` file containing MATLAB unit tests. Example: `C:\Users\username\tests\testMyFunction.m` or `/home/user/matlab/tests/test_analysis.m`.
 
 ## Resources
 The MCP server provides [Resources (MCP)](https://modelcontextprotocol.io/specification/2025-03-26/server/resources) to help your AI application write MATLAB code. To see instructions for using this resource, refer to the documentation of your AI application that explains how to use resources. 
@@ -156,6 +156,6 @@ When using the MATLAB MCP Core Server, you should thoroughly review and validate
 
 ---
 
-Copyright 2025 The MathWorks, Inc.
+Copyright 2025-2026 The MathWorks, Inc.
 
 ----
