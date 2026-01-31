@@ -16,6 +16,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabrootselector"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabstartingdirselector"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/sessiondiscovery"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/logger"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices"
@@ -220,6 +221,12 @@ func Initialize() *Application {
 		wire.Bind(new(globalmatlab.MATLABManager), new(*matlabmanager.MATLABManager)),
 		wire.Bind(new(globalmatlab.MATLABRootSelector), new(*matlabrootselector.MATLABRootSelector)),
 		wire.Bind(new(globalmatlab.MATLABStartingDirSelector), new(*matlabstartingdirselector.MATLABStartingDirSelector)),
+		wire.Bind(new(globalmatlab.SessionDiscovery), new(*sessiondiscovery.SessionDiscovery)),
+		wire.Bind(new(globalmatlab.EmbeddedConnectorClientFactory), new(*matlabsessionclient.Factory)),
+
+		// Session Discovery
+		sessiondiscovery.New,
+		wire.Bind(new(sessiondiscovery.OSLayer), new(*osfacade.OsFacade)),
 
 		// MATLAB Root Selector
 		matlabrootselector.New,

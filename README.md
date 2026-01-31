@@ -12,6 +12,7 @@ Run MATLAB® using AI applications with the official MATLAB MCP Server from Math
     - [Claude Desktop](#claude-desktop)
     - [GitHub Copilot in Visual Studio Code](#github-copilot-in-visual-studio-code)
   - [Arguments](#arguments)
+  - [连接到已有的 MATLAB 会话](#连接到已有的-matlab-会话)
   - [Tools](#tools)
   - [Resources](#resources)
   - [Data Collection](#data-collection)
@@ -106,6 +107,58 @@ Customize the behavior of the server by providing arguments in the `args` array 
 | initialize-matlab-on-startup | To initialize MATLAB as soon as you start the server, set this argument to `true`. By default, MATLAB only starts when the first tool is called. | `"--initialize-matlab-on-startup=true"` |
 | initial-working-folder | Specify the folder where MATLAB starts. If you do not provide the argument, MATLAB starts in these locations: <br> <ul><li>Linux: `/home/username` </li><li> Windows: `C:\Users\username\Documents`</li><li>Mac: `/Users/username/Documents`</li></ul> | `"--initial-working-folder=C:\\Users\\name\\MyProject"` |  
 | disable-telemetry | To disable anonymized data collection, set this argument to `true`. For details, see [Data Collection](#data-collection). | `"--disable-telemetry=true"`  |
+
+## 连接到已有的 MATLAB 会话
+
+除了让 MCP 服务器自动启动 MATLAB 外，您还可以连接到手动启动的 MATLAB 会话。这对于以下场景特别有用：
+- 您想使用特定配置的 MATLAB 环境
+- 您需要预先加载某些数据或设置
+- 调试目的
+
+### 设置步骤
+
+1. **设置环境变量并启动 MATLAB**
+
+   在启动 MATLAB 之前，设置 `MWAPIKEY` 环境变量作为 API 密钥：
+
+   **Windows (PowerShell):**
+   ```powershell
+   $env:MWAPIKEY = "YourSecretKey123"
+   & "C:\Program Files\MATLAB\R2025a\bin\matlab.exe"
+   ```
+
+   **Windows (CMD):**
+   ```cmd
+   set MWAPIKEY=YourSecretKey123
+   "C:\Program Files\MATLAB\R2025a\bin\matlab.exe"
+   ```
+
+   **Linux/macOS:**
+   ```bash
+   export MWAPIKEY="YourSecretKey123"
+   /usr/local/MATLAB/R2025a/bin/matlab
+   ```
+
+2. **在 MATLAB 中注册会话**
+
+   将 `scripts/registerMatlabSession.m` 文件复制到 MATLAB 路径中，然后在 MATLAB 命令窗口运行：
+
+   ```matlab
+   registerMatlabSession
+   ```
+
+   这将在临时目录中创建会话文件，MCP 服务器会自动发现这些文件。
+
+3. **启动 MCP 服务器**
+
+   正常启动 MCP 服务器。它会自动检测并连接到已注册的 MATLAB 会话，而不是启动新的 MATLAB 实例。
+
+### 注意事项
+
+- API 密钥 (`MWAPIKEY`) 必须在启动 MATLAB 之前设置
+- 会话文件存储在系统临时目录的 `matlab-mcp-core-server-manual/matlab-session-manual/` 子目录中
+- MCP 服务器首先尝试连接已有会话，如果失败才会启动新的 MATLAB
+- 保持 MATLAB 窗口打开以维持连接
 
 ## Tools
 

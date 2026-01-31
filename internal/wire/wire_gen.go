@@ -17,6 +17,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabrootselector"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabstartingdirselector"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/sessiondiscovery"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/logger"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices"
@@ -120,7 +121,8 @@ func Initialize() *Application {
 	evalmatlabcodeTool := evalmatlabcode2.New(loggerFactory, evalmatlabcodeUsecase, matlabManager)
 	matlabRootSelector := matlabrootselector.New(factory, matlabManager)
 	matlabStartingDirSelector := matlabstartingdirselector.New(factory, osFacade)
-	globalMATLAB := globalmatlab.New(matlabManager, matlabRootSelector, matlabStartingDirSelector)
+	sessionDiscovery := sessiondiscovery.New(osFacade)
+	globalMATLAB := globalmatlab.New(matlabManager, matlabRootSelector, matlabStartingDirSelector, sessionDiscovery, matlabsessionclientFactory)
 	tool2 := evalmatlabcode3.New(loggerFactory, evalmatlabcodeUsecase, globalMATLAB)
 	checkmatlabcodeUsecase := checkmatlabcode.New(pathValidator)
 	checkmatlabcodeTool := checkmatlabcode2.New(loggerFactory, checkmatlabcodeUsecase, globalMATLAB)

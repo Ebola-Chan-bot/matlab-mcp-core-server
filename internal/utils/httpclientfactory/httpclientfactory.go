@@ -48,6 +48,27 @@ func (f *HTTPClientFactory) NewClientForSelfSignedTLSServer(certificatePEM []byt
 	}, nil
 }
 
+// NewClientInsecureSkipVerify 创建一个跳过 TLS 证书验证的 HTTP 客户端。
+// 用于连接到手动启动的 MATLAB 会话（没有证书文件时）。
+func (f *HTTPClientFactory) NewClientInsecureSkipVerify() (HttpClient, error) {
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			MinVersion:         tls.VersionTLS12,
+			InsecureSkipVerify: true, // nolint:gosec // 用于手动会话连接，用户已知风险
+		},
+	}
+
+	jar, err := cookiejar.New(&cookiejar.Options{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create cookie jar: %w", err)
+	}
+
+	return &http.Client{
+		Transport: transport,
+		Jar:       jar,
+	}, nil
+}
+
 func (f *HTTPClientFactory) NewClientOverUDS(socketPath string) HttpClient {
 	transport := &http.Transport{
 		DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {

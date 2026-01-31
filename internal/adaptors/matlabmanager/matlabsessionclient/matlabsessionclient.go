@@ -10,6 +10,7 @@ import (
 
 type HttpClientFactory interface {
 	NewClientForSelfSignedTLSServer(certificatePEM []byte) (httpclientfactory.HttpClient, error)
+	NewClientInsecureSkipVerify() (httpclientfactory.HttpClient, error)
 }
 
 type Factory struct {

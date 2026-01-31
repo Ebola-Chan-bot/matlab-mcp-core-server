@@ -6,6 +6,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 )
 
@@ -23,10 +24,20 @@ type MATLABStartingDirSelector interface {
 	SelectMatlabStartingDir() (string, error)
 }
 
+type SessionDiscovery interface {
+	DiscoverExistingSession(logger entities.Logger) *embeddedconnector.ConnectionDetails
+}
+
+type EmbeddedConnectorClientFactory interface {
+	New(endpoint embeddedconnector.ConnectionDetails) (entities.MATLABSessionClient, error)
+}
+
 type GlobalMATLAB struct {
 	matlabManager             MATLABManager
 	matlabRootSelector        MATLABRootSelector
 	matlabStartingDirSelector MATLABStartingDirSelector
+	sessionDiscovery          SessionDiscovery
+	clientFactory             EmbeddedConnectorClientFactory
 
 	lock *sync.Mutex
 
@@ -36,17 +47,22 @@ type GlobalMATLAB struct {
 	matlabRoot        string
 	matlabStartingDir string
 	sessionID         entities.SessionID
+	discoveredClient  entities.MATLABSessionClient
 }
 
 func New(
 	matlabManager MATLABManager,
 	matlabRootSelector MATLABRootSelector,
 	matlabStartingDirSelector MATLABStartingDirSelector,
+	sessionDiscovery SessionDiscovery,
+	clientFactory EmbeddedConnectorClientFactory,
 ) *GlobalMATLAB {
 	return &GlobalMATLAB{
 		matlabManager:             matlabManager,
 		matlabRootSelector:        matlabRootSelector,
 		matlabStartingDirSelector: matlabStartingDirSelector,
+		sessionDiscovery:          sessionDiscovery,
+		clientFactory:             clientFactory,
 
 		lock:     &sync.Mutex{},
 		initOnce: &sync.Once{},
@@ -57,12 +73,44 @@ func (g *GlobalMATLAB) Client(ctx context.Context, logger entities.Logger) (enti
 	g.lock.Lock()
 	defer g.lock.Unlock()
 
+	// 如果已有发现的客户端，直接返回
+	if g.discoveredClient != nil {
+		return g.discoveredClient, nil
+	}
+
+	// 首次调用时尝试发现已有会话
 	g.initOnce.Do(func() {
+		// 先尝试发现已存在的会话
+		if connectionDetails := g.sessionDiscovery.DiscoverExistingSession(logger); connectionDetails != nil {
+			logger.With("host", connectionDetails.Host).
+				With("port", connectionDetails.Port).
+				Info("Found existing MATLAB session, attempting to connect")
+
+			client, err := g.clientFactory.New(*connectionDetails)
+			if err != nil {
+				logger.WithError(err).Warn("Failed to create client for discovered session, will start new session")
+			} else {
+				// 验证连接是否工作
+				pingResult := client.Ping(ctx, logger)
+				if pingResult.IsAlive {
+					logger.Info("Successfully connected to existing MATLAB session")
+					g.discoveredClient = client
+					return
+				}
+				logger.Warn("Discovered session not responding, will start new session")
+			}
+		}
+
+		// 没有发现的会话或连接失败，初始化启动配置
 		err := g.initializeStartupConfig(ctx, logger)
 		if err != nil {
 			g.initError = err
 		}
 	})
+
+	if g.discoveredClient != nil {
+		return g.discoveredClient, nil
+	}
 
 	if g.initError != nil {
 		return nil, g.initError

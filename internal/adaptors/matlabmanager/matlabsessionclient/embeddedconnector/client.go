@@ -21,6 +21,7 @@ const defaultPingTimeout = 1 * time.Second
 
 type HttpClientFactory interface {
 	NewClientForSelfSignedTLSServer(certificatePEM []byte) (httpclientfactory.HttpClient, error)
+	NewClientInsecureSkipVerify() (httpclientfactory.HttpClient, error)
 }
 
 type ConnectionDetails struct {
@@ -44,7 +45,17 @@ func NewClient(
 	endpoint ConnectionDetails,
 	httpClientFactory HttpClientFactory,
 ) (*Client, error) {
-	httpClient, err := httpClientFactory.NewClientForSelfSignedTLSServer(endpoint.CertificatePEM)
+	var httpClient httpclientfactory.HttpClient
+	var err error
+
+	if len(endpoint.CertificatePEM) > 0 {
+		// 有证书时使用证书验证
+		httpClient, err = httpClientFactory.NewClientForSelfSignedTLSServer(endpoint.CertificatePEM)
+	} else {
+		// 没有证书时跳过验证（用于手动启动的会话）
+		httpClient, err = httpClientFactory.NewClientInsecureSkipVerify()
+	}
+
 	if err != nil {
 		return nil, err
 	}

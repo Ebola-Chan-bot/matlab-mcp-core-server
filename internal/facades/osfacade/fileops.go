@@ -128,3 +128,13 @@ func (osw *OsFacade) CreateTemp(dir string, pattern string) (File, error) {
 
 	return &FileWrapper{file}, nil
 }
+
+// TempDir wraps the os.TempDir function to get the default temp directory.
+func (osw *OsFacade) TempDir() string {
+	return os.TempDir()
+}
+
+// ReadDir wraps the os.ReadDir function to read directory entries.
+func (osw *OsFacade) ReadDir(name string) ([]os.DirEntry, error) {
+	return os.ReadDir(name) //nolint:gosec // Intentional os.ReadDir usage in facade
+}
