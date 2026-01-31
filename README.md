@@ -117,27 +117,9 @@ Customize the behavior of the server by providing arguments in the `args` array 
 
 ### 设置步骤
 
-1. **设置环境变量并启动 MATLAB**
+1. **启动 MATLAB**
 
-   在启动 MATLAB 之前，设置 `MWAPIKEY` 环境变量作为 API 密钥：
-
-   **Windows (PowerShell):**
-   ```powershell
-   $env:MWAPIKEY = "YourSecretKey123"
-   & "C:\Program Files\MATLAB\R2025a\bin\matlab.exe"
-   ```
-
-   **Windows (CMD):**
-   ```cmd
-   set MWAPIKEY=YourSecretKey123
-   "C:\Program Files\MATLAB\R2025a\bin\matlab.exe"
-   ```
-
-   **Linux/macOS:**
-   ```bash
-   export MWAPIKEY="YourSecretKey123"
-   /usr/local/MATLAB/R2025a/bin/matlab
-   ```
+   正常启动 MATLAB。MATLAB 会自动设置 `MWAPIKEY` 环境变量。
 
 2. **在 MATLAB 中注册会话**
 
@@ -155,7 +137,7 @@ Customize the behavior of the server by providing arguments in the `args` array 
 
 ### 注意事项
 
-- API 密钥 (`MWAPIKEY`) 必须在启动 MATLAB 之前设置
+- MATLAB 启动时会自动设置 `MWAPIKEY` 环境变量
 - 会话文件存储在系统临时目录的 `matlab-mcp-core-server-manual/matlab-session-manual/` 子目录中
 - MCP 服务器首先尝试连接已有会话，如果失败才会启动新的 MATLAB
 - 保持 MATLAB 窗口打开以维持连接

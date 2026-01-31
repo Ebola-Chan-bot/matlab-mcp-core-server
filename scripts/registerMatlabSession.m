@@ -16,10 +16,11 @@ function registerMatlabSession(sessionDir)
 %
 %   注意:
 %       - 需要确保 MATLAB 已启用 Embedded Connector
+%       - MWAPIKEY 环境变量由 MATLAB 启动时自动设置
 %       - MCP 服务器会在临时目录中搜索以 "matlab-mcp-core-server-" 开头的目录
 %       - 会话目录名称以 "matlab-session-" 开头
 %
-%   See also: connector.securePort, mwapikey
+%   See also: connector.securePort
 
     % 默认使用临时目录
     if nargin < 1 || isempty(sessionDir)
@@ -53,10 +54,10 @@ function registerMatlabSession(sessionDir)
         error('Embedded Connector 未运行或未启用安全端口。');
     end
     
-    % 获取 API 密钥
+    % 获取 API 密钥（MATLAB 启动时自动设置）
     apiKey = getenv('MWAPIKEY');
     if isempty(apiKey)
-        error('未设置 MWAPIKEY 环境变量。请在启动 MATLAB 前设置此变量。');
+        error('无法获取 MWAPIKEY。此环境变量应由 MATLAB 启动时自动设置。');
     end
     
     % 写入端口文件
