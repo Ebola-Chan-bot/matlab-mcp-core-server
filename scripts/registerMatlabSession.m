@@ -1,41 +1,22 @@
-function registerMatlabSession(sessionDir)
+function registerMatlabSession
 %REGISTERMATLABSESSION 注册当前 MATLAB 会话供 MCP 服务器发现
 %
-%   REGISTERMATLABSESSION() 在默认临时目录中注册当前会话。
+%   REGISTERMATLABSESSION() 在临时目录中注册当前会话。
 %   MCP 服务器将自动发现并连接到此会话。
 %
-%   REGISTERMATLABSESSION(sessionDir) 在指定目录中注册会话。
-%   如果目录不存在，将自动创建。
-%
 %   示例:
-%       % 使用默认目录（推荐）
 %       registerMatlabSession
-%
-%       % 使用自定义目录
-%       registerMatlabSession('C:\MySessionDir')
 %
 %   注意:
 %       - 需要确保 MATLAB 已启用 Embedded Connector
 %       - MWAPIKEY 环境变量由 MATLAB 启动时自动设置
-%       - MCP 服务器会在临时目录中搜索以 "matlab-mcp-core-server-" 开头的目录
-%       - 会话目录名称以 "matlab-session-" 开头
 %
 %   See also: connector.securePort
 
-    % 默认使用临时目录
-    if nargin < 1 || isempty(sessionDir)
-        tempDir = tempdir;
-        % 使用用户名创建唯一的应用目录
-        username = getenv('USERNAME');
-        if isempty(username)
-            username = getenv('USER');
-        end
-        if isempty(username)
-            username = 'unknown';
-        end
-        appDir = fullfile(tempDir, ['matlab-mcp-core-server-manual']);
-        sessionDir = fullfile(appDir, 'matlab-session-manual');
-    end
+    % 使用固定的临时目录
+    tempDir = tempdir;
+    appDir = fullfile(tempDir, 'matlab-mcp-core-server-manual');
+    sessionDir = fullfile(appDir, 'matlab-session-manual');
     
     % 确保目录存在
     if ~exist(sessionDir, 'dir')
