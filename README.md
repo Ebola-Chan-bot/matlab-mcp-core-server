@@ -123,7 +123,7 @@ Customize the behavior of the server by providing arguments in the `args` array 
 
 2. **在 MATLAB 中注册会话**
 
-   将 `scripts/registerMatlabSession.m` 文件复制到 MATLAB 路径中，然后在 MATLAB 命令窗口运行：
+   将 `registerMatlabSession.m` 文件复制到 MATLAB 路径中，然后在 MATLAB 命令窗口运行：
 
    ```matlab
    registerMatlabSession
