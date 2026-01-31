@@ -9,7 +9,6 @@ import (
 
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"golang.org/x/sync/errgroup"
 )
 
 type LoggerFactory interface {
@@ -41,29 +40,10 @@ func New(
 		clients: map[entities.SessionID]MATLABSessionClientWithCleanup{},
 	}
 
-	lifecycleSignaler.AddShutdownFunction(func() error {
-		store.l.Lock()
-		defer store.l.Unlock()
-
-		logger, err := loggerFactory.GetGlobalLogger()
-		if err != nil {
-			return err
-		}
-
-		wg := new(errgroup.Group)
-
-		for sessionID, client := range store.clients {
-			wg.Go(func() error {
-				err := client.StopSession(context.Background(), logger)
-				if err != nil {
-					return fmt.Errorf("error stopping session %v: %w", sessionID, err)
-				}
-				return nil
-			})
-		}
-
-		return wg.Wait()
-	})
+	// 不再在 MCP 服务器关闭时自动关闭 MATLAB 会话
+	// 这样用户可以保持 MATLAB 运行并重新连接
+	_ = loggerFactory     // 保留参数以维持接口兼容性
+	_ = lifecycleSignaler // 保留参数以维持接口兼容性
 
 	return store
 }
