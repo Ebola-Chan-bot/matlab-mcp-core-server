@@ -7,5 +7,6 @@
     "go.testEnvFile": "${workspaceFolder}/.env",
     "go.testEnvVars": {
         "MATLAB_MCP_CORE_SERVER_BINARY_PATH": "${workspaceFolder}/.bin/"
-    }
+    },
+    "makefile.configureOnOpen": true
 }

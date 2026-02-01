@@ -138,7 +138,7 @@ Customize the behavior of the server by providing arguments in the `args` array 
 ### 注意事项
 
 - MATLAB 启动时会自动设置 `MWAPIKEY` 环境变量
-- 会话文件存储在系统临时目录的 `matlab-mcp-core-server-manual/matlab-session-manual/` 子目录中
+- 会话文件存储在 `%LOCALAPPDATA%\Temp\matlab-mcp-core-server-manual\matlab-session-manual\` 目录中（Windows）
 - MCP 服务器首先尝试连接已有会话，如果失败才会启动新的 MATLAB
 - 保持 MATLAB 窗口打开以维持连接
 

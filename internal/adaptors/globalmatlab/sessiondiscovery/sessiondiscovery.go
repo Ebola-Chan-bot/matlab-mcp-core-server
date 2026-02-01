@@ -21,6 +21,7 @@ const (
 
 type OSLayer interface {
 	TempDir() string
+	Getenv(key string) string
 	ReadDir(name string) ([]os.DirEntry, error)
 	ReadFile(name string) ([]byte, error)
 }
@@ -38,7 +39,15 @@ func New(osLayer OSLayer) *SessionDiscovery {
 // DiscoverExistingSession 在临时目录中搜索已有的 MATLAB MCP 会话。
 // 返回找到的第一个有效会话，如果不存在则返回 nil。
 func (s *SessionDiscovery) DiscoverExistingSession(logger entities.Logger) *embeddedconnector.ConnectionDetails {
-	tempDir := s.osLayer.TempDir()
+	// 使用 LOCALAPPDATA\Temp 作为共享临时目录（Windows）
+	// 不同会话的 TEMP 环境变量可能不同，但 LOCALAPPDATA 是固定的
+	tempDir := s.osLayer.Getenv("LOCALAPPDATA")
+	if tempDir != "" {
+		tempDir = filepath.Join(tempDir, "Temp")
+	} else {
+		// 非 Windows 系统回退到默认临时目录
+		tempDir = s.osLayer.TempDir()
+	}
 
 	logger.With("temp_dir", tempDir).Debug("Searching for existing MATLAB sessions")
 
