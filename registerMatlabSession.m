@@ -25,8 +25,8 @@ classdef registerMatlabSession < handle
 			%REGISTERMATLABSESSION 构造函数，创建会话文件
 			SI=SingleInstance;
 			if isempty(SI)
-				% 使用固定的临时目录
-				tempDir = tempdir;
+				% 使用固定的临时目录。不能直接用tempdir，因为不同会话的tempdir不同，但需要同用户共享。
+				tempDir = fullfile(getenv('LOCALAPPDATA'),'Temp');
 				appDir = fullfile(tempDir, 'matlab-mcp-core-server-manual');
 				obj.SessionDir = fullfile(appDir, 'matlab-session-manual');
 				
