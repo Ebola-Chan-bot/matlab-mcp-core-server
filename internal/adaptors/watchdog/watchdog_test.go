@@ -820,3 +820,55 @@ func TestWatchdog_Stop_WaitsIfNotStarted(t *testing.T) {
 
 	assert.NoError(t, <-errC, "Stop should not return an error")
 }
+
+func TestWatchdog_Stop_DoesNotHangIfStartFailed(t *testing.T) {
+	// Arrange
+	mockWatchdogProcess := &watchdogmocks.MockWatchdogProcess{}
+	defer mockWatchdogProcess.AssertExpectations(t)
+
+	mockClientFactory := &watchdogmocks.MockClientFactory{}
+	defer mockClientFactory.AssertExpectations(t)
+
+	mockLoggerFactory := &watchdogmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockSocketFactory := &watchdogmocks.MockSocketFactory{}
+	defer mockSocketFactory.AssertExpectations(t)
+
+	mockClient := &transportmocks.MockClient{}
+	defer mockClient.AssertExpectations(t)
+
+	mockClientFactory.EXPECT().
+		New().
+		Return(mockClient).
+		Once()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(nil, messages.AnError).
+		Once()
+
+	watchdogInstance := watchdog.New(
+		mockWatchdogProcess,
+		mockClientFactory,
+		mockLoggerFactory,
+		mockSocketFactory,
+	)
+
+	// Act
+	startErr := watchdogInstance.Start()
+	require.Error(t, startErr, "Start should return an error")
+
+	errC := make(chan error, 1)
+	go func() {
+		errC <- watchdogInstance.Stop()
+	}()
+
+	// Assert
+	select {
+	case err := <-errC:
+		require.NoError(t, err, "Stop should return nil when Start failed")
+	case <-time.After(100 * time.Millisecond):
+		t.Fatal("Stop should not hang when Start failed")
+	}
+}
