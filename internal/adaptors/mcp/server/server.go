@@ -5,17 +5,12 @@ package server
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
-
-type AdditionalToolsProvider interface {
-	Tools(loggerFactory definition.LoggerFactory) []tools.Tool
-}
 
 type LoggerFactory interface {
 	GetGlobalLogger() (entities.Logger, messages.Error)
@@ -36,32 +31,29 @@ type MCPServerConfigurator interface {
 }
 
 type Server struct {
-	additionalToolsProvider AdditionalToolsProvider
-	mcpSDKServerFactory     MCPSDKServerFactory
-	loggerFactory           LoggerFactory
-	lifecycleSignaler       LifecycleSignaler
-	configurator            MCPServerConfigurator
-	serverTransport         mcp.Transport
+	mcpSDKServerFactory MCPSDKServerFactory
+	loggerFactory       LoggerFactory
+	lifecycleSignaler   LifecycleSignaler
+	configurator        MCPServerConfigurator
+	serverTransport     mcp.Transport
 }
 
 func New(
-	additionalToolsProvider AdditionalToolsProvider,
 	mcpSDKServerfactory MCPSDKServerFactory,
 	loggerFactory LoggerFactory,
 	lifecycleSignaler LifecycleSignaler,
 	configurator MCPServerConfigurator,
 ) *Server {
 	return &Server{
-		additionalToolsProvider: additionalToolsProvider,
-		mcpSDKServerFactory:     mcpSDKServerfactory,
-		loggerFactory:           loggerFactory,
-		lifecycleSignaler:       lifecycleSignaler,
-		configurator:            configurator,
-		serverTransport:         &mcp.StdioTransport{},
+		mcpSDKServerFactory: mcpSDKServerfactory,
+		loggerFactory:       loggerFactory,
+		lifecycleSignaler:   lifecycleSignaler,
+		configurator:        configurator,
+		serverTransport:     &mcp.StdioTransport{},
 	}
 }
 
-func (s *Server) Run() error {
+func (s *Server) Run(sdkUserTools []tools.Tool) error {
 	logger, messagesErr := s.loggerFactory.GetGlobalLogger()
 	if messagesErr != nil {
 		return messagesErr
@@ -84,14 +76,12 @@ func (s *Server) Run() error {
 	}
 	logger.With("count", len(toolsToAdd)).Info("Added tools to MCP SDK server")
 
-	additionalToolsToAdd := s.additionalToolsProvider.Tools(s.loggerFactory)
-
-	for _, tool := range additionalToolsToAdd {
+	for _, tool := range sdkUserTools {
 		if err := tool.AddToServer(mcpServer); err != nil {
 			return err
 		}
 	}
-	logger.With("count", len(additionalToolsToAdd)).Info("Added additional tools to MCP SDK server")
+	logger.With("count", len(sdkUserTools)).Info("Added additional tools to MCP SDK server")
 
 	resourcesToAdd := s.configurator.GetResourcesToAdd()
 	for _, resource := range resourcesToAdd {

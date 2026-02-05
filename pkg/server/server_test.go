@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	internaltoolsmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools"
 	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
@@ -43,10 +44,10 @@ func TestServer_StartAndWaitForCompletion_HappyPath(t *testing.T) {
 	defer mockModeSelector.AssertExpectations(t)
 
 	ctx := t.Context()
-	expectedDefinition := definition.New("test-server", "Test Server", "Test instructions", nil)
+	expectedDefinition := definition.New("test-server", "Test Server", "Test instructions", nil, nil)
 
 	mockApplicationFactory.EXPECT().
-		New(matchDefinition(expectedDefinition)).
+		New(matchDefinition(expectedDefinition, definition.DependenciesProviderResources{}, definition.ToolsProviderResources{})).
 		Return(mockApplication).
 		Once()
 
@@ -96,10 +97,10 @@ func TestServer_StartAndWaitForCompletion_KnownError(t *testing.T) {
 	expectedError := errors.New("known error")
 	expectedErrorMessage := "A known error occurred"
 
-	expectedDefinition := definition.New("test-server", "Test Server", "Test instructions", nil)
+	expectedDefinition := definition.New("test-server", "Test Server", "Test instructions", nil, nil)
 
 	mockApplicationFactory.EXPECT().
-		New(matchDefinition(expectedDefinition)).
+		New(matchDefinition(expectedDefinition, definition.DependenciesProviderResources{}, definition.ToolsProviderResources{})).
 		Return(mockApplication).
 		Once()
 
@@ -165,10 +166,10 @@ func TestServer_StartAndWaitForCompletion_UnknownError(t *testing.T) {
 	expectedError := errors.New("unknown error")
 	expectedFallbackMessage := "Some generic failure message."
 	expectedWrittenOutput := expectedFallbackMessage + "\n"
-	expectedDefinition := definition.New("test-server", "Test Server", "Test instructions", nil)
+	expectedDefinition := definition.New("test-server", "Test Server", "Test instructions", nil, nil)
 
 	mockApplicationFactory.EXPECT().
-		New(matchDefinition(expectedDefinition)).
+		New(matchDefinition(expectedDefinition, definition.DependenciesProviderResources{}, definition.ToolsProviderResources{})).
 		Return(mockApplication).
 		Once()
 
@@ -218,7 +219,7 @@ func TestServer_StartAndWaitForCompletion_UnknownError(t *testing.T) {
 	require.Equal(t, 1, exitCode)
 }
 
-func TestServer_StartAndWaitForCompletion_NilToolsProvider(t *testing.T) {
+func TestServer_StartAndWaitForCompletion_WithDependenciesProvider(t *testing.T) {
 	// Arrange
 	mockApplicationFactory := &adaptormocks.MockApplicationFactory{}
 	defer mockApplicationFactory.AssertExpectations(t)
@@ -229,17 +230,18 @@ func TestServer_StartAndWaitForCompletion_NilToolsProvider(t *testing.T) {
 	mockModeSelector := &adaptormocks.MockModeSelector{}
 	defer mockModeSelector.AssertExpectations(t)
 
-	mockLoggerFactory := &adaptormocks.MockLoggerFactory{}
-	defer mockLoggerFactory.AssertExpectations(t)
-
 	ctx := t.Context()
-	var capturedDefinition definition.Definition
+
+	type TestDependencies struct{}
+	expectedDependencies := &TestDependencies{}
+
+	expectedDefinition := definition.New("test-server", "Test Server", "Test instructions",
+		func(resources definition.DependenciesProviderResources) (any, error) {
+			return expectedDependencies, nil
+		}, nil)
 
 	mockApplicationFactory.EXPECT().
-		New(mock.MatchedBy(func(d definition.Definition) bool {
-			capturedDefinition = d
-			return true
-		})).
+		New(matchDefinition(expectedDefinition, definition.DependenciesProviderResources{}, definition.ToolsProviderResources{})).
 		Return(mockApplication).
 		Once()
 
@@ -253,11 +255,13 @@ func TestServer_StartAndWaitForCompletion_NilToolsProvider(t *testing.T) {
 		Return(nil).
 		Once()
 
-	serverDefinition := server.Definition[struct{}]{
-		Name:          "test-server",
-		Title:         "Test Server",
-		Instructions:  "Test instructions",
-		ToolsProvider: nil,
+	serverDefinition := server.Definition[*TestDependencies]{
+		Name:         expectedDefinition.Name(),
+		Title:        expectedDefinition.Title(),
+		Instructions: expectedDefinition.Instructions(),
+		DependenciesProvider: func(resources server.DependenciesProviderResources) (*TestDependencies, error) {
+			return expectedDependencies, nil
+		},
 	}
 	s := server.New(serverDefinition)
 	s.SetApplicationFactory(mockApplicationFactory)
@@ -267,8 +271,6 @@ func TestServer_StartAndWaitForCompletion_NilToolsProvider(t *testing.T) {
 
 	// Assert
 	require.Equal(t, 0, exitCode)
-	tools := capturedDefinition.Tools(mockLoggerFactory)
-	require.Nil(t, tools)
 }
 
 func TestServer_StartAndWaitForCompletion_WithToolsProvider(t *testing.T) {
@@ -292,14 +294,19 @@ func TestServer_StartAndWaitForCompletion_WithToolsProvider(t *testing.T) {
 	defer mockInternalTool.AssertExpectations(t)
 
 	ctx := t.Context()
-	var capturedDefinition definition.Definition
-	toolsProviderCalled := false
+
+	internalToolProviderResources := definition.ToolsProviderResources{
+		LoggerFactory: mockLoggerFactory,
+	}
+
+	expectedDefinition := definition.New("test-server", "Test Server", "Test instructions", nil, func(resources definition.ToolsProviderResources) []tools.Tool {
+		return []tools.Tool{
+			mockInternalTool,
+		}
+	})
 
 	mockApplicationFactory.EXPECT().
-		New(mock.MatchedBy(func(d definition.Definition) bool {
-			capturedDefinition = d
-			return true
-		})).
+		New(matchDefinition(expectedDefinition, definition.DependenciesProviderResources{}, internalToolProviderResources)).
 		Return(mockApplication).
 		Once()
 
@@ -318,11 +325,10 @@ func TestServer_StartAndWaitForCompletion_WithToolsProvider(t *testing.T) {
 		Once()
 
 	serverDefinition := server.Definition[struct{}]{
-		Name:         "test-server",
-		Title:        "Test Server",
-		Instructions: "Test instructions",
-		ToolsProvider: func(resources server.ToolProviderResources[struct{}]) []server.Tool {
-			toolsProviderCalled = true
+		Name:         expectedDefinition.Name(),
+		Title:        expectedDefinition.Title(),
+		Instructions: expectedDefinition.Instructions(),
+		ToolsProvider: func(resources server.ToolsProviderResources[struct{}]) []server.Tool {
 			return []server.Tool{mockTool}
 		},
 	}
@@ -334,16 +340,35 @@ func TestServer_StartAndWaitForCompletion_WithToolsProvider(t *testing.T) {
 
 	// Assert
 	require.Equal(t, 0, exitCode)
-	tools := capturedDefinition.Tools(mockLoggerFactory)
-	require.True(t, toolsProviderCalled)
-	require.Len(t, tools, 1)
-	require.Equal(t, mockInternalTool, tools[0])
 }
 
-func matchDefinition(expected definition.Definition) any {
+func matchDefinition(expected definition.Definition, dependenciesResources definition.DependenciesProviderResources, toolsResources definition.ToolsProviderResources) any {
 	return mock.MatchedBy(func(d definition.Definition) bool {
-		return d.Name() == expected.Name() &&
-			d.Title() == expected.Title() &&
-			d.Instructions() == expected.Instructions()
+		if d.Name() != expected.Name() ||
+			d.Title() != expected.Title() ||
+			d.Instructions() != expected.Instructions() {
+			return false
+		}
+
+		expectedDependencies, expectedDepsErr := expected.Dependencies(dependenciesResources)
+		dependencies, depsErr := d.Dependencies(dependenciesResources)
+		if expectedDepsErr != depsErr || expectedDependencies != dependencies {
+			return false
+		}
+
+		expectedTools := expected.Tools(toolsResources)
+		tools := d.Tools(toolsResources)
+
+		if len(expectedTools) != len(tools) {
+			return false
+		}
+
+		for i, tool := range tools {
+			if expectedTools[i] != tool {
+				return false
+			}
+		}
+
+		return true
 	})
 }

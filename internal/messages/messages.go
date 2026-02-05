@@ -7,17 +7,17 @@ type messageMap map[messageKey]string
 type localeMap map[localeKey]messageMap
 
 var messages_en_US = messageMap{
-	CLIMessages_BaseDirDescription:                          `The folder where the MCP Core Server stores log files. If not specified, the server uses the default temp folder of your operating system.`,
-	CLIMessages_DisableTelemetryDescription:                 `The MATLAB MCP Core Server can collect fully anonymized information about your usage of the server and send it to MathWorks. This data collection helps MathWorks improve products and is on by default. To opt out of data collection, set the argument --disable-telemetry to true.`,
+	CLIMessages_BaseDirDescription:                          `The folder where this MCP server stores log files. If not specified, the server uses the default temp folder of your operating system.`,
+	CLIMessages_DisableTelemetryDescription:                 `This MCP server can collect fully anonymized information about your usage of the server and send it to MathWorks. This data collection helps MathWorks improve products and is on by default. To opt out of data collection, set the argument --disable-telemetry to true.`,
 	CLIMessages_DisplayModeDescription:                      `Specify whether to show the MATLAB desktop. Use 'desktop' mode (default) to show the MATLAB desktop or 'nodesktop' mode to use MATLAB only from your AI application, without the MATLAB desktop. `,
 	CLIMessages_HelpDescription:                             `Show this help text`,
 	CLIMessages_InitializeMATLABOnStartupDescription:        `To initialize MATLAB as soon as you start the server, set this argument to true. By default, MATLAB only starts when the first tool is called. `,
 	CLIMessages_InternalUseDescription:                      `INTERNAL USE ONLY`,
-	CLIMessages_LogLevelDescription:                         `The log levels of the MCP Core Server. Valid values, in order of decreasing verbosity, are 'debug', 'info', 'warn', and 'error'.`,
+	CLIMessages_LogLevelDescription:                         `The log levels of this MCP server. Valid values, in order of decreasing verbosity, are 'debug', 'info', 'warn', and 'error'.`,
 	CLIMessages_PreferredLocalMATLABRootDescription:         `Full path specifying which MATLAB to start. Do not include /bin in the path. By default, the server tries to find the first MATLAB on the system PATH.`,
 	CLIMessages_PreferredMATLABStartingDirectoryDescription: `Specify the folder where MATLAB starts. If you do not provide the argument, MATLAB starts in these locations: Linux: /home/username, Windows: C:\Users\username\Documents, Mac: /Users/username/Documents.`,
-	CLIMessages_UseSingleMATLABSessionDescription:           `By default, the MCP Core Server starts a single MATLAB session, and stops the session when the server shuts down. To allow the server to manage multiple MATLAB sessions, set this argument to false. `,
-	CLIMessages_VersionDescription:                          `Display the version of the MATLAB MCP Core Server.`,
+	CLIMessages_UseSingleMATLABSessionDescription:           `By default, this MCP server starts a single MATLAB session, and stops the session when the server shuts down. To allow the server to manage multiple MATLAB sessions, set this argument to false. `,
+	CLIMessages_VersionDescription:                          `Display the version of this MCP server.`,
 	StartupErrors_BadFlag:                                   `Error with supplied arguments: non-existent option %[1]s.%[2]s%[3]s`,
 	StartupErrors_BadSyntax:                                 `Error with supplied arguments: invalid syntax %[1]s.%[2]s%[3]s`,
 	StartupErrors_BadValue:                                  `Error with supplied arguments: invalid value %[1]s for option %[2]s.`,

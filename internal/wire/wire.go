@@ -86,7 +86,8 @@ type ApplicationDefinition interface {
 	Name() string
 	Title() string
 	Instructions() string
-	Tools(loggerFactory definition.LoggerFactory) []tools.Tool
+	Dependencies(resources definition.DependenciesProviderResources) (any, error)
+	Tools(resources definition.ToolsProviderResources) []tools.Tool
 }
 
 func Initialize(serverDefinition ApplicationDefinition) *Application {
@@ -125,6 +126,7 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 		// Orchestrator
 		orchestrator.New,
 		wire.Bind(new(orchestrator.LifecycleSignaler), new(*lifecyclesignaler.LifecycleSignaler)),
+		wire.Bind(new(orchestrator.ApplicationDefinition), new(ApplicationDefinition)),
 		wire.Bind(new(orchestrator.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(orchestrator.Server), new(*server.Server)),
 		wire.Bind(new(orchestrator.WatchdogClient), new(*watchdogclient.Watchdog)),
@@ -135,7 +137,6 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 
 		// MCP Server
 		server.New,
-		wire.Bind(new(server.AdditionalToolsProvider), new(ApplicationDefinition)),
 		wire.Bind(new(server.MCPSDKServerFactory), new(*sdk.Factory)),
 		wire.Bind(new(server.LoggerFactory), new(*logger.Factory)),
 		wire.Bind(new(server.LifecycleSignaler), new(*lifecyclesignaler.LifecycleSignaler)),

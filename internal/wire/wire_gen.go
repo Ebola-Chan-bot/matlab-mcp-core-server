@@ -133,8 +133,8 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 	resource := codingguidelines.New(loggerFactory)
 	plaintextlivecodegenerationResource := plaintextlivecodegeneration.New(loggerFactory)
 	configuratorConfigurator := configurator.New(factory, tool, startmatlabsessionTool, stopmatlabsessionTool, evalmatlabcodeTool, tool2, checkmatlabcodeTool, detectmatlabtoolboxesTool, runmatlabfileTool, runmatlabtestfileTool, resource, plaintextlivecodegenerationResource)
-	serverServer := server3.New(serverDefinition, sdkFactory, loggerFactory, lifecycleSignaler, configuratorConfigurator)
-	orchestratorOrchestrator := orchestrator.New(lifecycleSignaler, factory, serverServer, watchdog3, loggerFactory, processManager, globalMATLAB, directoryFactory)
+	serverServer := server3.New(sdkFactory, loggerFactory, lifecycleSignaler, configuratorConfigurator)
+	orchestratorOrchestrator := orchestrator.New(lifecycleSignaler, serverDefinition, factory, serverServer, watchdog3, loggerFactory, processManager, globalMATLAB, directoryFactory)
 	modeSelector := modeselector.New(factory, parserParser, watchdogWatchdog, orchestratorOrchestrator, osFacade)
 	application := &Application{
 		ModeSelector:      modeSelector,
@@ -160,5 +160,6 @@ type ApplicationDefinition interface {
 	Name() string
 	Title() string
 	Instructions() string
-	Tools(loggerFactory definition.LoggerFactory) []tools.Tool
+	Dependencies(resources definition.DependenciesProviderResources) (any, error)
+	Tools(resources definition.ToolsProviderResources) []tools.Tool
 }

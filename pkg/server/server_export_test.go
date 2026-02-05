@@ -4,6 +4,7 @@ package server
 
 import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/wire/adaptor"
 	"github.com/stretchr/testify/mock"
@@ -21,7 +22,7 @@ type MockTool struct {
 	mock.Mock
 }
 
-func (m *MockTool) toInternal(lf loggerFactory) tools.Tool {
+func (m *MockTool) toInternal(lf basetool.LoggerFactory) tools.Tool {
 	args := m.Called(lf)
 	if args.Get(0) == nil {
 		return nil

@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -36,16 +37,16 @@ func (_m *MockServer) EXPECT() *MockServer_Expecter {
 }
 
 // Run provides a mock function for the type MockServer
-func (_mock *MockServer) Run() error {
-	ret := _mock.Called()
+func (_mock *MockServer) Run(tools1 []tools.Tool) error {
+	ret := _mock.Called(tools1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Run")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func() error); ok {
-		r0 = returnFunc()
+	if returnFunc, ok := ret.Get(0).(func([]tools.Tool) error); ok {
+		r0 = returnFunc(tools1)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -58,13 +59,20 @@ type MockServer_Run_Call struct {
 }
 
 // Run is a helper method to define mock.On call
-func (_e *MockServer_Expecter) Run() *MockServer_Run_Call {
-	return &MockServer_Run_Call{Call: _e.mock.On("Run")}
+//   - tools1 []tools.Tool
+func (_e *MockServer_Expecter) Run(tools1 interface{}) *MockServer_Run_Call {
+	return &MockServer_Run_Call{Call: _e.mock.On("Run", tools1)}
 }
 
-func (_c *MockServer_Run_Call) Run(run func()) *MockServer_Run_Call {
+func (_c *MockServer_Run_Call) Run(run func(tools1 []tools.Tool)) *MockServer_Run_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		var arg0 []tools.Tool
+		if args[0] != nil {
+			arg0 = args[0].([]tools.Tool)
+		}
+		run(
+			arg0,
+		)
 	})
 	return _c
 }
@@ -74,7 +82,7 @@ func (_c *MockServer_Run_Call) Return(err error) *MockServer_Run_Call {
 	return _c
 }
 
-func (_c *MockServer_Run_Call) RunAndReturn(run func() error) *MockServer_Run_Call {
+func (_c *MockServer_Run_Call) RunAndReturn(run func(tools1 []tools.Tool) error) *MockServer_Run_Call {
 	_c.Call.Return(run)
 	return _c
 }

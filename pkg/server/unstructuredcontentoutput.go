@@ -26,7 +26,7 @@ func NewToolWithUnstructuredContentOutput[ToolInput any](definition tools.Defini
 	}
 }
 
-func (t *ToolWithUnstructuredContentOutput[ToolInput]) toInternal(loggerFactoryInstance loggerFactory) internaltools.Tool {
+func (t *ToolWithUnstructuredContentOutput[ToolInput]) toInternal(loggerFactoryInstance basetool.LoggerFactory) internaltools.Tool {
 	return basetool.NewToolWithUnstructuredContent(
 		t.definition.Name,
 		t.definition.Title,
@@ -39,7 +39,7 @@ func (t *ToolWithUnstructuredContentOutput[ToolInput]) toInternal(loggerFactoryI
 
 func adaptorForHandlerForToolWithUnstructuredContentOutput[ToolInput any](handler HandlerForToolWithUnstructuredContentOutput[ToolInput]) basetool.HandlerWithUnstructuredContentOutput[ToolInput] {
 	return func(ctx context.Context, logger entities.Logger, inputs ToolInput) (internaltools.RichContent, error) {
-		richContent, err := handler(ctx, newToolCallRequest(), inputs)
+		richContent, err := handler(ctx, newToolCallRequest(newLoggerAdaptor(logger)), inputs)
 		if err != nil {
 			return internaltools.RichContent{}, err
 		}

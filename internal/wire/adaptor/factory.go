@@ -12,7 +12,8 @@ type ApplicationDefinition interface {
 	Name() string
 	Title() string
 	Instructions() string
-	Tools(loggerFactory definition.LoggerFactory) []tools.Tool
+	Dependencies(resources definition.DependenciesProviderResources) (any, error)
+	Tools(resources definition.ToolsProviderResources) []tools.Tool
 }
 
 type Application interface {

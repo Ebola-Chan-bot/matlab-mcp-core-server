@@ -1,0 +1,21 @@
+// Copyright 2026 The MathWorks, Inc.
+
+package main
+
+import "github.com/matlab/matlab-mcp-core-server/pkg/logger"
+
+type Dependencies struct {
+	DataService *DataService
+}
+
+type DependenciesProviderResources interface {
+	Logger() logger.Logger
+}
+
+func DependenciesProvider(resources DependenciesProviderResources) (Dependencies, error) {
+	resources.Logger().Info("Creating Dependencies")
+
+	return Dependencies{
+		DataService: NewDataService("Service Hello"),
+	}, nil
+}

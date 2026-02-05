@@ -4,21 +4,18 @@ package server
 
 import (
 	internaltools "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
+	"github.com/matlab/matlab-mcp-core-server/pkg/logger"
 	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
-	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-type ToolProviderResources[Dependencies any] struct{}
-
 type Tool interface {
-	toInternal(loggerFactory loggerFactory) internaltools.Tool
+	toInternal(loggerFactory basetool.LoggerFactory) internaltools.Tool
 }
 
 type toolArray []Tool
 
-func (t toolArray) toInternal(loggerFactoryInstance loggerFactory) []internaltools.Tool {
+func (t toolArray) toInternal(loggerFactoryInstance basetool.LoggerFactory) []internaltools.Tool {
 	internalTools := make([]internaltools.Tool, len(t))
 
 	for i, tool := range t {
@@ -28,10 +25,8 @@ func (t toolArray) toInternal(loggerFactoryInstance loggerFactory) []internaltoo
 	return internalTools
 }
 
-type loggerFactory interface {
-	NewMCPSessionLogger(session *mcp.ServerSession) (entities.Logger, messages.Error)
-}
-
-func newToolCallRequest() *tools.CallRequest {
-	return &tools.CallRequest{}
+func newToolCallRequest(logger logger.Logger) *tools.CallRequest {
+	return &tools.CallRequest{
+		Logger: logger,
+	}
 }

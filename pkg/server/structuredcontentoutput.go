@@ -26,7 +26,7 @@ func NewToolWithStructuredContentOutput[ToolInput, ToolOutput any](definition to
 	}
 }
 
-func (t *ToolWithStructuredContentOutput[ToolInput, ToolOutput]) toInternal(loggerFactoryInstance loggerFactory) internaltools.Tool {
+func (t *ToolWithStructuredContentOutput[ToolInput, ToolOutput]) toInternal(loggerFactoryInstance basetool.LoggerFactory) internaltools.Tool {
 	return basetool.NewToolWithStructuredContent(
 		t.definition.Name,
 		t.definition.Title,
@@ -39,6 +39,6 @@ func (t *ToolWithStructuredContentOutput[ToolInput, ToolOutput]) toInternal(logg
 
 func adaptorForHandlerForToolWithStructuredContentOutput[ToolInput, ToolOutput any](handler HandlerForToolWithStructuredContentOutput[ToolInput, ToolOutput]) basetool.HandlerWithStructuredContentOutput[ToolInput, ToolOutput] {
 	return func(ctx context.Context, logger entities.Logger, inputs ToolInput) (ToolOutput, error) {
-		return handler(ctx, newToolCallRequest(), inputs)
+		return handler(ctx, newToolCallRequest(newLoggerAdaptor(logger)), inputs)
 	}
 }
