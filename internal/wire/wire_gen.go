@@ -140,11 +140,12 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 	orchestratorOrchestrator := orchestrator.New(messageCatalog, lifecycleSignaler, serverDefinition, configFactory, serverServer, watchdog3, loggerFactory, processManager, globalMATLAB, directoryFactory)
 	modeSelector := modeselector.New(configFactory, parserParser, watchdogWatchdog, orchestratorOrchestrator, osFacade)
 	application := &Application{
-		ModeSelector:      modeSelector,
-		MessageCatalog:    messageCatalog,
-		HTTPClientFactory: clientFactory,
-		HTTPServerFactory: serverFactory,
-		LoggerFactory:     loggerFactory,
+		ModeSelector:        modeSelector,
+		MessageCatalog:      messageCatalog,
+		MATLABClientFactory: matlabsessionclientFactory,
+		HTTPClientFactory:   clientFactory,
+		HTTPServerFactory:   serverFactory,
+		LoggerFactory:       loggerFactory,
 	}
 	return application
 }
@@ -152,11 +153,12 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 // wire.go:
 
 type Application struct {
-	ModeSelector      *modeselector.ModeSelector
-	MessageCatalog    *messagecatalog.MessageCatalog
-	HTTPClientFactory *client.Factory
-	HTTPServerFactory *server.Factory
-	LoggerFactory     *logger.Factory
+	ModeSelector        *modeselector.ModeSelector
+	MessageCatalog      *messagecatalog.MessageCatalog
+	MATLABClientFactory *matlabsessionclient.Factory
+	HTTPClientFactory   *client.Factory
+	HTTPServerFactory   *server.Factory
+	LoggerFactory       *logger.Factory
 }
 
 type ApplicationDefinition interface {

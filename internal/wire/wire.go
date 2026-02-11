@@ -76,11 +76,12 @@ import (
 )
 
 type Application struct {
-	ModeSelector      *modeselector.ModeSelector
-	MessageCatalog    *messagecatalog.MessageCatalog
-	HTTPClientFactory *httpclient.Factory
-	HTTPServerFactory *httpserver.Factory
-	LoggerFactory     *logger.Factory
+	ModeSelector        *modeselector.ModeSelector
+	MessageCatalog      *messagecatalog.MessageCatalog
+	MATLABClientFactory *matlabsessionclient.Factory
+	HTTPClientFactory   *httpclient.Factory
+	HTTPServerFactory   *httpserver.Factory
+	LoggerFactory       *logger.Factory
 }
 
 type ApplicationDefinition interface {
