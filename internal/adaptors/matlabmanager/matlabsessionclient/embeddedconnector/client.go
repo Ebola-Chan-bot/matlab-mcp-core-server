@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package embeddedconnector
 
@@ -12,16 +12,16 @@ import (
 	"strings"
 	"time"
 
+	httpclient "github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/client"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/utils/httpclientfactory"
 )
 
 const defaultPingRetry = 100 * time.Millisecond
 const defaultPingTimeout = 1 * time.Second
 
 type HttpClientFactory interface {
-	NewClientForSelfSignedTLSServer(certificatePEM []byte) (httpclientfactory.HttpClient, error)
-	NewClientInsecureSkipVerify() (httpclientfactory.HttpClient, error)
+	NewClientForSelfSignedTLSServer(certificatePEM []byte) (httpclient.HttpClient, error)
+	NewClientInsecureSkipVerify() (httpclient.HttpClient, error)
 }
 
 type ConnectionDetails struct {
@@ -35,7 +35,7 @@ type Client struct {
 	host       string
 	port       string
 	apiKey     string
-	httpClient httpclientfactory.HttpClient
+	httpClient httpclient.HttpClient
 
 	pingRetry   time.Duration
 	pingTimeout time.Duration
@@ -45,7 +45,7 @@ func NewClient(
 	endpoint ConnectionDetails,
 	httpClientFactory HttpClientFactory,
 ) (*Client, error) {
-	var httpClient httpclientfactory.HttpClient
+	var httpClient httpclient.HttpClient
 	var err error
 
 	if len(endpoint.CertificatePEM) > 0 {

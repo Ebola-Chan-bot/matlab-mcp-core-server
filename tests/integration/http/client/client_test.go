@@ -4,14 +4,17 @@ package client_test
 
 import (
 	"encoding/pem"
+	"fmt"
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/utils/httpclientfactory"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/client"
 	"github.com/matlab/matlab-mcp-core-server/internal/wire"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -78,8 +81,9 @@ func TestHTTPClientFactory_NewClientOverUDS_HappyPath(t *testing.T) {
 	require.NoError(t, response.Body.Close())
 }
 
-func newClientFactory() *httpclientfactory.HTTPClientFactory {
-	application := wire.Initialize()
+func newClientFactory() *client.Factory {
+	serverDefinition := definition.New("", "", "", nil)
+	application := wire.Initialize(serverDefinition)
 	return application.HTTPClientFactory
 }
 
@@ -96,7 +100,12 @@ func newTestHTTPSServer(t *testing.T) *httptest.Server {
 func newTestUDSServer(t *testing.T, handler http.HandlerFunc) *testUDSServer {
 	t.Helper()
 
-	socketPath := filepath.Join(t.TempDir(), "test.sock")
+	// Use os.TempDir() with a short unique name to avoid Windows UDS path length limit (~108 chars).
+	// t.TempDir() creates paths that are too long for Windows UDS.
+	socketPath := filepath.Join(os.TempDir(), fmt.Sprintf("uds%d.sock", os.Getpid())) //nolint:usetesting // intentional: t.TempDir() path too long for Windows UDS
+	t.Cleanup(func() {
+		_ = os.Remove(socketPath)
+	})
 
 	listener, err := net.Listen("unix", socketPath)
 	require.NoError(t, err, "Failed to create unix socket listener")
