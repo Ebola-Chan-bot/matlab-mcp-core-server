@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package startmatlabsession
 
@@ -9,7 +9,7 @@ const (
 )
 
 type Args struct {
-	MATLABRoot string `json:"matlab_root" jsonschema:"MATLAB root directory for session."`
+	MATLABRoot string `json:"matlab_root" jsonschema:"MATLAB root folder for session."`
 }
 
 type ReturnArgs struct {

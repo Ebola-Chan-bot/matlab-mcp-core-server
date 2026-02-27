@@ -79,6 +79,43 @@ func TestUsecase_Execute_HappyPath(t *testing.T) {
 	assert.Equal(t, expectedResponse, response, "Response should match expected value")
 }
 
+func TestUsecase_Execute_EmptyProjectPath_SkipsCd(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockPathValidator := &mocks.MockPathValidator{}
+	defer mockPathValidator.AssertExpectations(t)
+
+	mockClient := &entitiesmocks.MockMATLABSessionClient{}
+	defer mockClient.AssertExpectations(t)
+
+	evalRequest := evalmatlabcode.Args{
+		ProjectPath: "",
+		Code:        "disp('Hello, World!')",
+	}
+
+	expectedResponse := entities.EvalResponse{
+		ConsoleOutput: "Hello, World!",
+		Images:        nil,
+	}
+
+	ctx := t.Context()
+
+	mockClient.EXPECT().
+		Eval(ctx, mockLogger.AsMockArg(), entities.EvalRequest{Code: evalRequest.Code}).
+		Return(expectedResponse, nil).
+		Once()
+
+	usecase := evalmatlabcode.New(mockPathValidator)
+
+	// Act
+	response, err := usecase.Execute(ctx, mockLogger, mockClient, evalRequest)
+
+	// Assert
+	require.NoError(t, err, "Execute should not return an error")
+	assert.Equal(t, expectedResponse, response, "Response should match expected value")
+}
+
 func TestUsecase_Execute_ValidatePathError(t *testing.T) {
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()

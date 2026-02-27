@@ -9,7 +9,7 @@ const (
 )
 
 type Args struct {
-	ScriptPath string `json:"script_path" jsonschema:"The full absolute path to the MATLAB script file to analyze - Must be a .m file that exists - File is not modified during analysis - Example: C:\\Users\\username\\matlab\\myFunction.m or /home/user/scripts/analysis.m."`
+	ScriptPath string `json:"script_path" jsonschema:"The full absolute path to the MATLAB script file to analyze. Must be a .m file that exists. File is not modified during analysis. Example: C:\\Users\\username\\matlab\\myFunction.m or /home/user/scripts/analysis.m."`
 }
 
 type ReturnArgs struct {

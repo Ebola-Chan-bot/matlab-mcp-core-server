@@ -132,7 +132,7 @@ Customize the behavior of the server by providing arguments in the `args` array 
     - Evaluates a string of MATLAB code and returns the output.
     - Inputs:
         - `code` (string): MATLAB code to evaluate.
-        - `project_path` (string): Absolute path to your project directory. MATLAB sets this directory as the current working folder. Example: `C:\Users\username\matlab-project` or `/home/user/research`.
+        - `project_path` (string, optional): Absolute path to the project folder. When provided, MATLAB sets this as the current working folder. If omitted, code runs in MATLAB's current working folder. Example: `C:\Users\username\matlab-project` or `/home/user/research`.
 
 1. `run_matlab_file`
     - Executes a MATLAB script and returns the output. The script must be a valid `.m file`.

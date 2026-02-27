@@ -36,18 +36,20 @@ func (u *Usecase) Execute(ctx context.Context, sessionLogger entities.Logger, cl
 	sessionLogger.Debug("Entering EvalInlMATLAB Usecase")
 	defer sessionLogger.Debug("Exiting EvalInMATLAB Usecase")
 
-	validatedPath, err := u.pathValidator.ValidateFolderPath(request.ProjectPath)
-	if err != nil {
-		sessionLogger.WithError(err).With("path", request.ProjectPath).Warn("Path validation failed")
-		return entities.EvalResponse{}, fmt.Errorf("path validation failed: %w", err)
-	}
+	if request.ProjectPath != "" {
+		validatedPath, err := u.pathValidator.ValidateFolderPath(request.ProjectPath)
+		if err != nil {
+			sessionLogger.WithError(err).With("path", request.ProjectPath).Warn("Path validation failed")
+			return entities.EvalResponse{}, fmt.Errorf("path validation failed: %w", err)
+		}
 
-	cdRequest := entities.EvalRequest{
-		Code: fmt.Sprintf("cd('%s')", strings.ReplaceAll(validatedPath, "'", "''")), // Escape single quotes
-	}
-	_, err = client.Eval(ctx, sessionLogger, cdRequest)
-	if err != nil {
-		return entities.EvalResponse{}, err
+		cdRequest := entities.EvalRequest{
+			Code: fmt.Sprintf("cd('%s')", strings.ReplaceAll(validatedPath, "'", "''")),
+		}
+		_, err = client.Eval(ctx, sessionLogger, cdRequest)
+		if err != nil {
+			return entities.EvalResponse{}, err
+		}
 	}
 
 	evalRequest := entities.EvalRequest{
