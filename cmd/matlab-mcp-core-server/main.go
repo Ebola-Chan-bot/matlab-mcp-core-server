@@ -19,6 +19,12 @@ func main() {
 		Name:         "matlab-mcp-core-server",
 		Title:        "MATLAB MCP Core Server",
 		Instructions: instructions,
+
+		Features: server.Features{
+			MATLAB: server.MATLABFeature{
+				Enabled: true,
+			},
+		},
 	}
 	serverInstance := server.New(serverDefinition)
 

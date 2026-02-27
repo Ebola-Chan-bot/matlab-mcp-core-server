@@ -26,9 +26,11 @@ func TestServerWithCustomToolsTestSuite(t *testing.T) {
 	suite.Run(t, new(ServerWithCustomToolsTestSuite))
 }
 
-func (s *ServerWithCustomToolsTestSuite) TestSDK_CustomTools_UnstructuredContentOutput_HappyPath() {
-	// Arrange
-	client := mcpclient.NewClient(s.T().Context(), s.serverDetails.BinaryLocation(), nil, "--log-level=debug")
+func (s *ServerWithCustomToolsTestSuite) TestSDK_CustomTools_HappyPath() {
+	// Connect to a session
+	client := mcpclient.NewClient(s.T().Context(), s.serverDetails.BinaryLocation(), nil,
+		"--log-level=debug",
+	)
 
 	session, err := client.CreateSession(s.T().Context())
 	s.Require().NoError(err, "should create MCP session")
@@ -39,39 +41,21 @@ func (s *ServerWithCustomToolsTestSuite) TestSDK_CustomTools_UnstructuredContent
 	name := "World"
 	expectedTextOutput := "Hello " + name
 
-	// Act
-	result, err := session.CallTool(s.T().Context(), "greet", map[string]any{"name": "World"})
-
-	// Assert
+	// Call the unstructured tool
+	unstructuredResult, err := session.CallTool(s.T().Context(), "greet", map[string]any{"name": name})
 	s.Require().NoError(err, "should call tool successfully")
 
-	textContent, err := session.GetTextContent(result)
+	textContent, err := session.GetTextContent(unstructuredResult)
 	s.Require().NoError(err, "should get text content")
 	s.Require().Equal(expectedTextOutput, textContent, "should return greeting message")
-}
 
-func (s *ServerWithCustomToolsTestSuite) TestSDK_CustomTools_StructuredContentOutput_HappyPath() {
-	// Arrange
-	client := mcpclient.NewClient(s.T().Context(), s.serverDetails.BinaryLocation(), nil, "--log-level=debug")
-
-	session, err := client.CreateSession(s.T().Context())
-	s.Require().NoError(err, "should create MCP session")
-	defer func() {
-		s.Require().NoError(session.Close(), "closing session should not error")
-	}()
-
-	name := "World"
-	expectedResponse := "Hello " + name
-
-	// Act
-	result, err := session.CallTool(s.T().Context(), "greet-structured", map[string]any{"name": "World"})
-
-	// Assert
+	// Call the structured tool
+	structuredResult, err := session.CallTool(s.T().Context(), "greet-structured", map[string]any{"name": "World"})
 	s.Require().NoError(err, "should call tool successfully")
 
 	var output struct {
 		Response string `json:"response"`
 	}
-	s.Require().NoError(session.UnmarshalStructuredContent(result, &output), "should unmarshal structured content")
-	s.Require().Equal(expectedResponse, output.Response, "should return greeting message")
+	s.Require().NoError(session.UnmarshalStructuredContent(structuredResult, &output), "should unmarshal structured content")
+	s.Require().Equal(expectedTextOutput, output.Response, "should return greeting message")
 }

@@ -35,6 +35,21 @@ func FromError(catalog LocaleSpecificCatalog, err Error) string {
 			e.Attr0,
 			e.Attr1,
 		)
+	case *StartupErrors_BadValueForEnvVar_Error:
+		msg := catalog.Get(StartupErrors_BadValueForEnvVar)
+		return fmt.Sprintf(
+			msg,
+			e.Attr0,
+			e.Attr1,
+		)
+	case *StartupErrors_DuplicateParameter_Error:
+		msg := catalog.Get(StartupErrors_DuplicateParameter)
+		return fmt.Sprintf(
+			msg,
+			e.Attr0,
+			e.Attr1,
+			e.Attr2,
+		)
 	case *StartupErrors_FailedToCreateDirectory_Error:
 		msg := catalog.Get(StartupErrors_FailedToCreateDirectory)
 		return fmt.Sprintf(
@@ -76,6 +91,19 @@ func FromError(catalog LocaleSpecificCatalog, err Error) string {
 		return fmt.Sprintf(
 			msg,
 			e.Attr0,
+		)
+	case *StartupErrors_InvalidParameterKey_Error:
+		msg := catalog.Get(StartupErrors_InvalidParameterKey)
+		return fmt.Sprintf(
+			msg,
+			e.Attr0,
+		)
+	case *StartupErrors_InvalidParameterType_Error:
+		msg := catalog.Get(StartupErrors_InvalidParameterType)
+		return fmt.Sprintf(
+			msg,
+			e.Attr0,
+			e.Attr1,
 		)
 	case *StartupErrors_MissingValue_Error:
 		msg := catalog.Get(StartupErrors_MissingValue)

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/flags"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/watchdog/process"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
@@ -61,10 +61,10 @@ func TestNewProcess_HappyPath(t *testing.T) {
 
 	mockOSLayer.EXPECT().
 		Command(expectedProgramPath, []string{
-			"--" + flags.WatchdogMode,
-			"--" + flags.BaseDir, expectedBaseDir,
-			"--" + flags.ServerInstanceID, expectedServerID,
-			"--" + flags.LogLevel, string(expectedLogLevel),
+			"--" + defaultparameters.WatchdogMode().GetFlagName(),
+			"--" + defaultparameters.BaseDir().GetFlagName(), expectedBaseDir,
+			"--" + defaultparameters.ServerInstanceID().GetFlagName(), expectedServerID,
+			"--" + defaultparameters.LogLevel().GetFlagName(), string(expectedLogLevel),
 		}).
 		Return(mockCmd).
 		Once()
@@ -156,10 +156,10 @@ func TestNewProcess_CommandStartError(t *testing.T) {
 
 	mockOSLayer.EXPECT().
 		Command(expectedProgramPath, []string{
-			"--" + flags.WatchdogMode,
-			"--" + flags.BaseDir, expectedBaseDir,
-			"--" + flags.ServerInstanceID, expectedServerID,
-			"--" + flags.LogLevel, string(expectedLogLevel),
+			"--" + defaultparameters.WatchdogMode().GetFlagName(),
+			"--" + defaultparameters.BaseDir().GetFlagName(), expectedBaseDir,
+			"--" + defaultparameters.ServerInstanceID().GetFlagName(), expectedServerID,
+			"--" + defaultparameters.LogLevel().GetFlagName(), string(expectedLogLevel),
 		}).
 		Return(mockCmd).
 		Once()

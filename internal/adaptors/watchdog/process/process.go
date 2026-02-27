@@ -3,7 +3,7 @@
 package process
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/flags"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
@@ -30,10 +30,10 @@ func newProcess(
 	}
 
 	cmd := osLayer.Command(programPath,
-		"--"+flags.WatchdogMode,
-		"--"+flags.BaseDir, directory.BaseDir(),
-		"--"+flags.ServerInstanceID, directory.ID(),
-		"--"+flags.LogLevel, string(config.LogLevel()),
+		"--"+defaultparameters.WatchdogMode().GetFlagName(),
+		"--"+defaultparameters.BaseDir().GetFlagName(), directory.BaseDir(),
+		"--"+defaultparameters.ServerInstanceID().GetFlagName(), directory.ID(),
+		"--"+defaultparameters.LogLevel().GetFlagName(), string(config.LogLevel()),
 	)
 
 	cmd.SetSysProcAttr(getSysProcAttrForDetachingAProcess())

@@ -6,20 +6,38 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	internaltools "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/matlab/matlab-mcp-core-server/internal/wire/adaptor"
 )
+
+type Parameter interface {
+	GetID() string
+	GetFlagName() string
+	GetHiddenFlag() bool
+	GetEnvVarName() string
+	GetDescription() string
+	GetDefaultValue() any
+
+	GetActive() bool
+	GetRecordToLog() bool
+}
 
 type Definition[Dependencies any] struct {
 	Name         string
 	Title        string
 	Instructions string
 
-	ToolsProvider func(toolProviderResources ToolProviderResources[Dependencies]) []Tool
+	Features Features
+
+	Parameters Parameters
+
+	DependenciesProvider DependenciesProvider[Dependencies]
+
+	ToolsProvider ToolsProvider[Dependencies]
 }
 
 type Server[Dependencies any] struct {
@@ -30,6 +48,9 @@ type Server[Dependencies any] struct {
 }
 
 func New[Dependencies any](thisDefinition Definition[Dependencies]) *Server[Dependencies] {
+	// Cloning parameters to avoid unexpected mutations
+	thisDefinition.Parameters = slices.Clone(thisDefinition.Parameters)
+
 	return &Server[Dependencies]{
 		applicationFactory: adaptor.NewFactory(),
 
@@ -39,20 +60,14 @@ func New[Dependencies any](thisDefinition Definition[Dependencies]) *Server[Depe
 }
 
 func (s *Server[Dependencies]) StartAndWaitForCompletion(ctx context.Context) int {
-	toolProviderResources := ToolProviderResources[Dependencies]{}
-
 	serverDefinition := definition.New(
 		s.serverDefinition.Name,
 		s.serverDefinition.Title,
 		s.serverDefinition.Instructions,
-		func(loggerFactory definition.LoggerFactory) []internaltools.Tool {
-			if s.serverDefinition.ToolsProvider == nil {
-				return nil
-			}
-
-			tools := s.serverDefinition.ToolsProvider(toolProviderResources)
-			return toolArray(tools).toInternal(loggerFactory)
-		},
+		s.serverDefinition.Features.toInternal(),
+		s.serverDefinition.Parameters.ToInternal(),
+		s.serverDefinition.DependenciesProvider.toInternal(),
+		s.serverDefinition.ToolsProvider.toInternal(),
 	)
 	application := s.applicationFactory.New(serverDefinition)
 
@@ -69,4 +84,20 @@ func (s *Server[Dependencies]) StartAndWaitForCompletion(ctx context.Context) in
 	}
 
 	return 0
+}
+
+type Parameters []Parameter
+
+func (p Parameters) ToInternal() []entities.Parameter {
+	if len(p) == 0 {
+		return nil
+	}
+
+	internalParameters := make([]entities.Parameter, len(p))
+
+	for i, parameter := range p {
+		internalParameters[i] = parameter
+	}
+
+	return internalParameters
 }

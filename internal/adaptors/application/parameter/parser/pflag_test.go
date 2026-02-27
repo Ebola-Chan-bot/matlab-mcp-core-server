@@ -1,0 +1,277 @@
+// Copyright 2025-2026 The MathWorks, Inc.
+
+package parser_test
+
+import (
+	"testing"
+
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/parser"
+	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	parsermocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/parameter/parser"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestParser_Parse_BoolFlagImplicitTrue(t *testing.T) {
+	// Arrange
+	mockOSLayer := &parsermocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockDefaultParamFactory := &parsermocks.MockDefaultParameterFactory{}
+	defer mockDefaultParamFactory.AssertExpectations(t)
+
+	mockParamFactory := &parsermocks.MockParameterFactory{}
+	defer mockParamFactory.AssertExpectations(t)
+
+	paramID := "bool-param"
+	paramFlagName := "bool-flag"
+
+	mockParam := newMockParam(
+		t,
+		paramID,
+		paramFlagName,
+		"",
+		false,
+		"Test bool description",
+		false,
+		true,
+	)
+
+	mockDefaultParamFactory.EXPECT().
+		DefaultParameters().
+		Return([]entities.Parameter{}).
+		Once()
+
+	mockParamFactory.EXPECT().
+		Parameters().
+		Return([]entities.Parameter{mockParam}).
+		Once()
+
+	args := []string{"--" + paramFlagName}
+
+	// Act
+	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
+	parameters, result, err := p.Parse(args)
+
+	// Assert
+	require.NoError(t, err)
+	assert.Equal(t, true, result[paramID])
+	assert.Equal(t, []entities.Parameter{mockParam}, parameters)
+}
+
+func TestParser_Parse_HiddenFlag(t *testing.T) {
+	// Arrange
+	mockOSLayer := &parsermocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockDefaultParamFactory := &parsermocks.MockDefaultParameterFactory{}
+	defer mockDefaultParamFactory.AssertExpectations(t)
+
+	mockParamFactory := &parsermocks.MockParameterFactory{}
+	defer mockParamFactory.AssertExpectations(t)
+
+	paramID := "hidden-param"
+	paramFlagName := "hidden-flag"
+	expectedValue := "hidden-value"
+
+	mockParam := newMockParam(
+		t,
+		paramID,
+		paramFlagName,
+		"",
+		"default",
+		"Hidden flag description",
+		true,
+		true,
+	)
+
+	mockDefaultParamFactory.EXPECT().
+		DefaultParameters().
+		Return([]entities.Parameter{}).
+		Once()
+
+	mockParamFactory.EXPECT().
+		Parameters().
+		Return([]entities.Parameter{mockParam}).
+		Once()
+
+	args := []string{"--" + paramFlagName + "=" + expectedValue}
+
+	// Act
+	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
+	parameters, result, err := p.Parse(args)
+
+	// Assert
+	require.NoError(t, err)
+	assert.Equal(t, expectedValue, result[paramID])
+	assert.Equal(t, []entities.Parameter{mockParam}, parameters)
+}
+
+func TestParser_Parse_BadFlag(t *testing.T) {
+	// Arrange
+	mockOSLayer := &parsermocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockDefaultParamFactory := &parsermocks.MockDefaultParameterFactory{}
+	defer mockDefaultParamFactory.AssertExpectations(t)
+
+	mockParamFactory := &parsermocks.MockParameterFactory{}
+	defer mockParamFactory.AssertExpectations(t)
+
+	mockDefaultParamFactory.EXPECT().
+		DefaultParameters().
+		Return([]entities.Parameter{}).
+		Once()
+
+	mockParamFactory.EXPECT().
+		Parameters().
+		Return([]entities.Parameter{}).
+		Once()
+
+	badFlagName := "nonexistent"
+	args := []string{"--" + badFlagName + "=value"}
+
+	// Act
+	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
+	usage, _ := p.Usage()
+	parameters, result, err := p.Parse(args)
+
+	// Assert
+	expectedError := messages.New_StartupErrors_BadFlag_Error(badFlagName, "\n", usage)
+	require.Equal(t, expectedError, err)
+	assert.Nil(t, result)
+	assert.Nil(t, parameters)
+}
+
+func TestParser_Parse_BadBoolFlagValue(t *testing.T) {
+	// Arrange
+	mockOSLayer := &parsermocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockDefaultParamFactory := &parsermocks.MockDefaultParameterFactory{}
+	defer mockDefaultParamFactory.AssertExpectations(t)
+
+	mockParamFactory := &parsermocks.MockParameterFactory{}
+	defer mockParamFactory.AssertExpectations(t)
+
+	paramFlagName := "bool-flag"
+	badValue := "notabool"
+
+	mockParam := newMockParam(
+		t,
+		"bool-param",
+		paramFlagName,
+		"",
+		false,
+		"Test bool description",
+		false,
+		true,
+	)
+
+	mockDefaultParamFactory.EXPECT().
+		DefaultParameters().
+		Return([]entities.Parameter{}).
+		Once()
+
+	mockParamFactory.EXPECT().
+		Parameters().
+		Return([]entities.Parameter{mockParam}).
+		Once()
+
+	args := []string{"--" + paramFlagName + "=" + badValue}
+
+	// Act
+	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
+	parameters, result, err := p.Parse(args)
+
+	// Assert
+	expectedError := messages.New_StartupErrors_BadValue_Error(badValue, paramFlagName)
+	require.Equal(t, expectedError, err)
+	assert.Nil(t, result)
+	assert.Nil(t, parameters)
+}
+
+func TestParser_Parse_InactiveParameterFlagSkipped(t *testing.T) {
+	// Arrange
+	mockOSLayer := &parsermocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockDefaultParamFactory := &parsermocks.MockDefaultParameterFactory{}
+	defer mockDefaultParamFactory.AssertExpectations(t)
+
+	mockParamFactory := &parsermocks.MockParameterFactory{}
+	defer mockParamFactory.AssertExpectations(t)
+
+	flagName := "inactive-flag"
+
+	mockParam := newMockParam(
+		t,
+		"inactive-param",
+		flagName,
+		"",
+		"default",
+		"",
+		false,
+		false,
+	)
+
+	mockDefaultParamFactory.EXPECT().
+		DefaultParameters().
+		Return([]entities.Parameter{}).
+		Once()
+
+	mockParamFactory.EXPECT().
+		Parameters().
+		Return([]entities.Parameter{mockParam}).
+		Once()
+
+	args := []string{"--" + flagName + "=value"}
+
+	// Act
+	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
+	usage, _ := p.Usage()
+	parameters, result, err := p.Parse(args)
+
+	// Assert
+	expectedError := messages.New_StartupErrors_BadFlag_Error(flagName, "\n", usage)
+	require.Equal(t, expectedError, err)
+	assert.Nil(t, result)
+	assert.Nil(t, parameters)
+}
+
+func TestParser_Parse_BadFlagSyntax(t *testing.T) {
+	// Arrange
+	mockOSLayer := &parsermocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockDefaultParamFactory := &parsermocks.MockDefaultParameterFactory{}
+	defer mockDefaultParamFactory.AssertExpectations(t)
+
+	mockParamFactory := &parsermocks.MockParameterFactory{}
+	defer mockParamFactory.AssertExpectations(t)
+
+	mockDefaultParamFactory.EXPECT().
+		DefaultParameters().
+		Return([]entities.Parameter{}).
+		Once()
+
+	mockParamFactory.EXPECT().
+		Parameters().
+		Return([]entities.Parameter{}).
+		Once()
+
+	badArg := "---bad-syntax"
+	args := []string{badArg}
+
+	// Act
+	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
+	usage, _ := p.Usage()
+	parameters, result, err := p.Parse(args)
+
+	// Assert
+	expectedError := messages.New_StartupErrors_BadSyntax_Error(badArg, "\n", usage)
+	require.Equal(t, expectedError, err)
+	assert.Nil(t, result)
+	assert.Nil(t, parameters)
+}

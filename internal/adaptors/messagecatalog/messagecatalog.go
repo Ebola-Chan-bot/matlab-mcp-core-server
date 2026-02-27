@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package messagecatalog
 
@@ -9,7 +9,9 @@ type MessageCatalog struct {
 }
 
 func New() *MessageCatalog {
-	return &MessageCatalog{catalog: messages.NewCatalog(messages.Locale_en_US)}
+	return &MessageCatalog{
+		catalog: messages.NewCatalog(messages.Locale_en_US),
+	}
 }
 
 func (m *MessageCatalog) Get(key messages.MessageKey) string {

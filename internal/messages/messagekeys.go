@@ -19,6 +19,8 @@ const (
 	StartupErrors_BadFlag                                   messageKey = "StartupErrors_BadFlag"
 	StartupErrors_BadSyntax                                 messageKey = "StartupErrors_BadSyntax"
 	StartupErrors_BadValue                                  messageKey = "StartupErrors_BadValue"
+	StartupErrors_BadValueForEnvVar                         messageKey = "StartupErrors_BadValueForEnvVar"
+	StartupErrors_DuplicateParameter                        messageKey = "StartupErrors_DuplicateParameter"
 	StartupErrors_FailedToCreateDirectory                   messageKey = "StartupErrors_FailedToCreateDirectory"
 	StartupErrors_FailedToCreateFile                        messageKey = "StartupErrors_FailedToCreateFile"
 	StartupErrors_FailedToCreateLogFile                     messageKey = "StartupErrors_FailedToCreateLogFile"
@@ -28,6 +30,8 @@ const (
 	StartupErrors_GenericInitializeFailure                  messageKey = "StartupErrors_GenericInitializeFailure"
 	StartupErrors_InvalidDisplayMode                        messageKey = "StartupErrors_InvalidDisplayMode"
 	StartupErrors_InvalidLogLevel                           messageKey = "StartupErrors_InvalidLogLevel"
+	StartupErrors_InvalidParameterKey                       messageKey = "StartupErrors_InvalidParameterKey"
+	StartupErrors_InvalidParameterType                      messageKey = "StartupErrors_InvalidParameterType"
 	StartupErrors_MissingValue                              messageKey = "StartupErrors_MissingValue"
 	StartupErrors_ParseFailed                               messageKey = "StartupErrors_ParseFailed"
 )

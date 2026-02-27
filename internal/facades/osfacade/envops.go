@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package osfacade
 
@@ -21,6 +21,11 @@ func (osw *OsFacade) Args() []string {
 // Getenv wraps the os.Getenv function to retrieve the value of the environment variable named by the key.
 func (osw *OsFacade) Getenv(key string) string {
 	return os.Getenv(key)
+}
+
+// LookupEnv wraps the os.LookupEnv function to retrieve the value of the environment variable named by the key.
+func (osw *OsFacade) LookupEnv(key string) (string, bool) {
+	return os.LookupEnv(key)
 }
 
 // Stdin wraps the os.Stdin function to retrieve the process stdin.

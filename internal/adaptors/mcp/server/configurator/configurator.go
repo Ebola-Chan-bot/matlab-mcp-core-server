@@ -4,6 +4,7 @@ package configurator
 
 import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/codingguidelines"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/plaintextlivecodegeneration"
@@ -24,8 +25,13 @@ type ConfigFactory interface {
 	Config() (config.Config, messages.Error)
 }
 
+type ApplicationDefinition interface {
+	Features() definition.Features
+}
+
 type Configurator struct {
-	configFactory ConfigFactory
+	configFactory    ConfigFactory
+	featuresProvider ApplicationDefinition
 
 	// Multi Session tools
 	listAvailableMATLABsTool tools.Tool
@@ -48,6 +54,8 @@ type Configurator struct {
 func New(
 	configFactory ConfigFactory,
 
+	featuresProvider ApplicationDefinition,
+
 	listAvailableMATLABsTool *listavailablematlabs.Tool,
 	startMATLABSessionTool *startmatlabsession.Tool,
 	stopMATLABSessionTool *stopmatlabsession.Tool,
@@ -64,6 +72,8 @@ func New(
 ) *Configurator {
 	return &Configurator{
 		configFactory: configFactory,
+
+		featuresProvider: featuresProvider,
 
 		listAvailableMATLABsTool: listAvailableMATLABsTool,
 		startMATLABSessionTool:   startMATLABSessionTool,
@@ -82,6 +92,10 @@ func New(
 }
 
 func (c *Configurator) GetToolsToAdd() ([]tools.Tool, error) {
+	if !c.featuresProvider.Features().MATLAB.Enabled {
+		return []tools.Tool{}, nil
+	}
+
 	config, err := c.configFactory.Config()
 	if err != nil {
 		return nil, err
@@ -106,6 +120,10 @@ func (c *Configurator) GetToolsToAdd() ([]tools.Tool, error) {
 }
 
 func (c *Configurator) GetResourcesToAdd() []resources.Resource {
+	if !c.featuresProvider.Features().MATLAB.Enabled {
+		return []resources.Resource{}
+	}
+
 	return []resources.Resource{
 		c.codingGuidelinesResource,
 		c.plaintextlivecodegenerationResource,

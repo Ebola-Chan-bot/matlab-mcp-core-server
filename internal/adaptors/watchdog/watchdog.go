@@ -35,6 +35,7 @@ type Watchdog struct {
 	client transport.Client
 
 	startedC chan struct{}
+	canStopC chan struct{}
 }
 
 func New(
@@ -52,10 +53,13 @@ func New(
 		client: clientFactory.New(),
 
 		startedC: make(chan struct{}),
+		canStopC: make(chan struct{}),
 	}
 }
 
 func (w *Watchdog) Start() error {
+	defer close(w.startedC)
+
 	logger, messagesErr := w.loggerFactory.GetGlobalLogger()
 	if messagesErr != nil {
 		return messagesErr
@@ -81,7 +85,7 @@ func (w *Watchdog) Start() error {
 		return err
 	}
 
-	close(w.startedC)
+	close(w.canStopC)
 
 	w.logger.Debug("Started watchdog")
 
@@ -89,7 +93,7 @@ func (w *Watchdog) Start() error {
 }
 
 func (w *Watchdog) RegisterProcessPIDWithWatchdog(processPID int) error {
-	<-w.startedC
+	<-w.canStopC
 
 	w.logger.With("pid", processPID).Debug("Adding child process to watchdog")
 	_, err := w.client.SendProcessPID(processPID)
@@ -99,7 +103,13 @@ func (w *Watchdog) RegisterProcessPIDWithWatchdog(processPID int) error {
 func (w *Watchdog) Stop() error {
 	<-w.startedC
 
-	w.logger.Debug("Sending graceful shutdown signal to watchdog")
-	_, err := w.client.SendStop()
-	return err
+	select {
+	case <-w.canStopC:
+		w.logger.Debug("Sending graceful shutdown signal to watchdog")
+		_, err := w.client.SendStop()
+		return err
+	default:
+		// The server didn't start, nothing to do
+		return nil
+	}
 }

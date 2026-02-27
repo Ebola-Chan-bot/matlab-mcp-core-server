@@ -9,10 +9,11 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/directory"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/parser"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/lifecyclesignaler"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/modeselector"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/orchestrator"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters/selector"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/parser"
 	files "github.com/matlab/matlab-mcp-core-server/internal/adaptors/filesystem/files"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabrootselector"
@@ -76,18 +77,22 @@ import (
 )
 
 type Application struct {
-	ModeSelector      *modeselector.ModeSelector
-	MessageCatalog    *messagecatalog.MessageCatalog
-	HTTPClientFactory *httpclient.Factory
-	HTTPServerFactory *httpserver.Factory
-	LoggerFactory     *logger.Factory
+	ModeSelector        *modeselector.ModeSelector
+	MessageCatalog      *messagecatalog.MessageCatalog
+	MATLABClientFactory *matlabsessionclient.Factory
+	HTTPClientFactory   *httpclient.Factory
+	HTTPServerFactory   *httpserver.Factory
+	LoggerFactory       *logger.Factory
 }
 
 type ApplicationDefinition interface {
 	Name() string
 	Title() string
 	Instructions() string
-	Tools(loggerFactory definition.LoggerFactory) []tools.Tool
+	Features() definition.Features
+	Parameters() []entities.Parameter
+	Dependencies(resources definition.DependenciesProviderResources) (any, error)
+	Tools(resources definition.ToolsProviderResources) []tools.Tool
 }
 
 func Initialize(serverDefinition ApplicationDefinition) *Application {
@@ -125,7 +130,9 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 
 		// Orchestrator
 		orchestrator.New,
+		wire.Bind(new(orchestrator.MessageCatalog), new(*messagecatalog.MessageCatalog)),
 		wire.Bind(new(orchestrator.LifecycleSignaler), new(*lifecyclesignaler.LifecycleSignaler)),
+		wire.Bind(new(orchestrator.ApplicationDefinition), new(ApplicationDefinition)),
 		wire.Bind(new(orchestrator.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(orchestrator.Server), new(*server.Server)),
 		wire.Bind(new(orchestrator.WatchdogClient), new(*watchdogclient.Watchdog)),
@@ -136,7 +143,6 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 
 		// MCP Server
 		server.New,
-		wire.Bind(new(server.AdditionalToolsProvider), new(ApplicationDefinition)),
 		wire.Bind(new(server.MCPSDKServerFactory), new(*sdk.Factory)),
 		wire.Bind(new(server.LoggerFactory), new(*logger.Factory)),
 		wire.Bind(new(server.LifecycleSignaler), new(*lifecyclesignaler.LifecycleSignaler)),
@@ -150,6 +156,7 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 		// MCP Server Configurator
 		configurator.New,
 		wire.Bind(new(configurator.ConfigFactory), new(*config.Factory)),
+		wire.Bind(new(configurator.ApplicationDefinition), new(ApplicationDefinition)),
 
 		// Tools
 		wire.Bind(new(basetool.LoggerFactory), new(*logger.Factory)),
@@ -355,12 +362,19 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 
 		// Config Factory
 		config.NewFactory,
-		wire.Bind(new(config.OSLayer), new(*osfacade.OsFacade)),
 		wire.Bind(new(config.Parser), new(*parser.Parser)),
+		wire.Bind(new(config.OSLayer), new(*osfacade.OsFacade)),
 
 		// Parser
 		parser.New,
-		wire.Bind(new(parser.MessageCatalog), new(*messagecatalog.MessageCatalog)),
+		wire.Bind(new(parser.OSLayer), new(*osfacade.OsFacade)),
+		wire.Bind(new(parser.DefaultParameterFactory), new(*selector.Selector)),
+		wire.Bind(new(parser.ParameterFactory), new(ApplicationDefinition)),
+
+		// Default Parameters Selector
+		selector.New,
+		wire.Bind(new(selector.ApplicationDefinition), new(ApplicationDefinition)),
+		wire.Bind(new(selector.MessageCatalog), new(*messagecatalog.MessageCatalog)),
 
 		// Message Catalog
 		messagecatalog.New,

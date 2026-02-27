@@ -6,6 +6,7 @@ package mocks
 
 import (
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -76,6 +77,70 @@ func (_c *MockConfig_BaseDir_Call) Return(s string) *MockConfig_BaseDir_Call {
 }
 
 func (_c *MockConfig_BaseDir_Call) RunAndReturn(run func() string) *MockConfig_BaseDir_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Get provides a mock function for the type MockConfig
+func (_mock *MockConfig) Get(key string) (any, messages.Error) {
+	ret := _mock.Called(key)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Get")
+	}
+
+	var r0 any
+	var r1 messages.Error
+	if returnFunc, ok := ret.Get(0).(func(string) (any, messages.Error)); ok {
+		return returnFunc(key)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) any); ok {
+		r0 = returnFunc(key)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(any)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) messages.Error); ok {
+		r1 = returnFunc(key)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(messages.Error)
+		}
+	}
+	return r0, r1
+}
+
+// MockConfig_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type MockConfig_Get_Call struct {
+	*mock.Call
+}
+
+// Get is a helper method to define mock.On call
+//   - key string
+func (_e *MockConfig_Expecter) Get(key interface{}) *MockConfig_Get_Call {
+	return &MockConfig_Get_Call{Call: _e.mock.On("Get", key)}
+}
+
+func (_c *MockConfig_Get_Call) Run(run func(key string)) *MockConfig_Get_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockConfig_Get_Call) Return(v any, error messages.Error) *MockConfig_Get_Call {
+	_c.Call.Return(v, error)
+	return _c
+}
+
+func (_c *MockConfig_Get_Call) RunAndReturn(run func(key string) (any, messages.Error)) *MockConfig_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/parser"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
@@ -17,22 +17,144 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewFactory_HappyPath(t *testing.T) {
-	// Arrange
-	mockOSLayer := &configmocks.MockOSLayer{}
-	defer mockOSLayer.AssertExpectations(t)
+func configDefaultParsedArgs() map[string]any {
+	params := []entities.Parameter{
+		defaultparameters.HelpMode(),
+		defaultparameters.VersionMode(),
+		defaultparameters.DisableTelemetry(),
+		defaultparameters.UseSingleMATLABSession(),
+		defaultparameters.LogLevel(),
+		defaultparameters.PreferredLocalMATLABRoot(),
+		defaultparameters.PreferredMATLABStartingDirectory(),
+		defaultparameters.BaseDir(),
+		defaultparameters.WatchdogMode(),
+		defaultparameters.ServerInstanceID(),
+		defaultparameters.InitializeMATLABOnStartup(),
+		defaultparameters.MATLABDisplayMode(),
+	}
 
-	mockParser := &configmocks.MockParser{}
-	defer mockParser.AssertExpectations(t)
-
-	// Act
-	factory := config.NewFactory(mockParser, mockOSLayer)
-
-	// Assert
-	assert.NotNil(t, factory, "Factory should not be nil")
+	result := make(map[string]any)
+	for _, p := range params {
+		result[p.GetID()] = p.GetDefaultValue()
+	}
+	return result
 }
 
-func TestFactory_Config_HappyPath(t *testing.T) {
+func TestNewConfig_InvalidParameterType(t *testing.T) {
+	testCases := []struct {
+		name         string
+		key          string
+		invalidValue any
+		expectedType string
+	}{
+		{name: "LogLevel wrong type", key: defaultparameters.LogLevel().GetID(), invalidValue: 123, expectedType: "string"},
+		{name: "UseSingleMATLABSession wrong type", key: defaultparameters.UseSingleMATLABSession().GetID(), invalidValue: "true", expectedType: "bool"},
+		{name: "InitializeMATLABOnStartup wrong type", key: defaultparameters.InitializeMATLABOnStartup().GetID(), invalidValue: "false", expectedType: "bool"},
+		{name: "VersionMode wrong type", key: defaultparameters.VersionMode().GetID(), invalidValue: "false", expectedType: "bool"},
+		{name: "HelpMode wrong type", key: defaultparameters.HelpMode().GetID(), invalidValue: "false", expectedType: "bool"},
+		{name: "DisableTelemetry wrong type", key: defaultparameters.DisableTelemetry().GetID(), invalidValue: "false", expectedType: "bool"},
+		{name: "PreferredLocalMATLABRoot wrong type", key: defaultparameters.PreferredLocalMATLABRoot().GetID(), invalidValue: 123, expectedType: "string"},
+		{name: "PreferredMATLABStartingDirectory wrong type", key: defaultparameters.PreferredMATLABStartingDirectory().GetID(), invalidValue: 123, expectedType: "string"},
+		{name: "BaseDir wrong type", key: defaultparameters.BaseDir().GetID(), invalidValue: 123, expectedType: "string"},
+		{name: "WatchdogMode wrong type", key: defaultparameters.WatchdogMode().GetID(), invalidValue: "false", expectedType: "bool"},
+		{name: "ServerInstanceID wrong type", key: defaultparameters.ServerInstanceID().GetID(), invalidValue: 123, expectedType: "string"},
+		{name: "MATLABDisplayMode wrong type", key: defaultparameters.MATLABDisplayMode().GetID(), invalidValue: 123, expectedType: "string"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Arrange
+			mockOSLayer := &configmocks.MockOSLayer{}
+			defer mockOSLayer.AssertExpectations(t)
+
+			mockParser := &configmocks.MockParser{}
+			defer mockParser.AssertExpectations(t)
+
+			programName := "testprocess"
+			args := []string{programName}
+
+			parsedArgs := configDefaultParsedArgs()
+			parsedArgs[tc.key] = tc.invalidValue
+
+			mockOSLayer.EXPECT().
+				Args().
+				Return(args).
+				Once()
+
+			mockParser.EXPECT().
+				Parse(args[1:]).
+				Return([]entities.Parameter{}, parsedArgs, nil).
+				Once()
+
+			expectedError := messages.New_StartupErrors_InvalidParameterType_Error(tc.key, tc.expectedType)
+
+			// Act
+			cfg, err := config.NewConfig(mockOSLayer, mockParser)
+
+			// Assert
+			require.Equal(t, expectedError, err)
+			assert.Nil(t, cfg)
+		})
+	}
+}
+
+func TestNewConfig_MissingParameter(t *testing.T) {
+	testCases := []struct {
+		name       string
+		missingKey string
+	}{
+		{name: "missing LogLevel", missingKey: defaultparameters.LogLevel().GetID()},
+		{name: "missing UseSingleMATLABSession", missingKey: defaultparameters.UseSingleMATLABSession().GetID()},
+		{name: "missing InitializeMATLABOnStartup", missingKey: defaultparameters.InitializeMATLABOnStartup().GetID()},
+		{name: "missing VersionMode", missingKey: defaultparameters.VersionMode().GetID()},
+		{name: "missing HelpMode", missingKey: defaultparameters.HelpMode().GetID()},
+		{name: "missing DisableTelemetry", missingKey: defaultparameters.DisableTelemetry().GetID()},
+		{name: "missing PreferredLocalMATLABRoot", missingKey: defaultparameters.PreferredLocalMATLABRoot().GetID()},
+		{name: "missing PreferredMATLABStartingDirectory", missingKey: defaultparameters.PreferredMATLABStartingDirectory().GetID()},
+		{name: "missing BaseDir", missingKey: defaultparameters.BaseDir().GetID()},
+		{name: "missing WatchdogMode", missingKey: defaultparameters.WatchdogMode().GetID()},
+		{name: "missing ServerInstanceID", missingKey: defaultparameters.ServerInstanceID().GetID()},
+		{name: "missing MATLABDisplayMode", missingKey: defaultparameters.MATLABDisplayMode().GetID()},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Arrange
+			mockOSLayer := &configmocks.MockOSLayer{}
+			defer mockOSLayer.AssertExpectations(t)
+
+			mockParser := &configmocks.MockParser{}
+			defer mockParser.AssertExpectations(t)
+
+			programName := "testprocess"
+			args := []string{programName}
+
+			parsedArgs := configDefaultParsedArgs()
+			delete(parsedArgs, tc.missingKey)
+
+			mockOSLayer.EXPECT().
+				Args().
+				Return(args).
+				Once()
+
+			mockParser.EXPECT().
+				Parse(args[1:]).
+				Return([]entities.Parameter{}, parsedArgs, nil).
+				Once()
+
+			expectedError := messages.New_StartupErrors_InvalidParameterKey_Error(tc.missingKey)
+
+			// Act
+			cfg, err := config.NewConfig(mockOSLayer, mockParser)
+
+			// Assert
+			require.Equal(t, expectedError, err)
+			assert.Nil(t, cfg)
+		})
+	}
+}
+
+func TestNewConfig_ParseError(t *testing.T) {
 	// Arrange
 	mockOSLayer := &configmocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
@@ -50,52 +172,18 @@ func TestFactory_Config_HappyPath(t *testing.T) {
 
 	mockParser.EXPECT().
 		Parse(args[1:]).
-		Return(parser.SpecifiedArguments{}, nil).
+		Return(nil, nil, messages.AnError).
 		Once()
-
-	factory := config.NewFactory(mockParser, mockOSLayer)
 
 	// Act
-	cfg, err := factory.Config()
+	cfg, err := config.NewConfig(mockOSLayer, mockParser)
 
 	// Assert
-	require.NoError(t, err, "Config should not return an error")
-	assert.NotNil(t, cfg, "Config should not be nil")
-}
-
-func TestFactory_Config_ParseError(t *testing.T) {
-	// Arrange
-	mockOSLayer := &configmocks.MockOSLayer{}
-	defer mockOSLayer.AssertExpectations(t)
-
-	mockParser := &configmocks.MockParser{}
-	defer mockParser.AssertExpectations(t)
-
-	programName := "testprocess"
-	args := []string{programName}
-	expectedError := &messages.StartupErrors_BadFlag_Error{}
-
-	mockOSLayer.EXPECT().
-		Args().
-		Return(args).
-		Once()
-
-	mockParser.EXPECT().
-		Parse(args[1:]).
-		Return(parser.SpecifiedArguments{}, expectedError).
-		Once()
-
-	factory := config.NewFactory(mockParser, mockOSLayer)
-
-	// Act
-	cfg, err := factory.Config()
-
-	// Assert
-	require.ErrorIs(t, err, expectedError, "Config should return the expected error")
+	require.ErrorIs(t, err, messages.AnError)
 	assert.Nil(t, cfg, "Config should be nil")
 }
 
-func TestFactory_Config_IsSingleton(t *testing.T) {
+func TestNewConfig_InvalidLogLevel(t *testing.T) {
 	// Arrange
 	mockOSLayer := &configmocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
@@ -106,39 +194,8 @@ func TestFactory_Config_IsSingleton(t *testing.T) {
 	programName := "testprocess"
 	args := []string{programName}
 
-	mockOSLayer.EXPECT().
-		Args().
-		Return(args).
-		Once()
-
-	mockParser.EXPECT().
-		Parse(args[1:]).
-		Return(parser.SpecifiedArguments{}, nil).
-		Once()
-
-	factory := config.NewFactory(mockParser, mockOSLayer)
-
-	// Act
-	cfg1, err1 := factory.Config()
-	cfg2, err2 := factory.Config()
-
-	// Assert
-	require.NoError(t, err1, "First Config call should not return an error")
-	require.NoError(t, err2, "Second Config call should not return an error")
-	assert.Same(t, cfg1, cfg2, "Config should return the same instance on multiple calls")
-}
-
-func TestFactory_Config_SingletonPreservesError(t *testing.T) {
-	// Arrange
-	mockOSLayer := &configmocks.MockOSLayer{}
-	defer mockOSLayer.AssertExpectations(t)
-
-	mockParser := &configmocks.MockParser{}
-	defer mockParser.AssertExpectations(t)
-
-	programName := "testprocess"
-	args := []string{programName}
-	expectedError := &messages.StartupErrors_BadFlag_Error{}
+	parsedArgs := configDefaultParsedArgs()
+	parsedArgs[defaultparameters.LogLevel().GetID()] = "invalid-level"
 
 	mockOSLayer.EXPECT().
 		Args().
@@ -147,22 +204,17 @@ func TestFactory_Config_SingletonPreservesError(t *testing.T) {
 
 	mockParser.EXPECT().
 		Parse(args[1:]).
-		Return(parser.SpecifiedArguments{}, expectedError).
+		Return([]entities.Parameter{}, parsedArgs, nil).
 		Once()
 
-	factory := config.NewFactory(mockParser, mockOSLayer)
+	expectedError := messages.New_StartupErrors_InvalidLogLevel_Error("invalid-level")
 
 	// Act
-	cfg1, err1 := factory.Config()
-	cfg2, err2 := factory.Config()
+	cfg, err := config.NewConfig(mockOSLayer, mockParser)
 
 	// Assert
-	require.Error(t, err1, "First Config call should return an error")
-	require.Error(t, err2, "Second Config call should return the same error")
-	assert.Equal(t, expectedError, err1, "First error should match expected")
-	assert.Equal(t, expectedError, err2, "Second error should match expected")
-	assert.Nil(t, cfg1, "First config should be nil")
-	assert.Nil(t, cfg2, "Second config should be nil")
+	require.Equal(t, expectedError, err)
+	assert.Nil(t, cfg, "Config should be nil")
 }
 
 func TestConfig_Version(t *testing.T) {
@@ -214,12 +266,12 @@ func TestConfig_Version(t *testing.T) {
 
 			mockOSLayer.EXPECT().
 				Args().
-				Return([]string{"testprocess"}).
+				Return(args).
 				Once()
 
 			mockParser.EXPECT().
 				Parse(args[1:]).
-				Return(parser.SpecifiedArguments{}, nil).
+				Return([]entities.Parameter{}, configDefaultParsedArgs(), nil).
 				Once()
 
 			var buildInfo *debug.BuildInfo
@@ -238,7 +290,7 @@ func TestConfig_Version(t *testing.T) {
 				Once()
 
 			// Act
-			cfg, err := config.New(mockOSLayer, mockParser)
+			cfg, err := config.NewConfig(mockOSLayer, mockParser)
 			require.NoError(t, err)
 
 			version := cfg.Version()
@@ -249,85 +301,8 @@ func TestConfig_Version(t *testing.T) {
 	}
 }
 
-func TestConfig_ShouldShowMATLABDesktop(t *testing.T) {
-	testCases := []struct {
-		name         string
-		displayMode  entities.DisplayMode
-		expectedShow bool
-	}{
-		{
-			name:         "desktop mode shows MATLAB",
-			displayMode:  entities.DisplayModeDesktop,
-			expectedShow: true,
-		},
-		{
-			name:         "nodesktop mode hides MATLAB",
-			displayMode:  entities.DisplayModeNoDesktop,
-			expectedShow: false,
-		},
-		{
-			name:         "unset mode shows MATLAB (default)",
-			displayMode:  "",
-			expectedShow: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			// Arrange
-			mockOSLayer := &configmocks.MockOSLayer{}
-			defer mockOSLayer.AssertExpectations(t)
-
-			mockParser := &configmocks.MockParser{}
-			defer mockParser.AssertExpectations(t)
-
-			programName := "testprocess"
-			args := []string{programName}
-			specifiedArguments := parser.SpecifiedArguments{
-				DisplayMode: tc.displayMode,
-			}
-
-			mockOSLayer.EXPECT().
-				Args().
-				Return(args).
-				Once()
-
-			mockParser.EXPECT().
-				Parse(args[1:]).
-				Return(specifiedArguments, nil).
-				Once()
-
-			cfg, err := config.New(mockOSLayer, mockParser)
-			require.NoError(t, err)
-
-			// Act
-			result := cfg.ShouldShowMATLABDesktop()
-
-			// Assert
-			assert.Equal(t, tc.expectedShow, result)
-		})
-	}
-}
-
-func TestConfig_Log_HappyPath(t *testing.T) {
+func TestConfig_InitializeMATLABOnStartup_DisabledWhenNotSingleSession(t *testing.T) {
 	// Arrange
-	specifiedArguments := parser.SpecifiedArguments{
-		DisableTelemetry:                 true,
-		PreferredMATLABStartingDirectory: filepath.Join("home", "user"),
-		LogLevel:                         entities.LogLevelDebug,
-		PreferredLocalMATLABRoot:         filepath.Join("home", "matlab"),
-		UseSingleMATLABSession:           false,
-		DisplayMode:                      entities.DisplayModeNoDesktop,
-	}
-	expectedLogMessage := "Configuration state"
-	expectedConfigField := map[string]any{
-		"disable-telemetry":         true,
-		"initial-working-folder":    filepath.Join("home", "user"),
-		"log-level":                 entities.LogLevelDebug,
-		"matlab-root":               filepath.Join("home", "matlab"),
-		"use-single-matlab-session": false,
-		"matlab-display-mode":       entities.DisplayModeNoDesktop,
-	}
 	mockOSLayer := &configmocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
@@ -336,16 +311,81 @@ func TestConfig_Log_HappyPath(t *testing.T) {
 
 	programName := "testprocess"
 	args := []string{programName}
-	mockParser.EXPECT().
-		Parse(args[1:]).
-		Return(specifiedArguments, nil)
+
+	parsedArgs := configDefaultParsedArgs()
+	parsedArgs[defaultparameters.UseSingleMATLABSession().GetID()] = false
+	parsedArgs[defaultparameters.InitializeMATLABOnStartup().GetID()] = true
 
 	mockOSLayer.EXPECT().
 		Args().
 		Return(args).
 		Once()
 
-	cfg, err := config.New(mockOSLayer, mockParser)
+	mockParser.EXPECT().
+		Parse(args[1:]).
+		Return([]entities.Parameter{}, parsedArgs, nil).
+		Once()
+
+	// Act
+	cfg, err := config.NewConfig(mockOSLayer, mockParser)
+
+	// Assert
+	require.NoError(t, err)
+	assert.False(t, cfg.InitializeMATLABOnStartup(), "InitializeMATLABOnStartup should be false when UseSingleMATLABSession is false")
+}
+
+func TestConfig_RecordToLogger_HappyPath(t *testing.T) {
+	// Arrange
+	parsedArgs := configDefaultParsedArgs()
+	parsedArgs[defaultparameters.DisableTelemetry().GetID()] = true
+	parsedArgs[defaultparameters.PreferredMATLABStartingDirectory().GetID()] = filepath.Join("home", "user")
+	parsedArgs[defaultparameters.LogLevel().GetID()] = string(entities.LogLevelDebug)
+	parsedArgs[defaultparameters.PreferredLocalMATLABRoot().GetID()] = filepath.Join("home", "matlab")
+	parsedArgs[defaultparameters.UseSingleMATLABSession().GetID()] = false
+
+	expectedLogMessage := "Configuration state"
+	expectedConfigField := map[string]any{
+		defaultparameters.DisableTelemetry().GetID():                 true,
+		defaultparameters.PreferredMATLABStartingDirectory().GetID(): filepath.Join("home", "user"),
+		defaultparameters.LogLevel().GetID():                         string(entities.LogLevelDebug),
+		defaultparameters.PreferredLocalMATLABRoot().GetID():         filepath.Join("home", "matlab"),
+		defaultparameters.UseSingleMATLABSession().GetID():           false,
+		defaultparameters.InitializeMATLABOnStartup().GetID():        false,
+	}
+
+	parameters := []entities.Parameter{
+		defaultparameters.DisableTelemetry(),
+		defaultparameters.UseSingleMATLABSession(),
+		defaultparameters.LogLevel(),
+		defaultparameters.PreferredLocalMATLABRoot(),
+		defaultparameters.PreferredMATLABStartingDirectory(),
+		defaultparameters.InitializeMATLABOnStartup(),
+		defaultparameters.HelpMode(),
+		defaultparameters.VersionMode(),
+		defaultparameters.BaseDir(),
+		defaultparameters.WatchdogMode(),
+		defaultparameters.ServerInstanceID(),
+	}
+
+	mockOSLayer := &configmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockParser := &configmocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	programName := "testprocess"
+	args := []string{programName}
+
+	mockParser.EXPECT().
+		Parse(args[1:]).
+		Return(parameters, parsedArgs, nil)
+
+	mockOSLayer.EXPECT().
+		Args().
+		Return(args).
+		Once()
+
+	cfg, err := config.NewConfig(mockOSLayer, mockParser)
 	require.NoError(t, err)
 
 	testLogger := testutils.NewInspectableLogger()

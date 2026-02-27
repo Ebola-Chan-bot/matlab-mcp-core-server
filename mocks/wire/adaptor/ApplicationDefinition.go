@@ -7,6 +7,7 @@ package mocks
 import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
+	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -35,6 +36,112 @@ type MockApplicationDefinition_Expecter struct {
 
 func (_m *MockApplicationDefinition) EXPECT() *MockApplicationDefinition_Expecter {
 	return &MockApplicationDefinition_Expecter{mock: &_m.Mock}
+}
+
+// Dependencies provides a mock function for the type MockApplicationDefinition
+func (_mock *MockApplicationDefinition) Dependencies(resources definition.DependenciesProviderResources) (any, error) {
+	ret := _mock.Called(resources)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Dependencies")
+	}
+
+	var r0 any
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(definition.DependenciesProviderResources) (any, error)); ok {
+		return returnFunc(resources)
+	}
+	if returnFunc, ok := ret.Get(0).(func(definition.DependenciesProviderResources) any); ok {
+		r0 = returnFunc(resources)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(any)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(definition.DependenciesProviderResources) error); ok {
+		r1 = returnFunc(resources)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockApplicationDefinition_Dependencies_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Dependencies'
+type MockApplicationDefinition_Dependencies_Call struct {
+	*mock.Call
+}
+
+// Dependencies is a helper method to define mock.On call
+//   - resources definition.DependenciesProviderResources
+func (_e *MockApplicationDefinition_Expecter) Dependencies(resources interface{}) *MockApplicationDefinition_Dependencies_Call {
+	return &MockApplicationDefinition_Dependencies_Call{Call: _e.mock.On("Dependencies", resources)}
+}
+
+func (_c *MockApplicationDefinition_Dependencies_Call) Run(run func(resources definition.DependenciesProviderResources)) *MockApplicationDefinition_Dependencies_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 definition.DependenciesProviderResources
+		if args[0] != nil {
+			arg0 = args[0].(definition.DependenciesProviderResources)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockApplicationDefinition_Dependencies_Call) Return(v any, err error) *MockApplicationDefinition_Dependencies_Call {
+	_c.Call.Return(v, err)
+	return _c
+}
+
+func (_c *MockApplicationDefinition_Dependencies_Call) RunAndReturn(run func(resources definition.DependenciesProviderResources) (any, error)) *MockApplicationDefinition_Dependencies_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Features provides a mock function for the type MockApplicationDefinition
+func (_mock *MockApplicationDefinition) Features() definition.Features {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Features")
+	}
+
+	var r0 definition.Features
+	if returnFunc, ok := ret.Get(0).(func() definition.Features); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(definition.Features)
+	}
+	return r0
+}
+
+// MockApplicationDefinition_Features_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Features'
+type MockApplicationDefinition_Features_Call struct {
+	*mock.Call
+}
+
+// Features is a helper method to define mock.On call
+func (_e *MockApplicationDefinition_Expecter) Features() *MockApplicationDefinition_Features_Call {
+	return &MockApplicationDefinition_Features_Call{Call: _e.mock.On("Features")}
+}
+
+func (_c *MockApplicationDefinition_Features_Call) Run(run func()) *MockApplicationDefinition_Features_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockApplicationDefinition_Features_Call) Return(features definition.Features) *MockApplicationDefinition_Features_Call {
+	_c.Call.Return(features)
+	return _c
+}
+
+func (_c *MockApplicationDefinition_Features_Call) RunAndReturn(run func() definition.Features) *MockApplicationDefinition_Features_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Instructions provides a mock function for the type MockApplicationDefinition
@@ -125,6 +232,52 @@ func (_c *MockApplicationDefinition_Name_Call) RunAndReturn(run func() string) *
 	return _c
 }
 
+// Parameters provides a mock function for the type MockApplicationDefinition
+func (_mock *MockApplicationDefinition) Parameters() []entities.Parameter {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Parameters")
+	}
+
+	var r0 []entities.Parameter
+	if returnFunc, ok := ret.Get(0).(func() []entities.Parameter); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]entities.Parameter)
+		}
+	}
+	return r0
+}
+
+// MockApplicationDefinition_Parameters_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Parameters'
+type MockApplicationDefinition_Parameters_Call struct {
+	*mock.Call
+}
+
+// Parameters is a helper method to define mock.On call
+func (_e *MockApplicationDefinition_Expecter) Parameters() *MockApplicationDefinition_Parameters_Call {
+	return &MockApplicationDefinition_Parameters_Call{Call: _e.mock.On("Parameters")}
+}
+
+func (_c *MockApplicationDefinition_Parameters_Call) Run(run func()) *MockApplicationDefinition_Parameters_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockApplicationDefinition_Parameters_Call) Return(parameters []entities.Parameter) *MockApplicationDefinition_Parameters_Call {
+	_c.Call.Return(parameters)
+	return _c
+}
+
+func (_c *MockApplicationDefinition_Parameters_Call) RunAndReturn(run func() []entities.Parameter) *MockApplicationDefinition_Parameters_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Title provides a mock function for the type MockApplicationDefinition
 func (_mock *MockApplicationDefinition) Title() string {
 	ret := _mock.Called()
@@ -170,16 +323,16 @@ func (_c *MockApplicationDefinition_Title_Call) RunAndReturn(run func() string) 
 }
 
 // Tools provides a mock function for the type MockApplicationDefinition
-func (_mock *MockApplicationDefinition) Tools(loggerFactory definition.LoggerFactory) []tools.Tool {
-	ret := _mock.Called(loggerFactory)
+func (_mock *MockApplicationDefinition) Tools(resources definition.ToolsProviderResources) []tools.Tool {
+	ret := _mock.Called(resources)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Tools")
 	}
 
 	var r0 []tools.Tool
-	if returnFunc, ok := ret.Get(0).(func(definition.LoggerFactory) []tools.Tool); ok {
-		r0 = returnFunc(loggerFactory)
+	if returnFunc, ok := ret.Get(0).(func(definition.ToolsProviderResources) []tools.Tool); ok {
+		r0 = returnFunc(resources)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]tools.Tool)
@@ -194,16 +347,16 @@ type MockApplicationDefinition_Tools_Call struct {
 }
 
 // Tools is a helper method to define mock.On call
-//   - loggerFactory definition.LoggerFactory
-func (_e *MockApplicationDefinition_Expecter) Tools(loggerFactory interface{}) *MockApplicationDefinition_Tools_Call {
-	return &MockApplicationDefinition_Tools_Call{Call: _e.mock.On("Tools", loggerFactory)}
+//   - resources definition.ToolsProviderResources
+func (_e *MockApplicationDefinition_Expecter) Tools(resources interface{}) *MockApplicationDefinition_Tools_Call {
+	return &MockApplicationDefinition_Tools_Call{Call: _e.mock.On("Tools", resources)}
 }
 
-func (_c *MockApplicationDefinition_Tools_Call) Run(run func(loggerFactory definition.LoggerFactory)) *MockApplicationDefinition_Tools_Call {
+func (_c *MockApplicationDefinition_Tools_Call) Run(run func(resources definition.ToolsProviderResources)) *MockApplicationDefinition_Tools_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 definition.LoggerFactory
+		var arg0 definition.ToolsProviderResources
 		if args[0] != nil {
-			arg0 = args[0].(definition.LoggerFactory)
+			arg0 = args[0].(definition.ToolsProviderResources)
 		}
 		run(
 			arg0,
@@ -217,7 +370,7 @@ func (_c *MockApplicationDefinition_Tools_Call) Return(tools1 []tools.Tool) *Moc
 	return _c
 }
 
-func (_c *MockApplicationDefinition_Tools_Call) RunAndReturn(run func(loggerFactory definition.LoggerFactory) []tools.Tool) *MockApplicationDefinition_Tools_Call {
+func (_c *MockApplicationDefinition_Tools_Call) RunAndReturn(run func(resources definition.ToolsProviderResources) []tools.Tool) *MockApplicationDefinition_Tools_Call {
 	_c.Call.Return(run)
 	return _c
 }

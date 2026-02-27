@@ -10,10 +10,11 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/directory"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/inputs/parser"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/lifecyclesignaler"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/modeselector"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/orchestrator"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters/selector"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/parser"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/filesystem/files"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabrootselector"
@@ -53,6 +54,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/os"
 	watchdog2 "github.com/matlab/matlab-mcp-core-server/internal/adaptors/watchdog"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/watchdog/process"
+	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/filefacade"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/iofacade"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
@@ -76,9 +78,10 @@ import (
 // Injectors from wire.go:
 
 func Initialize(serverDefinition ApplicationDefinition) *Application {
-	messageCatalog := messagecatalog.New()
-	parserParser := parser.New(messageCatalog)
 	osFacade := osfacade.New()
+	messageCatalog := messagecatalog.New()
+	selectorSelector := selector.New(serverDefinition, messageCatalog)
+	parserParser := parser.New(osFacade, selectorSelector, serverDefinition)
 	factory := config.NewFactory(parserParser, osFacade)
 	filesFactory := files.NewFactory(osFacade)
 	directoryFactory := directory.NewFactory(factory, filesFactory, osFacade)
@@ -134,16 +137,17 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 	runmatlabtestfileTool := runmatlabtestfile2.New(loggerFactory, runmatlabtestfileUsecase, globalMATLAB)
 	resource := codingguidelines.New(loggerFactory)
 	plaintextlivecodegenerationResource := plaintextlivecodegeneration.New(loggerFactory)
-	configuratorConfigurator := configurator.New(factory, tool, startmatlabsessionTool, stopmatlabsessionTool, evalmatlabcodeTool, tool2, checkmatlabcodeTool, detectmatlabtoolboxesTool, runmatlabfileTool, runmatlabtestfileTool, resource, plaintextlivecodegenerationResource)
-	serverServer := server3.New(serverDefinition, sdkFactory, loggerFactory, lifecycleSignaler, configuratorConfigurator)
-	orchestratorOrchestrator := orchestrator.New(lifecycleSignaler, factory, serverServer, watchdog3, loggerFactory, processManager, globalMATLAB, directoryFactory)
+	configuratorConfigurator := configurator.New(factory, serverDefinition, tool, startmatlabsessionTool, stopmatlabsessionTool, evalmatlabcodeTool, tool2, checkmatlabcodeTool, detectmatlabtoolboxesTool, runmatlabfileTool, runmatlabtestfileTool, resource, plaintextlivecodegenerationResource)
+	serverServer := server3.New(sdkFactory, loggerFactory, lifecycleSignaler, configuratorConfigurator)
+	orchestratorOrchestrator := orchestrator.New(messageCatalog, lifecycleSignaler, serverDefinition, factory, serverServer, watchdog3, loggerFactory, processManager, globalMATLAB, directoryFactory)
 	modeSelector := modeselector.New(factory, parserParser, watchdogWatchdog, orchestratorOrchestrator, osFacade)
 	application := &Application{
-		ModeSelector:      modeSelector,
-		MessageCatalog:    messageCatalog,
-		HTTPClientFactory: clientFactory,
-		HTTPServerFactory: serverFactory,
-		LoggerFactory:     loggerFactory,
+		ModeSelector:        modeSelector,
+		MessageCatalog:      messageCatalog,
+		MATLABClientFactory: matlabsessionclientFactory,
+		HTTPClientFactory:   clientFactory,
+		HTTPServerFactory:   serverFactory,
+		LoggerFactory:       loggerFactory,
 	}
 	return application
 }
@@ -151,16 +155,20 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 // wire.go:
 
 type Application struct {
-	ModeSelector      *modeselector.ModeSelector
-	MessageCatalog    *messagecatalog.MessageCatalog
-	HTTPClientFactory *client.Factory
-	HTTPServerFactory *server.Factory
-	LoggerFactory     *logger.Factory
+	ModeSelector        *modeselector.ModeSelector
+	MessageCatalog      *messagecatalog.MessageCatalog
+	MATLABClientFactory *matlabsessionclient.Factory
+	HTTPClientFactory   *client.Factory
+	HTTPServerFactory   *server.Factory
+	LoggerFactory       *logger.Factory
 }
 
 type ApplicationDefinition interface {
 	Name() string
 	Title() string
 	Instructions() string
-	Tools(loggerFactory definition.LoggerFactory) []tools.Tool
+	Features() definition.Features
+	Parameters() []entities.Parameter
+	Dependencies(resources definition.DependenciesProviderResources) (any, error)
+	Tools(resources definition.ToolsProviderResources) []tools.Tool
 }

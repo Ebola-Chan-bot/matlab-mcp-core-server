@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -36,7 +37,7 @@ func (_m *MockParser) EXPECT() *MockParser_Expecter {
 }
 
 // Usage provides a mock function for the type MockParser
-func (_mock *MockParser) Usage() string {
+func (_mock *MockParser) Usage() (string, messages.Error) {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
@@ -44,12 +45,23 @@ func (_mock *MockParser) Usage() string {
 	}
 
 	var r0 string
+	var r1 messages.Error
+	if returnFunc, ok := ret.Get(0).(func() (string, messages.Error)); ok {
+		return returnFunc()
+	}
 	if returnFunc, ok := ret.Get(0).(func() string); ok {
 		r0 = returnFunc()
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	return r0
+	if returnFunc, ok := ret.Get(1).(func() messages.Error); ok {
+		r1 = returnFunc()
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(messages.Error)
+		}
+	}
+	return r0, r1
 }
 
 // MockParser_Usage_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Usage'
@@ -69,12 +81,12 @@ func (_c *MockParser_Usage_Call) Run(run func()) *MockParser_Usage_Call {
 	return _c
 }
 
-func (_c *MockParser_Usage_Call) Return(s string) *MockParser_Usage_Call {
-	_c.Call.Return(s)
+func (_c *MockParser_Usage_Call) Return(s string, error messages.Error) *MockParser_Usage_Call {
+	_c.Call.Return(s, error)
 	return _c
 }
 
-func (_c *MockParser_Usage_Call) RunAndReturn(run func() string) *MockParser_Usage_Call {
+func (_c *MockParser_Usage_Call) RunAndReturn(run func() (string, messages.Error)) *MockParser_Usage_Call {
 	_c.Call.Return(run)
 	return _c
 }

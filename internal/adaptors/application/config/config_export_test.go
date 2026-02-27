@@ -6,6 +6,6 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
-func New(osLayer OSLayer, parser Parser) (*config, messages.Error) {
+func NewConfig(osLayer OSLayer, parser Parser) (*config, messages.Error) {
 	return newConfig(osLayer, parser)
 }

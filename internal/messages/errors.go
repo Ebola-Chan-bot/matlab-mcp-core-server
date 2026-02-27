@@ -85,6 +85,57 @@ func New_StartupErrors_BadValue_Error(
 	}
 }
 
+// StartupErrors_BadValueForEnvVar_Error defines an error corresponding to the "StartupErrors_BadValueForEnvVar" message catalog message
+type StartupErrors_BadValueForEnvVar_Error struct {
+	Attr0 string
+	Attr1 string
+}
+
+// Error makes StartupErrors_BadValueForEnvVar_Error satisfy the error interface.
+func (e *StartupErrors_BadValueForEnvVar_Error) Error() string {
+	return "StartupErrors_BadValueForEnvVar_Error"
+}
+
+func (*StartupErrors_BadValueForEnvVar_Error) marker() {}
+
+// New_StartupErrors_BadValueForEnvVar_Error makes a new StartupErrors_BadValueForEnvVar_Error error.
+func New_StartupErrors_BadValueForEnvVar_Error(
+	attr0 string,
+	attr1 string,
+) *StartupErrors_BadValueForEnvVar_Error {
+	return &StartupErrors_BadValueForEnvVar_Error{
+		Attr0: attr0,
+		Attr1: attr1,
+	}
+}
+
+// StartupErrors_DuplicateParameter_Error defines an error corresponding to the "StartupErrors_DuplicateParameter" message catalog message
+type StartupErrors_DuplicateParameter_Error struct {
+	Attr0 string
+	Attr1 string
+	Attr2 string
+}
+
+// Error makes StartupErrors_DuplicateParameter_Error satisfy the error interface.
+func (e *StartupErrors_DuplicateParameter_Error) Error() string {
+	return "StartupErrors_DuplicateParameter_Error"
+}
+
+func (*StartupErrors_DuplicateParameter_Error) marker() {}
+
+// New_StartupErrors_DuplicateParameter_Error makes a new StartupErrors_DuplicateParameter_Error error.
+func New_StartupErrors_DuplicateParameter_Error(
+	attr0 string,
+	attr1 string,
+	attr2 string,
+) *StartupErrors_DuplicateParameter_Error {
+	return &StartupErrors_DuplicateParameter_Error{
+		Attr0: attr0,
+		Attr1: attr1,
+		Attr2: attr2,
+	}
+}
+
 // StartupErrors_FailedToCreateDirectory_Error defines an error corresponding to the "StartupErrors_FailedToCreateDirectory" message catalog message
 type StartupErrors_FailedToCreateDirectory_Error struct {
 	Attr0 string
@@ -240,6 +291,51 @@ func New_StartupErrors_InvalidLogLevel_Error(
 ) *StartupErrors_InvalidLogLevel_Error {
 	return &StartupErrors_InvalidLogLevel_Error{
 		Attr0: attr0,
+	}
+}
+
+// StartupErrors_InvalidParameterKey_Error defines an error corresponding to the "StartupErrors_InvalidParameterKey" message catalog message
+type StartupErrors_InvalidParameterKey_Error struct {
+	Attr0 string
+}
+
+// Error makes StartupErrors_InvalidParameterKey_Error satisfy the error interface.
+func (e *StartupErrors_InvalidParameterKey_Error) Error() string {
+	return "StartupErrors_InvalidParameterKey_Error"
+}
+
+func (*StartupErrors_InvalidParameterKey_Error) marker() {}
+
+// New_StartupErrors_InvalidParameterKey_Error makes a new StartupErrors_InvalidParameterKey_Error error.
+func New_StartupErrors_InvalidParameterKey_Error(
+	attr0 string,
+) *StartupErrors_InvalidParameterKey_Error {
+	return &StartupErrors_InvalidParameterKey_Error{
+		Attr0: attr0,
+	}
+}
+
+// StartupErrors_InvalidParameterType_Error defines an error corresponding to the "StartupErrors_InvalidParameterType" message catalog message
+type StartupErrors_InvalidParameterType_Error struct {
+	Attr0 string
+	Attr1 string
+}
+
+// Error makes StartupErrors_InvalidParameterType_Error satisfy the error interface.
+func (e *StartupErrors_InvalidParameterType_Error) Error() string {
+	return "StartupErrors_InvalidParameterType_Error"
+}
+
+func (*StartupErrors_InvalidParameterType_Error) marker() {}
+
+// New_StartupErrors_InvalidParameterType_Error makes a new StartupErrors_InvalidParameterType_Error error.
+func New_StartupErrors_InvalidParameterType_Error(
+	attr0 string,
+	attr1 string,
+) *StartupErrors_InvalidParameterType_Error {
+	return &StartupErrors_InvalidParameterType_Error{
+		Attr0: attr0,
+		Attr1: attr1,
 	}
 }
 

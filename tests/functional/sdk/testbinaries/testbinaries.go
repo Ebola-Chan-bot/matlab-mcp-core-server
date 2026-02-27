@@ -38,6 +38,19 @@ func BuildEmptyServer(t *testing.T) ServerDetails {
 	}
 }
 
+func BuildServerWithCustomParameters(t *testing.T) ServerDetails {
+	// Those string literals match the one in the source code
+	return ServerDetails{
+		binaryLocation: buildSDKServer(t, "server_with_custom_parameters"),
+
+		moduleName: goModName,
+
+		name:         "server-with-custom-parameters",
+		title:        "Server With Custom Parameters",
+		instructions: "This is a test server with custom parameters",
+	}
+}
+
 func BuildServerWithCustomTools(t *testing.T) ServerDetails {
 	// Those string literals match the one in the source code
 	return ServerDetails{
@@ -48,6 +61,45 @@ func BuildServerWithCustomTools(t *testing.T) ServerDetails {
 		name:         "server-with-custom-tools",
 		title:        "Server With Custom Tools",
 		instructions: "This is a test server with custom tools",
+	}
+}
+
+func BuildServerWithMATLABFeature(t *testing.T) ServerDetails {
+	// Those string literals match the one in the source code
+	return ServerDetails{
+		binaryLocation: buildSDKServer(t, "server_with_matlab_feature"),
+
+		moduleName: goModName,
+
+		name:         "server-with-matlab-feature",
+		title:        "Server With MATLAB Feature",
+		instructions: "This is a test server with MATLAB feature",
+	}
+}
+
+func BuildServerWithCustomDependencies(t *testing.T) ServerDetails {
+	// Those string literals match the one in the source code
+	return ServerDetails{
+		binaryLocation: buildSDKServer(t, "server_with_custom_dependencies"),
+
+		moduleName: goModName,
+
+		name:         "server-with-custom-dependencies",
+		title:        "Server With Custom Dependencies",
+		instructions: "This is a test server with custom dependencies",
+	}
+}
+
+func BuildServerWithLogging(t *testing.T) ServerDetails {
+	// Those string literals match the one in the source code
+	return ServerDetails{
+		binaryLocation: buildSDKServer(t, "server_with_logging"),
+
+		moduleName: goModName,
+
+		name:         "server-with-logging",
+		title:        "Server With Logging",
+		instructions: "This is a test server focused on logging",
 	}
 }
 

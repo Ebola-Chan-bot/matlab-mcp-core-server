@@ -513,16 +513,8 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) 
 
 	mockParser.EXPECT().
 		Usage().
-		Return(dummyHelpText).
+		Return(dummyHelpText, nil).
 		Once()
-
-	modeSelectorInstance := modeselector.New(
-		mockConfigFactory,
-		mockParser,
-		mockWatchdogProcess,
-		mockOrchestrator,
-		mockOsLayer,
-	)
 
 	mockOsLayer.EXPECT().
 		Stdout().
@@ -534,11 +526,71 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) 
 		Return(len(dummyHelpText)+1, nil).
 		Once()
 
+	modeSelectorInstance := modeselector.New(
+		mockConfigFactory,
+		mockParser,
+		mockWatchdogProcess,
+		mockOrchestrator,
+		mockOsLayer,
+	)
+
 	// Act
 	err := modeSelectorInstance.StartAndWaitForCompletion(ctx)
 
 	// Assert
 	require.NoError(t, err)
+}
+
+func TestStartAndWaitForCompletion_HelpMode_UsageError(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
+	defer mockConfig.AssertExpectations(t)
+
+	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
+	defer mockWatchdogProcess.AssertExpectations(t)
+
+	mockOrchestrator := &modeselectormocks.MockOrchestrator{}
+	defer mockOrchestrator.AssertExpectations(t)
+
+	mockOsLayer := &modeselectormocks.MockOSLayer{}
+	defer mockOsLayer.AssertExpectations(t)
+
+	mockParser := &modeselectormocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	ctx := t.Context()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
+	mockConfig.EXPECT().
+		HelpMode().
+		Return(true).
+		Once()
+
+	mockParser.EXPECT().
+		Usage().
+		Return("", messages.AnError).
+		Once()
+
+	modeSelectorInstance := modeselector.New(
+		mockConfigFactory,
+		mockParser,
+		mockWatchdogProcess,
+		mockOrchestrator,
+		mockOsLayer,
+	)
+
+	// Act
+	err := modeSelectorInstance.StartAndWaitForCompletion(ctx)
+
+	// Assert
+	require.ErrorIs(t, err, messages.AnError)
 }
 
 func TestStartAndWaitForCompletion_HelpMode_StartAndWaitWriteError(t *testing.T) {
@@ -580,16 +632,8 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitWriteError(t *testing.T)
 
 	mockParser.EXPECT().
 		Usage().
-		Return(dummyHelpText).
+		Return(dummyHelpText, nil).
 		Once()
-
-	modeSelectorInstance := modeselector.New(
-		mockConfigFactory,
-		mockParser,
-		mockWatchdogProcess,
-		mockOrchestrator,
-		mockOsLayer,
-	)
 
 	mockOsLayer.EXPECT().
 		Stdout().
@@ -600,6 +644,14 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitWriteError(t *testing.T)
 		Write([]byte(fmt.Sprintf("%s\n", dummyHelpText))).
 		Return(0, dummyError).
 		Once()
+
+	modeSelectorInstance := modeselector.New(
+		mockConfigFactory,
+		mockParser,
+		mockWatchdogProcess,
+		mockOrchestrator,
+		mockOsLayer,
+	)
 
 	// Act
 	err := modeSelectorInstance.StartAndWaitForCompletion(ctx)

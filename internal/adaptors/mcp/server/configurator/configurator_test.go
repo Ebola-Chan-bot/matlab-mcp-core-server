@@ -5,6 +5,7 @@ package configurator_test
 import (
 	"testing"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/codingguidelines"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/plaintextlivecodegeneration"
@@ -31,6 +32,9 @@ func TestNew_HappyPath(t *testing.T) {
 	mockConfigFactory := &mocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
+	mockApplicationDefinition := &mocks.MockApplicationDefinition{}
+	defer mockApplicationDefinition.AssertExpectations(t)
+
 	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
 	startMATLABSessionTool := &startmatlabsession.Tool{}
 	stopMATLABSessionTool := &stopmatlabsession.Tool{}
@@ -46,6 +50,7 @@ func TestNew_HappyPath(t *testing.T) {
 	// Act
 	result := configurator.New(
 		mockConfigFactory,
+		mockApplicationDefinition,
 		listAvailableMATLABsTool,
 		startMATLABSessionTool,
 		stopMATLABSessionTool,
@@ -68,6 +73,9 @@ func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T
 	mockConfigFactory := &mocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
+	mockApplicationDefinition := &mocks.MockApplicationDefinition{}
+	defer mockApplicationDefinition.AssertExpectations(t)
+
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
@@ -83,6 +91,11 @@ func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T
 	codingGuidelinesResource := &codingguidelines.Resource{}
 	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
 
+	mockApplicationDefinition.EXPECT().
+		Features().
+		Return(definition.Features{MATLAB: definition.MATLABFeature{Enabled: true}}).
+		Once()
+
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
@@ -95,6 +108,7 @@ func TestConfigurator_GetToolsToAdd_MultipleMATLABSession_HappyPath(t *testing.T
 
 	c := configurator.New(
 		mockConfigFactory,
+		mockApplicationDefinition,
 		listAvailableMATLABsTool,
 		startMATLABSessionTool,
 		stopMATLABSessionTool,
@@ -126,6 +140,9 @@ func TestConfigurator_GetToolsToAdd_ConfigError(t *testing.T) {
 	mockConfigFactory := &mocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
+	mockApplicationDefinition := &mocks.MockApplicationDefinition{}
+	defer mockApplicationDefinition.AssertExpectations(t)
+
 	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
 	startMATLABSessionTool := &startmatlabsession.Tool{}
 	stopMATLABSessionTool := &stopmatlabsession.Tool{}
@@ -140,6 +157,11 @@ func TestConfigurator_GetToolsToAdd_ConfigError(t *testing.T) {
 
 	expectedError := messages.AnError
 
+	mockApplicationDefinition.EXPECT().
+		Features().
+		Return(definition.Features{MATLAB: definition.MATLABFeature{Enabled: true}}).
+		Once()
+
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(nil, expectedError).
@@ -147,6 +169,7 @@ func TestConfigurator_GetToolsToAdd_ConfigError(t *testing.T) {
 
 	c := configurator.New(
 		mockConfigFactory,
+		mockApplicationDefinition,
 		listAvailableMATLABsTool,
 		startMATLABSessionTool,
 		stopMATLABSessionTool,
@@ -173,6 +196,9 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 	mockConfigFactory := &mocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
+	mockApplicationDefinition := &mocks.MockApplicationDefinition{}
+	defer mockApplicationDefinition.AssertExpectations(t)
+
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
@@ -188,6 +214,11 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 	codingGuidelinesResource := &codingguidelines.Resource{}
 	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
 
+	mockApplicationDefinition.EXPECT().
+		Features().
+		Return(definition.Features{MATLAB: definition.MATLABFeature{Enabled: true}}).
+		Once()
+
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
@@ -200,6 +231,7 @@ func TestConfigurator_GetToolsToAdd_SingleMATLABSession_HappyPath(t *testing.T) 
 
 	c := configurator.New(
 		mockConfigFactory,
+		mockApplicationDefinition,
 		listAvailableMATLABsTool,
 		startMATLABSessionTool,
 		stopMATLABSessionTool,
@@ -232,6 +264,9 @@ func TestConfigurator_GetResourcesToAdd_HappyPath(t *testing.T) {
 	mockConfigFactory := &mocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
+	mockApplicationDefinition := &mocks.MockApplicationDefinition{}
+	defer mockApplicationDefinition.AssertExpectations(t)
+
 	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
 	startMATLABSessionTool := &startmatlabsession.Tool{}
 	stopMATLABSessionTool := &stopmatlabsession.Tool{}
@@ -244,8 +279,14 @@ func TestConfigurator_GetResourcesToAdd_HappyPath(t *testing.T) {
 	codingGuidelinesResource := &codingguidelines.Resource{}
 	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
 
+	mockApplicationDefinition.EXPECT().
+		Features().
+		Return(definition.Features{MATLAB: definition.MATLABFeature{Enabled: true}}).
+		Once()
+
 	c := configurator.New(
 		mockConfigFactory,
+		mockApplicationDefinition,
 		listAvailableMATLABsTool,
 		startMATLABSessionTool,
 		stopMATLABSessionTool,
@@ -264,4 +305,101 @@ func TestConfigurator_GetResourcesToAdd_HappyPath(t *testing.T) {
 
 	// Assert
 	assert.ElementsMatch(t, []resources.Resource{codingGuidelinesResource, plaintextlivecodegenerationResource}, result)
+}
+
+func TestConfigurator_GetToolsToAdd_MATLABFeatureDisabled(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockApplicationDefinition := &mocks.MockApplicationDefinition{}
+	defer mockApplicationDefinition.AssertExpectations(t)
+
+	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
+	startMATLABSessionTool := &startmatlabsession.Tool{}
+	stopMATLABSessionTool := &stopmatlabsession.Tool{}
+	evalInMATLABSessionTool := &evalmatlabmultisession.Tool{}
+	evalInGlobalMATLABSessionTool := &evalmatlabsinglesession.Tool{}
+	checkMATLABCodeInGlobalMATLABSession := &checkmatlabcode.Tool{}
+	detectMATLABToolboxesInSingleSessionTool := &detectmatlabtoolboxes.Tool{}
+	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
+	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
+	codingGuidelinesResource := &codingguidelines.Resource{}
+	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
+
+	mockApplicationDefinition.EXPECT().
+		Features().
+		Return(definition.Features{MATLAB: definition.MATLABFeature{Enabled: false}}).
+		Once()
+
+	c := configurator.New(
+		mockConfigFactory,
+		mockApplicationDefinition,
+		listAvailableMATLABsTool,
+		startMATLABSessionTool,
+		stopMATLABSessionTool,
+		evalInMATLABSessionTool,
+		evalInGlobalMATLABSessionTool,
+		checkMATLABCodeInGlobalMATLABSession,
+		detectMATLABToolboxesInSingleSessionTool,
+		runMATLABFileInGlobalMATLABSessionTool,
+		runMATLABTestFileInGlobalMATLABSessionTool,
+		codingGuidelinesResource,
+		plaintextlivecodegenerationResource,
+	)
+
+	// Act
+	toolsToAdd, err := c.GetToolsToAdd()
+
+	// Assert
+	require.NoError(t, err)
+	assert.Empty(t, toolsToAdd)
+}
+
+func TestConfigurator_GetResourcesToAdd_MATLABFeatureDisabled(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &mocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockApplicationDefinition := &mocks.MockApplicationDefinition{}
+	defer mockApplicationDefinition.AssertExpectations(t)
+
+	listAvailableMATLABsTool := &listavailablematlabs.Tool{}
+	startMATLABSessionTool := &startmatlabsession.Tool{}
+	stopMATLABSessionTool := &stopmatlabsession.Tool{}
+	evalInMATLABSessionTool := &evalmatlabmultisession.Tool{}
+	evalInGlobalMATLABSessionTool := &evalmatlabsinglesession.Tool{}
+	checkMATLABCodeInGlobalMATLABSession := &checkmatlabcode.Tool{}
+	detectMATLABToolboxesInSingleSessionTool := &detectmatlabtoolboxes.Tool{}
+	runMATLABFileInGlobalMATLABSessionTool := &runmatlabfile.Tool{}
+	runMATLABTestFileInGlobalMATLABSessionTool := &runmatlabtestfile.Tool{}
+	codingGuidelinesResource := &codingguidelines.Resource{}
+	plaintextlivecodegenerationResource := &plaintextlivecodegeneration.Resource{}
+
+	mockApplicationDefinition.EXPECT().
+		Features().
+		Return(definition.Features{MATLAB: definition.MATLABFeature{Enabled: false}}).
+		Once()
+
+	c := configurator.New(
+		mockConfigFactory,
+		mockApplicationDefinition,
+		listAvailableMATLABsTool,
+		startMATLABSessionTool,
+		stopMATLABSessionTool,
+		evalInMATLABSessionTool,
+		evalInGlobalMATLABSessionTool,
+		checkMATLABCodeInGlobalMATLABSession,
+		detectMATLABToolboxesInSingleSessionTool,
+		runMATLABFileInGlobalMATLABSessionTool,
+		runMATLABTestFileInGlobalMATLABSessionTool,
+		codingGuidelinesResource,
+		plaintextlivecodegenerationResource,
+	)
+
+	// Act
+	result := c.GetResourcesToAdd()
+
+	// Assert
+	assert.Empty(t, result)
 }

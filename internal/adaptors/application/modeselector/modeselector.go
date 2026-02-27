@@ -16,7 +16,7 @@ type ConfigFactory interface {
 }
 
 type Parser interface {
-	Usage() string
+	Usage() (string, messages.Error)
 }
 
 type WatchdogProcess interface { //nolint:iface // Intentional interface for deps injection
@@ -63,7 +63,11 @@ func (m *ModeSelector) StartAndWaitForCompletion(ctx context.Context) error {
 
 	switch {
 	case config.HelpMode():
-		_, err := fmt.Fprintf(m.osLayer.Stdout(), "%s\n", m.parser.Usage())
+		usage, messagesErr := m.parser.Usage()
+		if messagesErr != nil {
+			return messagesErr
+		}
+		_, err := fmt.Fprintf(m.osLayer.Stdout(), "%s\n", usage)
 		return err
 	case config.VersionMode():
 		_, err := fmt.Fprintf(m.osLayer.Stdout(), "%s\n", config.Version())
