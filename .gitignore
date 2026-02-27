@@ -3,3 +3,7 @@
 /vendor
 /.env
 AGENTS.md
+deploymentLog.html
+*.mltbx
+**/*.asv
+resources/.buildtool
