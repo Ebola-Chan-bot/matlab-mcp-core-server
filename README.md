@@ -118,7 +118,7 @@ Customize the behavior of the server by providing arguments in the `args` array 
 | disable-telemetry | To disable anonymized data collection, set this argument to `true`. For details, see [Data Collection](#data-collection). | `"--disable-telemetry=true"` |
 
 
-## 连接到已有的 MATLAB 会话
+## 连接到已有的 MATLAB 会话（仅限Windows）
 
 除了让 MCP 服务器自动启动 MATLAB 外，您还可以连接到手动启动的 MATLAB 会话。这对于以下场景特别有用：
 - 您想使用特定配置的 MATLAB 环境
@@ -133,10 +133,10 @@ Customize the behavior of the server by providing arguments in the `args` array 
 
 2. **在 MATLAB 中注册会话**
 
-   将 `registerMatlabSession.m` 文件复制到 MATLAB 路径中，然后在 MATLAB 命令窗口运行：
+   在要连接的 MATLAB 会话中运行：
 
    ```matlab
-   registerMatlabSession
+   RegisterMatlabSession
    ```
 
    这将在临时目录中创建会话文件，MCP 服务器会自动发现这些文件。
