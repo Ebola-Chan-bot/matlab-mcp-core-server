@@ -13,5 +13,6 @@
         <entry key="InternalUseDescription">INTERNAL USE ONLY</entry>
         <entry key="InitializeMATLABOnStartupDescription">To initialize MATLAB as soon as you start the server, set this argument to true. By default, MATLAB only starts when the first tool is called. </entry>
         <entry key="DisplayModeDescription">Specify whether to show the MATLAB desktop. Use 'desktop' mode (default) to show the MATLAB desktop or 'nodesktop' mode to use MATLAB only from your AI application, without the MATLAB desktop. </entry>
+        <entry key="ExistingSessionOnlyDescription">Only connect to an existing MATLAB session that was previously registered using registerMatlabSession. If no existing session is found, the server will return an error instead of starting a new MATLAB instance.</entry>
     </message>
 </rsccat>

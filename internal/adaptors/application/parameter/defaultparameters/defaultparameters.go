@@ -139,6 +139,18 @@ func WatchdogMode() *parameter.Parameter[bool] {
 	)
 }
 
+func ExistingSessionOnly() *parameter.Parameter[bool] {
+	return parameter.NewParameter(
+		"ExistingSessionOnly",
+		"existing-session-only",
+		false,
+		"MATLAB_EXISTING_SESSION_ONLY",
+		messages.CLIMessages_ExistingSessionOnlyDescription,
+		false,
+		true,
+	)
+}
+
 func ServerInstanceID() *parameter.Parameter[string] {
 	return parameter.NewParameter(
 		"ServerInstanceID",

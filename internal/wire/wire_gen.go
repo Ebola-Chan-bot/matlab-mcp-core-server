@@ -125,7 +125,7 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 	matlabRootSelector := matlabrootselector.New(factory, matlabManager)
 	matlabStartingDirSelector := matlabstartingdirselector.New(factory, osFacade)
 	sessionDiscovery := sessiondiscovery.New(osFacade)
-	globalMATLAB := globalmatlab.New(matlabManager, matlabRootSelector, matlabStartingDirSelector, sessionDiscovery, matlabsessionclientFactory, factory)
+	globalMATLAB := globalmatlab.New(matlabManager, matlabRootSelector, matlabStartingDirSelector, sessionDiscovery, matlabsessionclientFactory, factory, matlabFiles)
 	tool2 := evalmatlabcode3.New(loggerFactory, factory, evalmatlabcodeUsecase, globalMATLAB)
 	checkmatlabcodeUsecase := checkmatlabcode.New(pathValidator)
 	checkmatlabcodeTool := checkmatlabcode2.New(loggerFactory, checkmatlabcodeUsecase, globalMATLAB)

@@ -246,6 +246,7 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 		wire.Bind(new(globalmatlab.SessionDiscovery), new(*sessiondiscovery.SessionDiscovery)),
 		wire.Bind(new(globalmatlab.EmbeddedConnectorClientFactory), new(*matlabsessionclient.Factory)),
 		wire.Bind(new(globalmatlab.ConfigFactory), new(*config.Factory)),
+		wire.Bind(new(globalmatlab.MATLABFiles), new(matlabfiles.MATLABFiles)),
 
 		// Session Discovery
 		sessiondiscovery.New,

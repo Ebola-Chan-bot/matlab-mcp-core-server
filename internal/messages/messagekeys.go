@@ -8,6 +8,7 @@ const (
 	CLIMessages_BaseDirDescription                          messageKey = "CLIMessages_BaseDirDescription"
 	CLIMessages_DisableTelemetryDescription                 messageKey = "CLIMessages_DisableTelemetryDescription"
 	CLIMessages_DisplayModeDescription                      messageKey = "CLIMessages_DisplayModeDescription"
+	CLIMessages_ExistingSessionOnlyDescription              messageKey = "CLIMessages_ExistingSessionOnlyDescription"
 	CLIMessages_HelpDescription                             messageKey = "CLIMessages_HelpDescription"
 	CLIMessages_InitializeMATLABOnStartupDescription        messageKey = "CLIMessages_InitializeMATLABOnStartupDescription"
 	CLIMessages_InternalUseDescription                      messageKey = "CLIMessages_InternalUseDescription"

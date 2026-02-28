@@ -39,6 +39,7 @@ type Config interface {
 	PreferredLocalMATLABRoot() string
 	PreferredMATLABStartingDirectory() string
 	ShouldShowMATLABDesktop() bool
+	ExistingSessionOnly() bool
 }
 
 type Factory struct {

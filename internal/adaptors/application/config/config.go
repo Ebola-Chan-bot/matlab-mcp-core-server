@@ -18,6 +18,7 @@ type validatedArguments struct {
 
 	useSingleMATLABSession           bool
 	initializeMATLABOnStartup        bool
+	existingSessionOnly              bool
 	preferredLocalMATLABRoot         string
 	preferredMATLABStartingDirectory string
 	displayMode                      entities.DisplayMode
@@ -121,6 +122,10 @@ func (c *config) InitializeMATLABOnStartup() bool {
 	return c.initializeMATLABOnStartup
 }
 
+func (c *config) ExistingSessionOnly() bool {
+	return c.existingSessionOnly
+}
+
 func (c *config) ShouldShowMATLABDesktop() bool {
 	switch c.displayMode {
 	case entities.DisplayModeDesktop:
@@ -198,6 +203,11 @@ func validateArguments(rawCfg *rawConfig) (validatedArguments, messages.Error) {
 		initializeMATLABOnStartup = false
 	}
 
+	existingSessionOnly, err := get(rawCfg, defaultparameters.ExistingSessionOnly())
+	if err != nil {
+		return validatedArguments{}, err
+	}
+
 	preferredLocalMATLABRoot, err := get(rawCfg, defaultparameters.PreferredLocalMATLABRoot())
 	if err != nil {
 		return validatedArguments{}, err
@@ -240,6 +250,7 @@ func validateArguments(rawCfg *rawConfig) (validatedArguments, messages.Error) {
 
 		useSingleMATLABSession:           useSingleMATLABSession,
 		initializeMATLABOnStartup:        initializeMATLABOnStartup,
+		existingSessionOnly:              existingSessionOnly,
 		preferredLocalMATLABRoot:         preferredLocalMATLABRoot,
 		preferredMATLABStartingDirectory: preferredMATLABStartingDirectory,
 		displayMode:                      entities.DisplayMode(displayMode),

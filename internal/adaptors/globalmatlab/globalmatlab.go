@@ -4,6 +4,10 @@ package globalmatlab
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
@@ -38,6 +42,10 @@ type EmbeddedConnectorClientFactory interface {
 	New(endpoint embeddedconnector.ConnectionDetails) (entities.MATLABSessionClient, error)
 }
 
+type MATLABFiles interface {
+	GetAll() map[string][]byte
+}
+
 type GlobalMATLAB struct {
 	matlabManager             MATLABManager
 	matlabRootSelector        MATLABRootSelector
@@ -45,6 +53,7 @@ type GlobalMATLAB struct {
 	sessionDiscovery          SessionDiscovery
 	clientFactory             EmbeddedConnectorClientFactory
 	configFactory             ConfigFactory
+	matlabFiles               MATLABFiles
 
 	lock *sync.Mutex
 
@@ -55,6 +64,7 @@ type GlobalMATLAB struct {
 	matlabStartingDir string
 	sessionID         entities.SessionID
 	discoveredClient  entities.MATLABSessionClient
+	helperDir         string // directory where +matlab_mcp helper files are deployed
 }
 
 func New(
@@ -64,6 +74,7 @@ func New(
 	sessionDiscovery SessionDiscovery,
 	clientFactory EmbeddedConnectorClientFactory,
 	configFactory ConfigFactory,
+	matlabFiles MATLABFiles,
 ) *GlobalMATLAB {
 	return &GlobalMATLAB{
 		matlabManager:             matlabManager,
@@ -72,6 +83,7 @@ func New(
 		sessionDiscovery:          sessionDiscovery,
 		clientFactory:             clientFactory,
 		configFactory:             configFactory,
+		matlabFiles:               matlabFiles,
 
 		lock:     &sync.Mutex{},
 		initOnce: &sync.Once{},
@@ -89,6 +101,12 @@ func (g *GlobalMATLAB) Client(ctx context.Context, logger entities.Logger) (enti
 
 	// 首次调用时尝试发现已有会话
 	g.initOnce.Do(func() {
+		// 检查是否为仅连接已有会话模式
+		existingOnly := false
+		if cfg, cfgErr := g.configFactory.Config(); cfgErr == nil {
+			existingOnly = cfg.ExistingSessionOnly()
+		}
+
 		// 先尝试发现已存在的会话
 		if connectionDetails := g.sessionDiscovery.DiscoverExistingSession(logger); connectionDetails != nil {
 			logger.With("host", connectionDetails.Host).
@@ -97,17 +115,32 @@ func (g *GlobalMATLAB) Client(ctx context.Context, logger entities.Logger) (enti
 
 			client, err := g.clientFactory.New(*connectionDetails)
 			if err != nil {
+				if existingOnly {
+					g.initError = fmt.Errorf("existing-session-only mode: found session at %s:%s but failed to create client: %w", connectionDetails.Host, connectionDetails.Port, err)
+					return
+				}
 				logger.WithError(err).Warn("Failed to create client for discovered session, will start new session")
 			} else {
 				// 验证连接是否工作
 				pingResult := client.Ping(ctx, logger)
 				if pingResult.IsAlive {
 					logger.Info("Successfully connected to existing MATLAB session")
+					// Deploy +matlab_mcp helper files for EvalWithCapture support
+					if err := g.deployHelperFiles(ctx, logger, client); err != nil {
+						logger.WithError(err).Warn("Failed to deploy helper files to existing session, EvalWithCapture may not work")
+					}
 					g.discoveredClient = client
+					return
+				}
+				if existingOnly {
+					g.initError = fmt.Errorf("existing-session-only mode: found session at %s:%s but it is not responding to ping", connectionDetails.Host, connectionDetails.Port)
 					return
 				}
 				logger.Warn("Discovered session not responding, will start new session")
 			}
+		} else if existingOnly {
+			g.initError = fmt.Errorf("existing-session-only mode: no existing MATLAB session found. Please run 'RegisterMatlabSession' in MATLAB first to register a session for discovery")
+			return
 		}
 
 		// 没有发现的会话或连接失败，初始化启动配置
@@ -193,5 +226,41 @@ func (g *GlobalMATLAB) initializeStartupConfig(ctx context.Context, logger entit
 	}
 
 	g.matlabStartingDir = matlabStartingDirectory
+	return nil
+}
+
+// deployHelperFiles writes the +matlab_mcp helper files (mcpEval.m, getOrStashExceptions.m, etc.)
+// to a temporary directory and adds it to the MATLAB path via client.Eval.
+// This is needed for existing-session-only mode where MATLAB wasn't started by the server.
+func (g *GlobalMATLAB) deployHelperFiles(ctx context.Context, logger entities.Logger, client entities.MATLABSessionClient) error {
+	// Create temp dir for helper files
+	helperDir, err := os.MkdirTemp("", "matlab-mcp-helpers-")
+	if err != nil {
+		return fmt.Errorf("failed to create temp directory for helper files: %w", err)
+	}
+
+	packageDir := filepath.Join(helperDir, "+matlab_mcp")
+	if err := os.Mkdir(packageDir, 0o700); err != nil {
+		return fmt.Errorf("failed to create +matlab_mcp package directory: %w", err)
+	}
+
+	for fileName, fileContent := range g.matlabFiles.GetAll() {
+		filePath := filepath.Join(packageDir, fileName)
+		if err := os.WriteFile(filePath, fileContent, 0o600); err != nil {
+			return fmt.Errorf("failed to write %s: %w", fileName, err)
+		}
+	}
+
+	g.helperDir = helperDir
+	logger.With("path", helperDir).Info("Deployed +matlab_mcp helper files")
+
+	// Add the helper directory to MATLAB path
+	addpathCode := fmt.Sprintf("addpath('%s');", strings.ReplaceAll(helperDir, "'", "''"))
+	_, err = client.Eval(ctx, logger, entities.EvalRequest{Code: addpathCode})
+	if err != nil {
+		return fmt.Errorf("failed to addpath for helper files: %w", err)
+	}
+
+	logger.Info("Successfully added helper files to MATLAB path")
 	return nil
 }
