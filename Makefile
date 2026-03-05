@@ -63,7 +63,7 @@ else
 	LDFLAGS_ARG :=
 endif
 
-all: wire mockery lint unit-tests integration-tests functional-tests build
+all: wire mockery lint unit-tests integration-tests build functional-tests mcpb-clean mcpb-dev
 
 mcp-inspector: build
 	npx @modelcontextprotocol/inspector matlab-mcp-core-server
