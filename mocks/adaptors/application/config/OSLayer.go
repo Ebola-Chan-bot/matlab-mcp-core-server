@@ -5,8 +5,6 @@
 package mocks
 
 import (
-	"runtime/debug"
-
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -79,61 +77,6 @@ func (_c *MockOSLayer_Args_Call) Return(strings []string) *MockOSLayer_Args_Call
 }
 
 func (_c *MockOSLayer_Args_Call) RunAndReturn(run func() []string) *MockOSLayer_Args_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ReadBuildInfo provides a mock function for the type MockOSLayer
-func (_mock *MockOSLayer) ReadBuildInfo() (*debug.BuildInfo, bool) {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for ReadBuildInfo")
-	}
-
-	var r0 *debug.BuildInfo
-	var r1 bool
-	if returnFunc, ok := ret.Get(0).(func() (*debug.BuildInfo, bool)); ok {
-		return returnFunc()
-	}
-	if returnFunc, ok := ret.Get(0).(func() *debug.BuildInfo); ok {
-		r0 = returnFunc()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*debug.BuildInfo)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func() bool); ok {
-		r1 = returnFunc()
-	} else {
-		r1 = ret.Get(1).(bool)
-	}
-	return r0, r1
-}
-
-// MockOSLayer_ReadBuildInfo_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReadBuildInfo'
-type MockOSLayer_ReadBuildInfo_Call struct {
-	*mock.Call
-}
-
-// ReadBuildInfo is a helper method to define mock.On call
-func (_e *MockOSLayer_Expecter) ReadBuildInfo() *MockOSLayer_ReadBuildInfo_Call {
-	return &MockOSLayer_ReadBuildInfo_Call{Call: _e.mock.On("ReadBuildInfo")}
-}
-
-func (_c *MockOSLayer_ReadBuildInfo_Call) Run(run func()) *MockOSLayer_ReadBuildInfo_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockOSLayer_ReadBuildInfo_Call) Return(info *debug.BuildInfo, ok bool) *MockOSLayer_ReadBuildInfo_Call {
-	_c.Call.Return(info, ok)
-	return _c
-}
-
-func (_c *MockOSLayer_ReadBuildInfo_Call) RunAndReturn(run func() (*debug.BuildInfo, bool)) *MockOSLayer_ReadBuildInfo_Call {
 	_c.Call.Return(run)
 	return _c
 }

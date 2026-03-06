@@ -9,12 +9,13 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"golang.org/x/sys/unix"
 )
 
 func startMatlab(_ context.Context, _ entities.Logger, matlabRoot string, workingDir string, args []string, env []string, stdIO *stdIO) (*os.Process, error) {
-	matlabPath := filepath.Join(matlabRoot, "bin", "matlab")
+	matlabPath := filepath.Join(matlabRoot, "bin", config.MATLABExeName)
 	if _, err := os.Stat(matlabPath); err != nil {
 		return nil, err
 	}

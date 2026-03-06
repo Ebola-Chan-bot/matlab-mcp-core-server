@@ -14,7 +14,7 @@ import (
 type ServerWithCustomDependenciesTestSuite struct {
 	suite.Suite
 
-	serverDetails testbinaries.ServerDetails
+	serverDetails testbinaries.ServerWithCustomDependenciesDetails
 }
 
 // SetupSuite runs once before all tests in a suite
@@ -42,7 +42,7 @@ func (s *ServerWithCustomDependenciesTestSuite) TestSDK_CustomDependencies_ToolU
 	expectedTextOutput := "Service Hello " + name
 
 	// Call the tool
-	result, err := session.CallTool(s.T().Context(), "greet", map[string]any{"name": name})
+	result, err := session.CallTool(s.T().Context(), s.serverDetails.GreetToolName(), map[string]any{"name": name})
 	s.Require().NoError(err, "should call tool successfully")
 
 	textContent, err := session.GetTextContent(result)

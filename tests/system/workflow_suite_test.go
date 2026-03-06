@@ -1,10 +1,11 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package system_test
 
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -57,8 +58,8 @@ func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 	s.Require().NoError(err, "should detect toolboxes")
 	s.Contains(info, "MATLAB Version:", "should discover MATLAB version")
 
-	// Step 3: Iterative development with explicit integer math
-	output, err := session.EvaluateCode(ctx, `a = int32(2); b = int32(3);`, s.testDataDir)
+	// Step 3a: Iterative development with explicit integer math
+	output, err := session.EvaluateCode(ctx, `a = int32(2); b = int32(3);`)
 	s.Require().NoError(err)
 	s.Empty(output, "semicolon-terminated statements should produce no output")
 
@@ -68,7 +69,7 @@ func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 		fprintf('a=%d\n', a);
 		fprintf('b=%d\n', b);
 		fprintf('c=%d\n', c);
-	`, s.testDataDir)
+	`)
 	s.Require().NoError(err)
 	s.Require().NotEmpty(output, "fprintf should produce output")
 	lines := strings.Split(output, "\n")
@@ -76,7 +77,17 @@ func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 	s.Contains(lines, "b=3", "variable 'b' should persist on its own line")
 	s.Contains(lines, "c=5", "should compute 2 + 3 = 5 on its own line")
 
-	// Step 4: Code quality checking - analyze existing code for issues
+	// Step 4: Verify MATLAB current working directory is set by optional project path argument
+	scriptName := strings.TrimSuffix(filepath.Base(s.testScriptPath()), filepath.Ext(s.testScriptPath()))
+	output, err = session.EvaluateCode(ctx, "which "+scriptName)
+	s.Require().NoError(err)
+	s.Contains(output, "'"+scriptName+"' not found", "script should not be in the current working folder")
+
+	output, err = session.EvaluateCode(ctx, "which "+scriptName, s.testDataDir)
+	s.Require().NoError(err)
+	s.Contains(output, s.testScriptPath(), "should have changed to the script directory")
+
+	// Step 5: Code quality checking - analyze existing code for issues
 	// First check code with problems to see what issues are detected
 	problematicMessages, err := session.CheckCode(ctx, s.problematicCodePath())
 	s.Require().NoError(err, "should check code without error")
@@ -87,12 +98,12 @@ func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 	s.Require().NoError(err, "should check code without error")
 	testdata.AssertCleanCode(s.T(), cleanMessages)
 
-	// Step 5: Script execution - run a MATLAB script file
+	// Step 6: Script execution - run a MATLAB script file
 	scriptOutput, err := session.RunFile(ctx, s.testScriptPath())
 	s.Require().NoError(err, "should execute script file without error")
 	testdata.TestScript.Assert(s.T(), scriptOutput)
 
-	// Step 6: Test execution - run test suite (TDD workflow)
+	// Step 7: Test execution - run test suite (TDD workflow)
 	testOutput, err := session.RunTestFile(ctx, s.testMathFunctionsPath())
 	s.Require().NoError(err, "should execute test suite without error")
 	testdata.TestMathFunctions.Assert(s.T(), testOutput)

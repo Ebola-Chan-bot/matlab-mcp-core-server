@@ -4,7 +4,6 @@ package config_test
 
 import (
 	"path/filepath"
-	"runtime/debug"
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
@@ -70,6 +69,9 @@ func TestNewConfig_InvalidParameterType(t *testing.T) {
 			mockParser := &configmocks.MockParser{}
 			defer mockParser.AssertExpectations(t)
 
+			mockBuildInfo := &configmocks.MockBuildInfo{}
+			defer mockBuildInfo.AssertExpectations(t)
+
 			programName := "testprocess"
 			args := []string{programName}
 
@@ -89,7 +91,7 @@ func TestNewConfig_InvalidParameterType(t *testing.T) {
 			expectedError := messages.New_StartupErrors_InvalidParameterType_Error(tc.key, tc.expectedType)
 
 			// Act
-			cfg, err := config.NewConfig(mockOSLayer, mockParser)
+			cfg, err := config.NewConfig(mockOSLayer, mockParser, mockBuildInfo)
 
 			// Assert
 			require.Equal(t, expectedError, err)
@@ -126,6 +128,9 @@ func TestNewConfig_MissingParameter(t *testing.T) {
 			mockParser := &configmocks.MockParser{}
 			defer mockParser.AssertExpectations(t)
 
+			mockBuildInfo := &configmocks.MockBuildInfo{}
+			defer mockBuildInfo.AssertExpectations(t)
+
 			programName := "testprocess"
 			args := []string{programName}
 
@@ -145,7 +150,7 @@ func TestNewConfig_MissingParameter(t *testing.T) {
 			expectedError := messages.New_StartupErrors_InvalidParameterKey_Error(tc.missingKey)
 
 			// Act
-			cfg, err := config.NewConfig(mockOSLayer, mockParser)
+			cfg, err := config.NewConfig(mockOSLayer, mockParser, mockBuildInfo)
 
 			// Assert
 			require.Equal(t, expectedError, err)
@@ -162,6 +167,9 @@ func TestNewConfig_ParseError(t *testing.T) {
 	mockParser := &configmocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
+
 	programName := "testprocess"
 	args := []string{programName}
 
@@ -176,7 +184,7 @@ func TestNewConfig_ParseError(t *testing.T) {
 		Once()
 
 	// Act
-	cfg, err := config.NewConfig(mockOSLayer, mockParser)
+	cfg, err := config.NewConfig(mockOSLayer, mockParser, mockBuildInfo)
 
 	// Assert
 	require.ErrorIs(t, err, messages.AnError)
@@ -190,6 +198,9 @@ func TestNewConfig_InvalidLogLevel(t *testing.T) {
 
 	mockParser := &configmocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
+
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
 
 	programName := "testprocess"
 	args := []string{programName}
@@ -210,95 +221,52 @@ func TestNewConfig_InvalidLogLevel(t *testing.T) {
 	expectedError := messages.New_StartupErrors_InvalidLogLevel_Error("invalid-level")
 
 	// Act
-	cfg, err := config.NewConfig(mockOSLayer, mockParser)
+	cfg, err := config.NewConfig(mockOSLayer, mockParser, mockBuildInfo)
 
 	// Assert
 	require.Equal(t, expectedError, err)
 	assert.Nil(t, cfg, "Config should be nil")
 }
 
-func TestConfig_Version(t *testing.T) {
-	modulePath := "github.com/matlab/matlab-mcp-core-server"
+func TestConfig_Version_HappyPath(t *testing.T) {
+	// Arrange
+	mockOSLayer := &configmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
 
-	testCases := []struct {
-		name            string
-		buildInfoOK     bool
-		moduleVersion   string
-		expectedVersion string
-	}{
-		{
-			name:            "version from build info",
-			buildInfoOK:     true,
-			moduleVersion:   "v1.2.3",
-			expectedVersion: modulePath + " v1.2.3",
-		},
-		{
-			name:            "devel fallback",
-			buildInfoOK:     true,
-			moduleVersion:   "(devel)",
-			expectedVersion: modulePath + " (devel)",
-		},
-		{
-			name:            "build info unavailable",
-			buildInfoOK:     false,
-			moduleVersion:   "",
-			expectedVersion: "(unknown)",
-		},
-		{
-			name:            "empty version string",
-			buildInfoOK:     true,
-			moduleVersion:   "",
-			expectedVersion: modulePath + " (devel)",
-		},
-	}
+	mockParser := &configmocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			// Arrange
-			mockOSLayer := &configmocks.MockOSLayer{}
-			defer mockOSLayer.AssertExpectations(t)
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
 
-			mockParser := &configmocks.MockParser{}
-			defer mockParser.AssertExpectations(t)
+	programName := "testprocess"
+	args := []string{programName}
 
-			programName := "testprocess"
-			args := []string{programName}
+	expectedVersion := "github.com/matlab/matlab-mcp-core-server v1.2.3"
 
-			mockOSLayer.EXPECT().
-				Args().
-				Return(args).
-				Once()
+	mockOSLayer.EXPECT().
+		Args().
+		Return(args).
+		Once()
 
-			mockParser.EXPECT().
-				Parse(args[1:]).
-				Return([]entities.Parameter{}, configDefaultParsedArgs(), nil).
-				Once()
+	mockParser.EXPECT().
+		Parse(args[1:]).
+		Return([]entities.Parameter{}, configDefaultParsedArgs(), nil).
+		Once()
 
-			var buildInfo *debug.BuildInfo
-			if tc.buildInfoOK {
-				buildInfo = &debug.BuildInfo{
-					Main: debug.Module{
-						Path:    modulePath,
-						Version: tc.moduleVersion,
-					},
-				}
-			}
+	mockBuildInfo.EXPECT().
+		FullVersion().
+		Return(expectedVersion).
+		Once()
 
-			mockOSLayer.EXPECT().
-				ReadBuildInfo().
-				Return(buildInfo, tc.buildInfoOK).
-				Once()
+	// Act
+	cfg, err := config.NewConfig(mockOSLayer, mockParser, mockBuildInfo)
+	require.NoError(t, err)
 
-			// Act
-			cfg, err := config.NewConfig(mockOSLayer, mockParser)
-			require.NoError(t, err)
+	version := cfg.Version()
 
-			version := cfg.Version()
-
-			// Assert
-			require.Equal(t, tc.expectedVersion, version)
-		})
-	}
+	// Assert
+	require.Equal(t, expectedVersion, version)
 }
 
 func TestConfig_InitializeMATLABOnStartup_DisabledWhenNotSingleSession(t *testing.T) {
@@ -308,6 +276,9 @@ func TestConfig_InitializeMATLABOnStartup_DisabledWhenNotSingleSession(t *testin
 
 	mockParser := &configmocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
+
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
 
 	programName := "testprocess"
 	args := []string{programName}
@@ -327,7 +298,7 @@ func TestConfig_InitializeMATLABOnStartup_DisabledWhenNotSingleSession(t *testin
 		Once()
 
 	// Act
-	cfg, err := config.NewConfig(mockOSLayer, mockParser)
+	cfg, err := config.NewConfig(mockOSLayer, mockParser, mockBuildInfo)
 
 	// Assert
 	require.NoError(t, err)
@@ -373,6 +344,9 @@ func TestConfig_RecordToLogger_HappyPath(t *testing.T) {
 	mockParser := &configmocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
+
 	programName := "testprocess"
 	args := []string{programName}
 
@@ -385,7 +359,7 @@ func TestConfig_RecordToLogger_HappyPath(t *testing.T) {
 		Return(args).
 		Once()
 
-	cfg, err := config.NewConfig(mockOSLayer, mockParser)
+	cfg, err := config.NewConfig(mockOSLayer, mockParser, mockBuildInfo)
 	require.NoError(t, err)
 
 	testLogger := testutils.NewInspectableLogger()

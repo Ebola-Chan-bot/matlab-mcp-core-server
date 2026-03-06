@@ -31,3 +31,78 @@ func (s ServerDetails) Title() string {
 func (s ServerDetails) Instructions() string {
 	return s.instructions
 }
+
+type ServerWithCustomToolsDetails struct {
+	ServerDetails
+
+	greetToolName           string
+	greetStructuredToolName string
+}
+
+func (s ServerWithCustomToolsDetails) GreetToolName() string {
+	return s.greetToolName
+}
+
+func (s ServerWithCustomToolsDetails) GreetStructuredToolName() string {
+	return s.greetStructuredToolName
+}
+
+type ServerWithCustomParametersDetails struct {
+	ServerDetails
+
+	greetToolName               string
+	greetStructuredToolName     string
+	customParamFlagName         string
+	customRecordedParamFlagName string
+	customRecordedParamID       string
+	customRecordedParamEnvVar   string
+}
+
+func (s ServerWithCustomParametersDetails) GreetToolName() string {
+	return s.greetToolName
+}
+
+func (s ServerWithCustomParametersDetails) GreetStructuredToolName() string {
+	return s.greetStructuredToolName
+}
+
+func (s ServerWithCustomParametersDetails) CustomParamFlagName() string {
+	return s.customParamFlagName
+}
+
+func (s ServerWithCustomParametersDetails) CustomRecordedParamFlagName() string {
+	return s.customRecordedParamFlagName
+}
+
+func (s ServerWithCustomParametersDetails) CustomRecordedParamID() string {
+	return s.customRecordedParamID
+}
+
+func (s ServerWithCustomParametersDetails) CustomRecordedParamEnvVar() string {
+	return s.customRecordedParamEnvVar
+}
+
+type ServerWithCustomDependenciesDetails struct {
+	ServerDetails
+
+	greetToolName string
+}
+
+func (s ServerWithCustomDependenciesDetails) GreetToolName() string {
+	return s.greetToolName
+}
+
+type ServerWithLoggingDetails struct {
+	ServerDetails
+
+	toolThatLogsName           string
+	structuredToolThatLogsName string
+}
+
+func (s ServerWithLoggingDetails) ToolThatLogsName() string {
+	return s.toolThatLogsName
+}
+
+func (s ServerWithLoggingDetails) StructuredToolThatLogsName() string {
+	return s.structuredToolThatLogsName
+}

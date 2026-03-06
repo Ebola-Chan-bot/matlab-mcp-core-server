@@ -15,6 +15,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/orchestrator"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters/selector"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/parser"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/buildinfo"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/filesystem/files"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabrootselector"
@@ -23,6 +24,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/client"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/server"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/logger"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlab/codeanalyzer"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession"
@@ -82,7 +84,8 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 	messageCatalog := messagecatalog.New()
 	selectorSelector := selector.New(serverDefinition, messageCatalog)
 	parserParser := parser.New(osFacade, selectorSelector, serverDefinition)
-	factory := config.NewFactory(parserParser, osFacade)
+	buildInfo := buildinfo.New(osFacade)
+	factory := config.NewFactory(parserParser, osFacade, buildInfo)
 	filesFactory := files.NewFactory(osFacade)
 	directoryFactory := directory.NewFactory(factory, filesFactory, osFacade)
 	loggerFactory := logger.NewFactory(factory, directoryFactory, filesFactory, osFacade)
@@ -127,7 +130,8 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 	sessionDiscovery := sessiondiscovery.New(osFacade)
 	globalMATLAB := globalmatlab.New(matlabManager, matlabRootSelector, matlabStartingDirSelector, sessionDiscovery, matlabsessionclientFactory, factory, matlabFiles)
 	tool2 := evalmatlabcode3.New(loggerFactory, factory, evalmatlabcodeUsecase, globalMATLAB)
-	checkmatlabcodeUsecase := checkmatlabcode.New(pathValidator)
+	analyzer := codeanalyzer.New()
+	checkmatlabcodeUsecase := checkmatlabcode.New(pathValidator, analyzer)
 	checkmatlabcodeTool := checkmatlabcode2.New(loggerFactory, checkmatlabcodeUsecase, globalMATLAB)
 	detectmatlabtoolboxesUsecase := detectmatlabtoolboxes.New()
 	detectmatlabtoolboxesTool := detectmatlabtoolboxes2.New(loggerFactory, detectmatlabtoolboxesUsecase, globalMATLAB)

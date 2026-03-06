@@ -2,8 +2,8 @@
 
 package config
 
-import "github.com/matlab/matlab-mcp-core-server/pkg/i18n"
+import (
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
+)
 
-type Config interface {
-	Get(key string, expectedType any) (any, i18n.Error)
-}
+type Config = publictypes.Config

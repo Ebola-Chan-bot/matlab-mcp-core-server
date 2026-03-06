@@ -13,6 +13,8 @@ import (
 	"testing"
 	"text/template"
 
+	"github.com/matlab/matlab-mcp-core-server/tests/testconfig"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -38,29 +40,43 @@ func BuildEmptyServer(t *testing.T) ServerDetails {
 	}
 }
 
-func BuildServerWithCustomParameters(t *testing.T) ServerDetails {
+func BuildServerWithCustomParameters(t *testing.T) ServerWithCustomParametersDetails {
 	// Those string literals match the one in the source code
-	return ServerDetails{
-		binaryLocation: buildSDKServer(t, "server_with_custom_parameters"),
+	return ServerWithCustomParametersDetails{
+		ServerDetails: ServerDetails{
+			binaryLocation: buildSDKServer(t, "server_with_custom_parameters"),
 
-		moduleName: goModName,
+			moduleName: goModName,
 
-		name:         "server-with-custom-parameters",
-		title:        "Server With Custom Parameters",
-		instructions: "This is a test server with custom parameters",
+			name:         "server-with-custom-parameters",
+			title:        "Server With Custom Parameters",
+			instructions: "This is a test server with custom parameters",
+		},
+
+		greetToolName:               "greet",
+		greetStructuredToolName:     "greet-structured",
+		customParamFlagName:         "custom-param",
+		customRecordedParamFlagName: "custom-recorded-param",
+		customRecordedParamID:       "custom-recorded-param-id",
+		customRecordedParamEnvVar:   "CUSTOM_RECORDED_PARAM",
 	}
 }
 
-func BuildServerWithCustomTools(t *testing.T) ServerDetails {
+func BuildServerWithCustomTools(t *testing.T) ServerWithCustomToolsDetails {
 	// Those string literals match the one in the source code
-	return ServerDetails{
-		binaryLocation: buildSDKServer(t, "server_with_custom_tools"),
+	return ServerWithCustomToolsDetails{
+		ServerDetails: ServerDetails{
+			binaryLocation: buildSDKServer(t, "server_with_custom_tools"),
 
-		moduleName: goModName,
+			moduleName: goModName,
 
-		name:         "server-with-custom-tools",
-		title:        "Server With Custom Tools",
-		instructions: "This is a test server with custom tools",
+			name:         "server-with-custom-tools",
+			title:        "Server With Custom Tools",
+			instructions: "This is a test server with custom tools",
+		},
+
+		greetToolName:           "greet",
+		greetStructuredToolName: "greet-structured",
 	}
 }
 
@@ -77,29 +93,38 @@ func BuildServerWithMATLABFeature(t *testing.T) ServerDetails {
 	}
 }
 
-func BuildServerWithCustomDependencies(t *testing.T) ServerDetails {
+func BuildServerWithCustomDependencies(t *testing.T) ServerWithCustomDependenciesDetails {
 	// Those string literals match the one in the source code
-	return ServerDetails{
-		binaryLocation: buildSDKServer(t, "server_with_custom_dependencies"),
+	return ServerWithCustomDependenciesDetails{
+		ServerDetails: ServerDetails{
+			binaryLocation: buildSDKServer(t, "server_with_custom_dependencies"),
 
-		moduleName: goModName,
+			moduleName: goModName,
 
-		name:         "server-with-custom-dependencies",
-		title:        "Server With Custom Dependencies",
-		instructions: "This is a test server with custom dependencies",
+			name:         "server-with-custom-dependencies",
+			title:        "Server With Custom Dependencies",
+			instructions: "This is a test server with custom dependencies",
+		},
+
+		greetToolName: "greet",
 	}
 }
 
-func BuildServerWithLogging(t *testing.T) ServerDetails {
+func BuildServerWithLogging(t *testing.T) ServerWithLoggingDetails {
 	// Those string literals match the one in the source code
-	return ServerDetails{
-		binaryLocation: buildSDKServer(t, "server_with_logging"),
+	return ServerWithLoggingDetails{
+		ServerDetails: ServerDetails{
+			binaryLocation: buildSDKServer(t, "server_with_logging"),
 
-		moduleName: goModName,
+			moduleName: goModName,
 
-		name:         "server-with-logging",
-		title:        "Server With Logging",
-		instructions: "This is a test server focused on logging",
+			name:         "server-with-logging",
+			title:        "Server With Logging",
+			instructions: "This is a test server focused on logging",
+		},
+
+		toolThatLogsName:           "tool-that-logs",
+		structuredToolThatLogsName: "structured-tool-that-logs",
 	}
 }
 
@@ -119,7 +144,7 @@ func buildSDKServer(t *testing.T, serverFolder string) string {
 	output, err := cmd.CombinedOutput()
 	require.NoError(t, err, "go mod tidy failed: %s", string(output))
 
-	serverBinaryPath := filepath.Join(tempDir, "test_server")
+	serverBinaryPath := filepath.Join(tempDir, "test_server"+testconfig.ExecutableExtension)
 
 	cmd = exec.Command("go", //nolint:gosec // Trusted variable
 		"build",

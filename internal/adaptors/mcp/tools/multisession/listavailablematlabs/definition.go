@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package listavailablematlabs
 
@@ -16,5 +16,5 @@ type ReturnArgs struct {
 
 type EnvironmentInfo struct {
 	Version    string `json:"version"     jsonschema:"The MATLAB version."`
-	MATLABRoot string `json:"matlab_root" jsonschema:"The MATLAB installation root directory."`
+	MATLABRoot string `json:"matlab_root" jsonschema:"The MATLAB installation root folder."`
 }

@@ -111,34 +111,55 @@ endif
 
 # Building
 
+WIN64_BIN_DIR :=$(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/win64
+GLNXA64_BIN_DIR :=$(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/glnxa64
+MACI64_BIN_DIR :=$(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/maci64
+MACA64_BIN_DIR :=$(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/maca64
+ALL_BIN_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/all
+
 build: build-for-windows build-for-glnxa64 build-for-maci64 build-for-maca64
 
 build-for-windows:
 ifeq ($(OS),Windows_NT)
-	$$env:GOOS='windows'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o ./.bin/win64/matlab-mcp-core-server.exe ./cmd/matlab-mcp-core-server
+	$$env:GOOS='windows'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(WIN64_BIN_DIR)/matlab-mcp-core-server.exe ./cmd/matlab-mcp-core-server
 else
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o ./.bin/win64/matlab-mcp-core-server.exe ./cmd/matlab-mcp-core-server
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(WIN64_BIN_DIR)/matlab-mcp-core-server.exe" ./cmd/matlab-mcp-core-server
 endif
 
 build-for-glnxa64:
 ifeq ($(OS),Windows_NT)
-	$$env:GOOS='linux'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o ./.bin/glnxa64/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
+	$$env:GOOS='linux'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(GLNXA64_BIN_DIR)/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
 else
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o ./.bin/glnxa64/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(GLNXA64_BIN_DIR)/matlab-mcp-core-server" ./cmd/matlab-mcp-core-server
 endif
 
 build-for-maci64:
 ifeq ($(OS),Windows_NT)
-	$$env:GOOS='darwin'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o ./.bin/maci64/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
+	$$env:GOOS='darwin'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(MACI64_BIN_DIR)/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
 else
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o ./.bin/maci64/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(MACI64_BIN_DIR)/matlab-mcp-core-server" ./cmd/matlab-mcp-core-server
 endif
 
 build-for-maca64:
 ifeq ($(OS),Windows_NT)
-	$$env:GOOS='darwin'; $$env:GOARCH='arm64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o ./.bin/maca64/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
+	$$env:GOOS='darwin'; $$env:GOARCH='arm64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(MACA64_BIN_DIR)/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
 else
-	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o ./.bin/maca64/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
+	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(MACA64_BIN_DIR)/matlab-mcp-core-server" ./cmd/matlab-mcp-core-server
+endif
+
+build-all:
+ifeq ($(OS),Windows_NT)
+	@New-Item -ItemType Directory -Force -Path "$(ALL_BIN_DIR)" | Out-Null
+	@Copy-Item "$(GLNXA64_BIN_DIR)/matlab-mcp-core-server" "$(ALL_BIN_DIR)/matlab-mcp-core-server-glnxa64"
+	@Copy-Item "$(MACA64_BIN_DIR)/matlab-mcp-core-server" "$(ALL_BIN_DIR)/matlab-mcp-core-server-maca64"
+	@Copy-Item "$(MACI64_BIN_DIR)/matlab-mcp-core-server" "$(ALL_BIN_DIR)/matlab-mcp-core-server-maci64"
+	@Copy-Item "$(WIN64_BIN_DIR)/matlab-mcp-core-server.exe" "$(ALL_BIN_DIR)/matlab-mcp-core-server-win64.exe"
+else
+	@mkdir -p "$(ALL_BIN_DIR)"
+	@cp "$(GLNXA64_BIN_DIR)/matlab-mcp-core-server" "$(ALL_BIN_DIR)/matlab-mcp-core-server-glnxa64"
+	@cp "$(MACA64_BIN_DIR)/matlab-mcp-core-server" "$(ALL_BIN_DIR)/matlab-mcp-core-server-maca64"
+	@cp "$(MACI64_BIN_DIR)/matlab-mcp-core-server" "$(ALL_BIN_DIR)/matlab-mcp-core-server-maci64"
+	@cp "$(WIN64_BIN_DIR)/matlab-mcp-core-server.exe" "$(ALL_BIN_DIR)/matlab-mcp-core-server-win64.exe"
 endif
 
 # Testing
@@ -217,3 +238,58 @@ endef
 endif
 
 CHECK_MATLAB_LEAKS := $(strip $(CHECK_MATLAB_LEAKS_CMD))
+
+# MCPB Bundle Configuration
+MCPB_STAGING_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/mcpb
+MCPB_FILENAME := matlab-mcp-core-server.mcpb
+MCPB_GEN_BIN := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/mcpb-gen/mcpb-gen
+
+# Generate mcpb sources for bundling
+# Build mcpb-gen first (not go run) to get proper version from debug.ReadBuildInfo()
+mcpb-stage:
+ifeq ($(OS),Windows_NT)
+	@echo "Error: MCPB manifest generation is only supported on macOS/Linux"; exit 1
+else
+	@mkdir -p "$(dir $(MCPB_GEN_BIN))"
+	go build -o "$(MCPB_GEN_BIN)" ./cmd/mcpb-gen
+	MCPB_STAGING_DIR="$(MCPB_STAGING_DIR)" "$(MCPB_GEN_BIN)"
+endif
+
+# Main mcpb target: generates manifest and packs bundle
+# Requires all 4 platform binaries in $(ALL_BIN_DIR).
+# For local dev: make mcpb-dev (builds + copies to all/ + packs)
+# For CI/signed: populate all/ externally, then make mcpb
+mcpb: mcpb-stage
+ifeq ($(OS),Windows_NT)
+	@echo "Error: MCPB packaging is only supported on macOS/Linux"; exit 1
+else
+	@if [ ! -f "$(ALL_BIN_DIR)/matlab-mcp-core-server-glnxa64" ] || \
+	    [ ! -f "$(ALL_BIN_DIR)/matlab-mcp-core-server-maca64" ] || \
+	    [ ! -f "$(ALL_BIN_DIR)/matlab-mcp-core-server-maci64" ] || \
+	    [ ! -f "$(ALL_BIN_DIR)/matlab-mcp-core-server-win64.exe" ]; then \
+		echo "Error: Missing binaries in $(ALL_BIN_DIR)."; \
+		echo "Run 'make mcpb-dev' for local builds, or populate $(ALL_BIN_DIR) with signed binaries."; \
+		exit 1; \
+	fi
+	@echo "Using binaries from $(ALL_BIN_DIR)"
+	@cp "$(ALL_BIN_DIR)"/matlab-mcp-core-server-* "$(MCPB_STAGING_DIR)/bundle/bin/"
+	@cd "$(MCPB_STAGING_DIR)" && npm i && npm run mcpb-pack -- "$(MCPB_FILENAME)"
+	@echo ""
+	@echo "Created: $(MCPB_STAGING_DIR)/$(MCPB_FILENAME)"
+endif
+
+mcpb-clean:
+	@$(call RM_DIR,$(MCPB_STAGING_DIR))
+	@$(call RM_DIR,$(dir $(MCPB_GEN_BIN)))
+	@echo "Removed $(MCPB_STAGING_DIR) and $(dir $(MCPB_GEN_BIN))"
+
+# Development workflow: build, copy to all/, and pack
+mcpb-dev: mcpb-clean build build-all mcpb
+
+mcpb-validate:
+ifeq ($(OS),Windows_NT)
+	@echo "Error: MCPB validation is only supported on macOS/Linux"; exit 1
+else
+	cd "$(MCPB_STAGING_DIR)"; \
+	npm run mcpb-validate
+endif

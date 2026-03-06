@@ -19,7 +19,7 @@ import (
 type ServerWithCustomParametersTestSuite struct {
 	suite.Suite
 
-	serverDetails testbinaries.ServerDetails
+	serverDetails testbinaries.ServerWithCustomParametersDetails
 }
 
 // SetupSuite runs once before all tests in a suite
@@ -34,13 +34,13 @@ func TestServerWithCustomParametersTestSuite(t *testing.T) {
 func (s *ServerWithCustomParametersTestSuite) TestSDK_CustomParameter_HappyPath() {
 	// Connect to a session
 	expectedValue := "someValue"
-	expectedRecordedID := "custom-recorded-param-id"
+	expectedRecordedID := s.serverDetails.CustomRecordedParamID()
 	expectedRecordedValue := "someOtherValue"
 
 	client := mcpclient.NewClient(s.T().Context(), s.serverDetails.BinaryLocation(), nil,
 		"--log-level=debug",
-		"--custom-param="+expectedValue,
-		"--custom-recorded-param="+expectedRecordedValue,
+		"--"+s.serverDetails.CustomParamFlagName()+"="+expectedValue,
+		"--"+s.serverDetails.CustomRecordedParamFlagName()+"="+expectedRecordedValue,
 	)
 
 	session, err := client.CreateSession(s.T().Context())
@@ -50,7 +50,7 @@ func (s *ServerWithCustomParametersTestSuite) TestSDK_CustomParameter_HappyPath(
 	}()
 
 	// Check for unstructured content output tool
-	result, err := session.CallTool(s.T().Context(), "greet", map[string]any{"name": "World"})
+	result, err := session.CallTool(s.T().Context(), s.serverDetails.GreetToolName(), map[string]any{"name": "World"})
 	s.Require().NoError(err, "should call greet tool successfully")
 
 	textContent, err := session.GetTextContent(result)
@@ -58,7 +58,7 @@ func (s *ServerWithCustomParametersTestSuite) TestSDK_CustomParameter_HappyPath(
 	s.Equal("Hello World "+expectedValue, textContent, "should return greeting with config value")
 
 	// Check for structured content output tool
-	response, err := session.CallTool(s.T().Context(), "greet-structured", map[string]any{"name": "World"})
+	response, err := session.CallTool(s.T().Context(), s.serverDetails.GreetStructuredToolName(), map[string]any{"name": "World"})
 	s.Require().NoError(err, "should call greet tool successfully")
 	parsedValue := struct {
 		Response       string `json:"response"`
@@ -86,10 +86,10 @@ func (s *ServerWithCustomParametersTestSuite) TestSDK_CustomParameter_HappyPath(
 
 func (s *ServerWithCustomParametersTestSuite) TestSDK_CustomParameter_Recorded_ByEnvVar() {
 	// Connect to a session
-	expectedRecordedID := "custom-recorded-param-id"
+	expectedRecordedID := s.serverDetails.CustomRecordedParamID()
 	expectedRecordedValue := "someValue"
 
-	env := append(os.Environ(), "CUSTOM_RECORDED_PARAM="+expectedRecordedValue)
+	env := append(os.Environ(), s.serverDetails.CustomRecordedParamEnvVar()+"="+expectedRecordedValue)
 	client := mcpclient.NewClient(s.T().Context(), s.serverDetails.BinaryLocation(), env)
 
 	session, err := client.CreateSession(s.T().Context())

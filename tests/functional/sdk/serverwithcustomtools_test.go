@@ -14,7 +14,7 @@ import (
 type ServerWithCustomToolsTestSuite struct {
 	suite.Suite
 
-	serverDetails testbinaries.ServerDetails
+	serverDetails testbinaries.ServerWithCustomToolsDetails
 }
 
 // SetupSuite runs once before all tests in a suite
@@ -42,7 +42,7 @@ func (s *ServerWithCustomToolsTestSuite) TestSDK_CustomTools_HappyPath() {
 	expectedTextOutput := "Hello " + name
 
 	// Call the unstructured tool
-	unstructuredResult, err := session.CallTool(s.T().Context(), "greet", map[string]any{"name": name})
+	unstructuredResult, err := session.CallTool(s.T().Context(), s.serverDetails.GreetToolName(), map[string]any{"name": name})
 	s.Require().NoError(err, "should call tool successfully")
 
 	textContent, err := session.GetTextContent(unstructuredResult)
@@ -50,7 +50,7 @@ func (s *ServerWithCustomToolsTestSuite) TestSDK_CustomTools_HappyPath() {
 	s.Require().Equal(expectedTextOutput, textContent, "should return greeting message")
 
 	// Call the structured tool
-	structuredResult, err := session.CallTool(s.T().Context(), "greet-structured", map[string]any{"name": "World"})
+	structuredResult, err := session.CallTool(s.T().Context(), s.serverDetails.GreetStructuredToolName(), map[string]any{"name": "World"})
 	s.Require().NoError(err, "should call tool successfully")
 
 	var output struct {

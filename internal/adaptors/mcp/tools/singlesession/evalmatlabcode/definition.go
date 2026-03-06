@@ -1,14 +1,14 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package evalmatlabcode
 
 const (
 	name        = "evaluate_matlab_code"
 	title       = "Evaluate MATLAB Code"
-	description = "Evaluate arbitrary MATLAB code (`code`) within a specified project directory (`project_path`) context in an existing MATLAB session. Returns the command window output from code execution."
+	description = "Evaluate a string of MATLAB code (`code`) in an existing MATLAB session. Optionally specify a project folder (`project_path`) to set as the current working folder before execution. Returns the command window output from code execution."
 )
 
 type Args struct {
-	ProjectPath string `json:"project_path" jsonschema:"The full path to the project directory - Becomes MATLAB's working directory during execution - Folder must exist - Example: C:\\Users\\username\\matlab-project or /home/user/research."`
-	Code        string `json:"code"         jsonschema:"The MATLAB code to evaluate."`
+	ProjectPath string `json:"project_path,omitempty" jsonschema:"(Optional) Absolute path to the project folder. When provided, MATLAB sets this as the current working folder. If omitted, code runs in MATLAB's current working folder. Example: C:\\Users\\username\\matlab-project or /home/user/research."`
+	Code        string `json:"code"                   jsonschema:"The MATLAB code to evaluate."`
 }

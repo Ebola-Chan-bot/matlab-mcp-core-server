@@ -21,12 +21,8 @@ Run MATLAB® using AI applications with the official MATLAB MCP Server from Math
 ## Setup
 
 1. Install [MATLAB (MathWorks)](https://www.mathworks.com/help/install/ug/install-products-with-internet-connection.html) 2020b or later and add it to the system PATH.
-1. For Windows or Linux, download the [Latest Release](https://github.com/matlab/matlab-mcp-core-server/releases/latest) from GitHub®. Alternatively, you can install [Go](https://go.dev/doc/install) and build the binary from source using
-
-    ```sh
-    go install github.com/matlab/matlab-mcp-core-server/cmd/matlab-mcp-core-server@latest
-    ```
-
+1. For Windows or Linux, [**Download the Latest Release**](https://github.com/matlab/matlab-mcp-core-server/releases/latest). (Alternatively, you can **build from source**: install [Go](https://go.dev/doc/install) and build the binary using `go install github.com/matlab/matlab-mcp-core-server/cmd/matlab-mcp-core-server@latest`).
+    
     For macOS, first download the latest release by running the following command in your terminal:
     - For Apple silicon processors, run:
         ```sh
@@ -66,28 +62,13 @@ claude mcp remove matlab
 
 ### Claude Desktop
 
-Follow the instructions on the page [Connect to local MCP servers (MCP)](https://modelcontextprotocol.io/docs/develop/connect-local-servers) to install Node.js and the Filesystem Server. These are required to allow Claude to create files on your filesystem that MATLAB can access. In your Claude Desktop configuration file, you need to add the configuration for the MATLAB MCP Core Server as well as the Filesystem Server. You can use the combined JSON below. In the Filesystem `args`, remember to specify which paths the server can access. In the MATLAB `args`, remember to insert the full path to the server binary you acquired, as well as any other [Arguments](#arguments). (Note that on Windows, your paths require extra backslashes as escape characters).
+You install the MATLAB MCP Core Server in Claude Desktop using the MATLAB MCP Core Server bundle.
 
-```json
-{
-    "mcpServers": {
-        "filesystem": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-filesystem",
-                "C:\\Users\\username"
-            ]
-        },
-        "matlab": {
-            "command": "C:\\fullpath\\to\\matlab-mcp-core-server-binary",
-            "args": ["--initial-working-folder=C:\\Users\\username\\Documents"]
-        }
-    }
-}
-```
+1. Install the Filesystem extension in Claude Desktop to allow Claude to read and write files on your system. In Claude Desktop, click **Settings > Extensions> Browse extensions**. Search for the Filesystem extension developed by Anthropic and click **Install**. Specify the folders you want to allow the MCP server to access, then toggle the **Disable** button to **Enable** the Filesystem extension.
+   
+2. Download the MATLAB MCP Core Server bundle `matlab-mcp-core-server.mcpb` from the [Latest Release](https://github.com/matlab/matlab-mcp-core-server/releases/latest) page. 
 
-After saving the configuration file, quit Claude Desktop by clicking **File > Exit**, then restart Claude Desktop.
+3. To install the MATLAB MCP Core Server bundle as a desktop extension, double click on the downloaded `matlab-mcp-core-server.mcpb` file and click **Install** in Claude Desktop. (Alternatively, navigate in Claude to **File menu > Settings > Extensions > Advanced Settings > Install Extension** and select the `matlab-mcp-core-server.mcpb` file. Click **Install**).<br><br>To customize the behaviour and [arguments](#arguments) of the MATLAB MCP Core Server, click **Configure**, then **Close Preview**. You can return to this page by navigating to **Settings > Extensions > Configure**.
 
 ### GitHub Copilot in Visual Studio Code
 
@@ -155,7 +136,7 @@ Customize the behavior of the server by providing arguments in the `args` array 
 ## Tools
 
 1. `detect_matlab_toolboxes`
-    - Lists installed MATLAB toolboxes with version information.
+    - Returns information about installed MATLAB and toolboxes, including version numbers.  
 
 1. `check_matlab_code`
     - Performs static code analysis on a MATLAB script. Returns warnings about coding style, potential errors, deprecated functions, performance issues, and best practice violations. This is a non-destructive, read-only operation that helps identify code quality issues without executing the script.

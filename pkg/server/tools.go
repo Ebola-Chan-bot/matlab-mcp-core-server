@@ -3,36 +3,24 @@
 package server
 
 import (
-	internalconfig "github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	internaltools "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
+	"context"
+
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/tools"
+	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
+	pkgtools "github.com/matlab/matlab-mcp-core-server/pkg/tools"
 )
 
-type Tool interface {
-	toInternal(
-		loggerFactory basetool.LoggerFactory,
-		config internalconfig.GenericConfig,
-		messageCatalog definition.MessageCatalog,
-	) internaltools.Tool
+type Tool = publictypes.Tool
+
+type HandlerForToolWithUnstructuredContentOutput[ToolInput any] func(ctx context.Context, request pkgtools.CallRequest, inputs ToolInput) (pkgtools.RichContent, i18n.Error)
+
+func NewToolWithUnstructuredContentOutput[ToolInput any](definition pkgtools.Definition, handler HandlerForToolWithUnstructuredContentOutput[ToolInput]) Tool {
+	return tools.NewUnstructured(definition, tools.UnstructuredHandler[ToolInput](handler))
 }
 
-type toolArray []Tool
+type HandlerForToolWithStructuredContentOutput[ToolInput, ToolOutput any] func(ctx context.Context, request pkgtools.CallRequest, inputs ToolInput) (ToolOutput, i18n.Error)
 
-func (t toolArray) toInternal(
-	loggerFactoryInstance basetool.LoggerFactory,
-	config internalconfig.GenericConfig,
-	messageCatalog definition.MessageCatalog,
-) []internaltools.Tool {
-	internalTools := make([]internaltools.Tool, len(t))
-
-	for i, tool := range t {
-		internalTools[i] = tool.toInternal(
-			loggerFactoryInstance,
-			config,
-			messageCatalog,
-		)
-	}
-
-	return internalTools
+func NewToolWithStructuredContentOutput[ToolInput, ToolOutput any](definition pkgtools.Definition, handler HandlerForToolWithStructuredContentOutput[ToolInput, ToolOutput]) Tool {
+	return tools.NewStructured(definition, tools.StructuredHandler[ToolInput, ToolOutput](handler))
 }

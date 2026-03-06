@@ -20,7 +20,7 @@ import (
 type ServerWithLoggingTestSuite struct {
 	suite.Suite
 
-	serverDetails testbinaries.ServerDetails
+	serverDetails testbinaries.ServerWithLoggingDetails
 }
 
 // SetupSuite runs once before all tests in a suite
@@ -50,7 +50,7 @@ func (s *ServerWithLoggingTestSuite) TestSDK_Logging_DependenciesAndToolsProvide
 	}()
 
 	// Act
-	_, err = session.CallTool(s.T().Context(), "tool-that-logs", map[string]any{"name": "World"})
+	_, err = session.CallTool(s.T().Context(), s.serverDetails.ToolThatLogsName(), map[string]any{"name": "World"})
 	s.Require().NoError(err, "should call tool successfully")
 
 	// Assert
@@ -94,10 +94,10 @@ func (s *ServerWithLoggingTestSuite) TestSDK_Logging_ToolHandlerLogsToFile() {
 	}()
 
 	// Act
-	_, err = session.CallTool(s.T().Context(), "tool-that-logs", map[string]any{"name": name})
+	_, err = session.CallTool(s.T().Context(), s.serverDetails.ToolThatLogsName(), map[string]any{"name": name})
 	s.Require().NoError(err, "should call unstructured tool successfully")
 
-	_, err = session.CallTool(s.T().Context(), "structured-tool-that-logs", map[string]any{"name": name})
+	_, err = session.CallTool(s.T().Context(), s.serverDetails.StructuredToolThatLogsName(), map[string]any{"name": name})
 	s.Require().NoError(err, "should call structured tool successfully")
 
 	// Assert

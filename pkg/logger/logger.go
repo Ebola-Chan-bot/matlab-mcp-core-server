@@ -2,12 +2,6 @@
 
 package logger
 
-type Logger interface {
-	Debug(msg string)
-	Info(msg string)
-	Warn(msg string)
-	Error(msg string)
+import "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
 
-	With(key string, value any) Logger
-	WithError(err error) Logger
-}
+type Logger = publictypes.Logger

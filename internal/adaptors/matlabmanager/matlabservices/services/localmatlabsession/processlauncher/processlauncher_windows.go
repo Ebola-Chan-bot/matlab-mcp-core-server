@@ -6,32 +6,32 @@ package processlauncher
 import (
 	"context"
 	"fmt"
-	"iter"
 	"os"
 	"path/filepath"
-	"time"
+	"strings"
+	"syscall"
 	"unsafe"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession/processlauncher/utils/winenvironmentbuilder"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"golang.org/x/sys/windows"
 )
 
-const EXPECTED_CHILD_MATLAB_PROCESS_NAME = "MATLAB.exe"
-
-func startMatlab(ctx context.Context, logger entities.Logger, matlabRoot string, workingDir string, args []string, env []string, stdIO *stdIO) (*os.Process, error) {
-	matlabPath := filepath.Join(matlabRoot, "bin", "matlab.exe")
+func startMatlab(_ context.Context, logger entities.Logger, matlabRoot string, workingDir string, args []string, env []string, stdIO *stdIO) (*os.Process, error) {
+	matlabPath := filepath.Join(matlabRoot, "bin", config.ArchFolder, config.ArchSpecificExeName)
 
 	if _, err := os.Stat(matlabPath); err != nil {
 		return nil, err
 	}
 
 	// Careful on Windows, we need to quote the args
-	cmdLine := `"` + matlabPath + `"`
-	for _, arg := range args {
-		cmdLine += ` "` + arg + `"`
+	cmdLineParts := make([]string, len(args)+1)
+	cmdLineParts[0] = syscall.EscapeArg(matlabPath)
+	for i, arg := range args {
+		cmdLineParts[i+1] = syscall.EscapeArg(arg)
 	}
+	cmdLine := strings.Join(cmdLineParts, " ")
 
 	envBlock, err := winenvironmentbuilder.Build(env)
 	if err != nil {
@@ -58,6 +58,7 @@ func startMatlab(ctx context.Context, logger entities.Logger, matlabRoot string,
 
 	si.Cb = uint32(unsafe.Sizeof(si))
 
+	si.Flags = windows.STARTF_USESTDHANDLES
 	si.StdInput = windows.Handle(stdIO.stdIn.Fd())
 	si.StdOutput = windows.Handle(stdIO.stdOut.Fd())
 	si.StdErr = windows.Handle(stdIO.stdErr.Fd())
@@ -89,93 +90,10 @@ func startMatlab(ctx context.Context, logger entities.Logger, matlabRoot string,
 		logger.WithError(closeErr).Warn("failed to close process handle")
 	}
 
-	matlabLauncherProcess, err := os.FindProcess(int(pi.ProcessId))
+	matlabProcess, err := os.FindProcess(int(pi.ProcessId))
 	if err != nil {
-		return nil, fmt.Errorf("error finding MATLAB launcher process: %w", err)
-	}
-
-	// On Windows, the process we launch is a launcher process that then launches the actual MATLAB process.
-	// Therefore, we need to find the child process of the launcher process.
-	// There should be only one process, and that would be the actual MATLAB process.
-	matlabProcess, err := waitForMATLABProcess(ctx, logger, matlabLauncherProcess)
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error finding MATLAB process: %w", err)
 	}
 
 	return matlabProcess, nil
-}
-
-func waitForMATLABProcess(_ context.Context, logger entities.Logger, matlabLauncherProcess *os.Process) (*os.Process, error) {
-	const pollInterval = 1 * time.Second
-	const timeout = 20 * time.Second
-
-	if matlabLauncherProcess.Pid < 0 || matlabLauncherProcess.Pid > 0xFFFFFFFF {
-		return nil, fmt.Errorf("invalid process ID: %d", matlabLauncherProcess.Pid)
-	}
-
-	matlabLauncherProcessID := uint32(matlabLauncherProcess.Pid)
-
-	waitCtx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	matlabProcess, err := retry.Retry(waitCtx, func() (*os.Process, bool, error) {
-		process := getMATLABChildProcess(logger, matlabLauncherProcessID)
-		return process, process != nil, nil
-	}, retry.NewLinearRetryStrategy(pollInterval))
-
-	if err != nil {
-		return nil, fmt.Errorf("timeout waiting for matlab process to begin")
-	}
-
-	return matlabProcess, nil
-}
-
-func getMATLABChildProcess(logger entities.Logger, matlabLauncherProcessID uint32) *os.Process {
-	snapshot, err := windows.CreateToolhelp32Snapshot(
-		windows.TH32CS_SNAPPROCESS,
-		0, // When CreateToolhelp32Snapshot is called with TH32CS_SNAPPROCESS, processID is ignored, use 0
-	)
-	if err != nil {
-		logger.WithError(err).Warn("error creating process snapshot")
-		return nil
-	}
-
-	defer func() {
-		if err := windows.CloseHandle(snapshot); err != nil {
-			logger.WithError(err).Warn("failed to close snapshot handle")
-		}
-	}()
-
-	for processEntry := range snapshotProcessIterator(snapshot) {
-		if processEntry.ParentProcessID != matlabLauncherProcessID {
-			continue
-		}
-
-		if windows.UTF16ToString(processEntry.ExeFile[:]) != EXPECTED_CHILD_MATLAB_PROCESS_NAME {
-			continue
-		}
-
-		childProcess, err := os.FindProcess(int(processEntry.ProcessID))
-		if err != nil {
-			logger.WithError(err).Warn("we found a child process in the snapshot but could os.FindProcess it")
-			continue
-		}
-
-		return childProcess
-	}
-
-	return nil
-}
-
-func snapshotProcessIterator(snapshot windows.Handle) iter.Seq[windows.ProcessEntry32] {
-	return func(yield func(pe windows.ProcessEntry32) bool) {
-		var pe windows.ProcessEntry32
-		pe.Size = uint32(unsafe.Sizeof(pe))
-
-		for err := windows.Process32First(snapshot, &pe); err == nil; err = windows.Process32Next(snapshot, &pe) {
-			if !yield(pe) {
-				return
-			}
-		}
-	}
 }

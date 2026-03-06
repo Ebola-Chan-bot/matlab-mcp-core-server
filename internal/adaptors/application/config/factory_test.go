@@ -21,8 +21,11 @@ func TestNewFactory_HappyPath(t *testing.T) {
 	mockParser := &configmocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
+
 	// Act
-	factory := config.NewFactory(mockParser, mockOSLayer)
+	factory := config.NewFactory(mockParser, mockOSLayer, mockBuildInfo)
 
 	// Assert
 	assert.NotNil(t, factory, "Factory should not be nil")
@@ -35,6 +38,9 @@ func TestFactory_Config_HappyPath(t *testing.T) {
 
 	mockParser := &configmocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
+
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
 
 	programName := "testprocess"
 	args := []string{programName}
@@ -49,7 +55,7 @@ func TestFactory_Config_HappyPath(t *testing.T) {
 		Return([]entities.Parameter{}, configDefaultParsedArgs(), nil).
 		Once()
 
-	factory := config.NewFactory(mockParser, mockOSLayer)
+	factory := config.NewFactory(mockParser, mockOSLayer, mockBuildInfo)
 
 	// Act
 	cfg, err := factory.Config()
@@ -67,6 +73,9 @@ func TestFactory_Config_IsSingleton(t *testing.T) {
 	mockParser := &configmocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
+
 	programName := "testprocess"
 	args := []string{programName}
 
@@ -80,7 +89,7 @@ func TestFactory_Config_IsSingleton(t *testing.T) {
 		Return([]entities.Parameter{}, configDefaultParsedArgs(), nil).
 		Once()
 
-	factory := config.NewFactory(mockParser, mockOSLayer)
+	factory := config.NewFactory(mockParser, mockOSLayer, mockBuildInfo)
 
 	// Act
 	cfg1, err1 := factory.Config()
@@ -100,6 +109,9 @@ func TestFactory_Config_SingletonPreservesError(t *testing.T) {
 	mockParser := &configmocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
+
 	programName := "testprocess"
 	args := []string{programName}
 
@@ -113,7 +125,7 @@ func TestFactory_Config_SingletonPreservesError(t *testing.T) {
 		Return(nil, nil, messages.AnError).
 		Once()
 
-	factory := config.NewFactory(mockParser, mockOSLayer)
+	factory := config.NewFactory(mockParser, mockOSLayer, mockBuildInfo)
 
 	// Act
 	cfg1, err1 := factory.Config()

@@ -1,4 +1,4 @@
-# Copyright 2025 The MathWorks, Inc.
+# Copyright 2025-2026 The MathWorks, Inc.
 version: "2"
 
 linters:
@@ -9,6 +9,7 @@ linters:
     - govet # Go static analyzer for common errors
     - usetesting #  Static analysis for testing best practices
     - testifylint # Linter for testify assertions and mocking
+    - depguard # Enforces SDK layering import rules
     - unused
     - inamedparam
     - gochecknoglobals
@@ -29,7 +30,6 @@ linters:
     - exhaustruct
     - lll
     # Actually disable these ones
-    - depguard
     - wsl
     - wrapcheck
     - paralleltest
@@ -45,6 +45,26 @@ linters:
           - github.com/stretchr/testify
           - github.com/google/uuid
           - github.com/spf13/pflag
+    depguard:
+      rules:
+        # Rule #1: pkg/* may only import internal/adaptors/sdk
+        pkg-controlled-import:
+          list-mode: lax
+          files:
+            - "**/pkg/**/*.go"
+          allow:
+            - "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk"
+          deny:
+            - pkg: "github.com/matlab/matlab-mcp-core-server/internal/"
+              desc: "pkg/* must not import internal/* directly — only internal/adaptors/sdk/* is allowed"
+        # Rule 2: internal/* must never import pkg/*
+        internal-no-pkg:
+          list-mode: lax
+          files:
+            - "**/internal/**/*.go"
+          deny:
+            - pkg: "github.com/matlab/matlab-mcp-core-server/pkg/"
+              desc: "internal/* must not import pkg/* — the SDK layer depends on internal, not vice-versa"
     nolintlint:
       require-explanation: true
     revive:

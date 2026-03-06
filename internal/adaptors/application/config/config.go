@@ -37,13 +37,13 @@ func (c *rawConfig) Get(key string) (any, messages.Error) {
 }
 
 type config struct {
-	osLayer OSLayer
+	buildInfo BuildInfo
 
 	*rawConfig
 	validatedArguments
 }
 
-func newConfig(osLayer OSLayer, parser Parser) (*config, messages.Error) {
+func newConfig(osLayer OSLayer, parser Parser, buildInfo BuildInfo) (*config, messages.Error) {
 	parameters, parsedArgs, err := parser.Parse(osLayer.Args()[1:])
 	if err != nil {
 		return nil, err
@@ -60,8 +60,7 @@ func newConfig(osLayer OSLayer, parser Parser) (*config, messages.Error) {
 	}
 
 	return &config{
-		osLayer: osLayer,
-
+		buildInfo:          buildInfo,
 		rawConfig:          rawCfg,
 		validatedArguments: validated,
 	}, nil
@@ -71,19 +70,8 @@ func (c *config) Get(key string) (any, messages.Error) {
 	return getForKey(c.parsedArgs, key)
 }
 
-// Version returns the application version string from Go's build info.
 func (c *config) Version() string {
-	buildInfo, ok := c.osLayer.ReadBuildInfo()
-	if !ok {
-		return "(unknown)"
-	}
-
-	version := buildInfo.Main.Version
-	if version == "" {
-		version = "(devel)"
-	}
-
-	return buildInfo.Main.Path + " " + version
+	return c.buildInfo.FullVersion()
 }
 
 func (c *config) LogLevel() entities.LogLevel {

@@ -14,7 +14,9 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/orchestrator"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters/selector"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/parser"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/buildinfo"
 	files "github.com/matlab/matlab-mcp-core-server/internal/adaptors/filesystem/files"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlab/codeanalyzer"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabrootselector"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabstartingdirselector"
@@ -193,6 +195,9 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 
 		checkmatlabcode.New,
 		wire.Bind(new(checkmatlabcode.PathValidator), new(*pathvalidator.PathValidator)),
+		wire.Bind(new(checkmatlabcode.CodeAnalyzer), new(*codeanalyzer.Analyzer)),
+
+		codeanalyzer.New,
 
 		detectmatlabtoolboxessinglesessiontool.New,
 		wire.Bind(new(detectmatlabtoolboxessinglesessiontool.Usecase), new(*detectmatlabtoolboxes.Usecase)),
@@ -365,6 +370,11 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 		config.NewFactory,
 		wire.Bind(new(config.Parser), new(*parser.Parser)),
 		wire.Bind(new(config.OSLayer), new(*osfacade.OsFacade)),
+		wire.Bind(new(config.BuildInfo), new(*buildinfo.BuildInfo)),
+
+		// BuildInfo
+		buildinfo.New,
+		wire.Bind(new(buildinfo.OSLayer), new(*osfacade.OsFacade)),
 
 		// Parser
 		parser.New,

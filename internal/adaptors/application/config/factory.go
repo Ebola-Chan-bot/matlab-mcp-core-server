@@ -3,7 +3,6 @@
 package config
 
 import (
-	"runtime/debug"
 	"sync"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
@@ -16,7 +15,10 @@ type Parser interface {
 
 type OSLayer interface {
 	Args() []string
-	ReadBuildInfo() (info *debug.BuildInfo, ok bool)
+}
+
+type BuildInfo interface {
+	FullVersion() string
 }
 
 type GenericConfig interface {
@@ -43,24 +45,26 @@ type Config interface {
 }
 
 type Factory struct {
-	parser  Parser
-	osLayer OSLayer
+	parser    Parser
+	osLayer   OSLayer
+	buildInfo BuildInfo
 
 	initOnce       sync.Once
 	initError      messages.Error
 	configInstance *config
 }
 
-func NewFactory(parser Parser, osLayer OSLayer) *Factory {
+func NewFactory(parser Parser, osLayer OSLayer, buildInfo BuildInfo) *Factory {
 	return &Factory{
-		parser:  parser,
-		osLayer: osLayer,
+		parser:    parser,
+		osLayer:   osLayer,
+		buildInfo: buildInfo,
 	}
 }
 
 func (f *Factory) Config() (Config, messages.Error) {
 	f.initOnce.Do(func() {
-		configInstance, err := newConfig(f.osLayer, f.parser)
+		configInstance, err := newConfig(f.osLayer, f.parser, f.buildInfo)
 		if err != nil {
 			f.initError = err
 			return

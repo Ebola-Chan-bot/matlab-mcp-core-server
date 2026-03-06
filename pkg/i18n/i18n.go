@@ -2,7 +2,6 @@
 
 package i18n
 
-type Error interface {
-	error
-	MWMarker()
-}
+import "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
+
+type Error = publictypes.Error
