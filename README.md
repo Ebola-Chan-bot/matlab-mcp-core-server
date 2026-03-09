@@ -16,6 +16,7 @@ Run MATLAB® using AI applications with the official MATLAB MCP Server from Math
 - [Tools](#tools)
 - [Resources](#resources)
 - [Data Collection](#data-collection)
+- [Contact Support](#contact-support)
 
 ## Setup
 
@@ -143,6 +144,9 @@ The MCP server provides [Resources (MCP)](https://modelcontextprotocol.io/specif
 ## Data Collection
 
 The MATLAB MCP Core Server may collect fully anonymized information about your usage of the server and send it to MathWorks. This data collection helps MathWorks improve products and is on by default. To opt out of data collection, set the argument `--disable-telemetry` to `true`.
+
+## Contact Support
+MathWorks encourages you to use this repository and provide feedback. To request technical support or submit an enhancement request, [create a GitHub issue](https://github.com/matlab/matlab-mcp-core-server/issues) or email [genai-support@mathworks.com](mailto:genai-support@mathworks.com).
 
 #
 
