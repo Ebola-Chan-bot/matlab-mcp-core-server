@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package runmatlabtestfile_test
 
@@ -56,6 +56,55 @@ func TestUsecase_Execute_HappyPath(t *testing.T) {
 	}
 
 	ctx := t.Context()
+
+	mockPathValidator.EXPECT().
+		ValidateMATLABScript(scriptPath).
+		Return(scriptPath, nil).
+		Once()
+
+	mockClient.EXPECT().
+		EvalWithCapture(ctx, mockLogger.AsMockArg(), expectedEvalRequest).
+		Return(mockResponse, nil).
+		Once()
+
+	usecase := runmatlabtestfile.New(mockPathValidator)
+
+	// Act
+	response, err := usecase.Execute(ctx, mockLogger, mockClient, usecaseRequest)
+
+	// Assert
+	require.NoError(t, err, "Execute should not return an error")
+	assert.Equal(t, expectedResponse, response, "Response should match expected value")
+}
+
+func TestUsecase_Execute_EscapesSingleQuotesInPath(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockPathValidator := &mocks.MockPathValidator{}
+	defer mockPathValidator.AssertExpectations(t)
+
+	mockClient := &entitiesmocks.MockMATLABSessionClient{}
+	defer mockClient.AssertExpectations(t)
+
+	ctx := t.Context()
+	scriptPath := filepath.Join("Users", "O'Brien", "testFile.m")
+	expectedEscapedPath := "Users" + string(filepath.Separator) + "O''Brien" + string(filepath.Separator) + "testFile.m"
+
+	usecaseRequest := runmatlabtestfile.Args{ScriptPath: scriptPath}
+
+	expectedEvalRequest := entities.EvalRequest{
+		Code: fmt.Sprintf("runtests('%s')", expectedEscapedPath),
+	}
+
+	expectedResponse := entities.EvalResponse{
+		ConsoleOutput: "Running typeTests\n....\nDone typeTests",
+	}
+
+	mockResponse := entities.EvalResponse{
+		ConsoleOutput: "Running typeTests\n....\nDone typeTests",
+		Images:        [][]byte{[]byte("image1"), []byte("image2")},
+	}
 
 	mockPathValidator.EXPECT().
 		ValidateMATLABScript(scriptPath).

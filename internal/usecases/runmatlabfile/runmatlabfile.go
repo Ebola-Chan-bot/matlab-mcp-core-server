@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/matlabstring"
 	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/pathextractor"
 )
 
@@ -43,7 +44,7 @@ func (u *Usecase) Execute(ctx context.Context, sessionLogger entities.Logger, cl
 	scriptDir, scriptName := pathextractor.ExtractPathComponents(validatedPath)
 
 	_, err = client.Eval(ctx, sessionLogger, entities.EvalRequest{
-		Code: fmt.Sprintf("cd('%s')", scriptDir),
+		Code: fmt.Sprintf("cd('%s')", matlabstring.EscapeSingleQuotes(scriptDir)),
 	})
 	if err != nil {
 		return entities.EvalResponse{}, err

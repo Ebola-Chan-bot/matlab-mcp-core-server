@@ -5,6 +5,7 @@ package runmatlabfile_test
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
@@ -47,6 +48,62 @@ func TestUsecase_Execute_HappyPath(t *testing.T) {
 
 	expectedCdRequest := entities.EvalRequest{
 		Code: fmt.Sprintf("cd('%s')", scriptDir),
+	}
+
+	expectedEvalRequest := entities.EvalRequest{
+		Code: fileName,
+	}
+
+	expectedResponse := entities.EvalResponse{
+		ConsoleOutput: "Hello, World!",
+		Images:        nil,
+	}
+
+	mockPathValidator.EXPECT().
+		ValidateMATLABScript(scriptPath).
+		Return(scriptPath, nil).
+		Once()
+
+	mockClient.EXPECT().
+		Eval(ctx, mockLogger.AsMockArg(), expectedCdRequest).
+		Return(entities.EvalResponse{}, nil).
+		Once()
+
+	mockClient.EXPECT().
+		Eval(ctx, mockLogger.AsMockArg(), expectedEvalRequest).
+		Return(expectedResponse, nil).
+		Once()
+
+	usecase := runmatlabfile.New(mockPathValidator)
+
+	// Act
+	response, err := usecase.Execute(ctx, mockLogger, mockClient, usecaseRequest)
+
+	// Assert
+	require.NoError(t, err, "Execute should not return an error")
+	assert.Equal(t, expectedResponse, response, "Response should match expected value")
+}
+
+func TestUsecase_Execute_EscapesSingleQuotesInPath(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockPathValidator := &mocks.MockPathValidator{}
+	defer mockPathValidator.AssertExpectations(t)
+
+	mockClient := &entitiesmocks.MockMATLABSessionClient{}
+	defer mockClient.AssertExpectations(t)
+
+	ctx := t.Context()
+	fileName := "test"
+	scriptDir := filepath.Join("Users", "O'Brien", "scripts")
+	scriptPath := filepath.Join(scriptDir, fileName+".m")
+
+	usecaseRequest := runmatlabfile.Args{ScriptPath: scriptPath}
+
+	expectedEscapedDir := strings.ReplaceAll(scriptDir, "'", "''")
+	expectedCdRequest := entities.EvalRequest{
+		Code: fmt.Sprintf("cd('%s')", expectedEscapedDir),
 	}
 
 	expectedEvalRequest := entities.EvalRequest{
