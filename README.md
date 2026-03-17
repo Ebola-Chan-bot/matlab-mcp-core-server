@@ -21,7 +21,9 @@ Run MATLAB® using AI applications with the official MATLAB MCP Server from Math
 ## Setup
 
 1. Install [MATLAB (MathWorks)](https://www.mathworks.com/help/install/ug/install-products-with-internet-connection.html) 2020b or later and add it to the system PATH.
-1. For Windows or Linux, [**Download the Latest Release**](https://github.com/matlab/matlab-mcp-core-server/releases/latest). (Alternatively, you can **build from source**: install [Go](https://go.dev/doc/install) and build the binary using `go install github.com/matlab/matlab-mcp-core-server/cmd/matlab-mcp-core-server@latest`).
+1. To set up the MATLAB MCP Core Server for Claude Desktop, skip to the instructions for [Claude Desktop](#claude-desktop). To set up the server for other applications, follow these instructions:
+   
+   For Windows or Linux, [**Download the Latest Release**](https://github.com/matlab/matlab-mcp-core-server/releases/latest). (Alternatively, you can **build from source**: install [Go](https://go.dev/doc/install) and build the binary using `go install github.com/matlab/matlab-mcp-core-server/cmd/matlab-mcp-core-server@latest`).
     
     For macOS, first download the latest release by running the following command in your terminal:
     - For Apple silicon processors, run:
@@ -64,11 +66,13 @@ claude mcp remove matlab
 
 You install the MATLAB MCP Core Server in Claude Desktop using the MATLAB MCP Core Server bundle.
 
-1. Install the Filesystem extension in Claude Desktop to allow Claude to read and write files on your system. In Claude Desktop, click **Settings > Extensions> Browse extensions**. Search for the Filesystem extension developed by Anthropic and click **Install**. Specify the folders you want to allow the MCP server to access, then toggle the **Disable** button to **Enable** the Filesystem extension.
+1. Install the Filesystem extension in Claude Desktop to allow Claude to read and write files on your system. In Claude Desktop, click **Settings > Extensions > Browse extensions**. Search for the Filesystem extension developed by Anthropic and click **Install**. Specify the folders you want to allow the MCP server to access, then toggle the **Disabled** button to **Enable** the Filesystem extension.
    
 2. Download the MATLAB MCP Core Server bundle `matlab-mcp-core-server.mcpb` from the [Latest Release](https://github.com/matlab/matlab-mcp-core-server/releases/latest) page. 
 
-3. To install the MATLAB MCP Core Server bundle as a desktop extension, double click on the downloaded `matlab-mcp-core-server.mcpb` file and click **Install** in Claude Desktop. (Alternatively, navigate in Claude to **File menu > Settings > Extensions > Advanced Settings > Install Extension** and select the `matlab-mcp-core-server.mcpb` file. Click **Install**).<br><br>To customize the behaviour and [arguments](#arguments) of the MATLAB MCP Core Server, click **Configure**, then **Close Preview**. You can return to this page by navigating to **Settings > Extensions > Configure**.
+3. To install the MATLAB MCP Core Server bundle as a desktop extension, double click the downloaded `matlab-mcp-core-server.mcpb` file and click **Install** in Claude Desktop. (Alternatively, navigate in Claude to **File menu > Settings > Extensions > Advanced Settings > Install Extension** and select the `matlab-mcp-core-server.mcpb` file. Click **Install**).
+
+   To customize the behaviour of the MATLAB MCP Core Server, navigate to **Settings > Extensions > Configure**, where you can modify the server's [Arguments](#arguments).
 
 ### GitHub Copilot in Visual Studio Code
 
