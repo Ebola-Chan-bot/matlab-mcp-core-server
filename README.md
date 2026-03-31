@@ -28,7 +28,7 @@ Run MATLAB® using AI applications with the official MATLAB MCP Server from Math
    - For macOS, first download the latest release by running the following command in your terminal:
      - For Apple silicon processors, run:
           ```sh
-          curl -L -o ~/Downloads/matlab-mcp-core-server https://github.com/matlab/matlab-mcp-core-  server/releases/latest/download/matlab-mcp-core-server-maca64
+          curl -L -o ~/Downloads/matlab-mcp-core-server https://github.com/matlab/matlab-mcp-core-server/releases/latest/download/matlab-mcp-core-server-maca64
           ```
       - For Intel processors, run:
           ```sh
@@ -102,7 +102,7 @@ Customize the behavior of the server by providing arguments in the `args` array 
 | ------------- | ------------- | ------------- |
 | matlab-root | Full path specifying which MATLAB to start. Do not include `/bin` in the path. By default, the server tries to find the first MATLAB on the system PATH. | `"--matlab-root=/home/usr/MATLAB/R2025a"` |
 | initialize-matlab-on-startup | To initialize MATLAB as soon as you start the server, set this argument to `true`. By default, MATLAB only starts when the first tool is called. | `"--initialize-matlab-on-startup=true"` |
-| initial-working-folder | Specify the folder where MATLAB starts. If you do not provide the argument, MATLAB starts in these locations: <br> <ul><li>Linux: `/home/username` </li><li> Windows: `C:\Users\username\Documents`</li><li>Mac: `/Users/username/Documents`</li></ul> | `"--initial-working-folder=C:\\Users\\name\\MyProject"` |
+| initial-working-folder | Specify the folder where MATLAB starts. If you do not specify a value, MATLAB starts at the path of your AI application's first [Root (MCP)](https://modelcontextprotocol.io/specification/2025-06-18/client/roots). If you have not defined a root, MATLAB starts in these locations: <br> <ul><li>Linux: `/home/username` </li><li> Windows: `C:\Users\username\Documents`</li><li>Mac: `/Users/username/Documents`</li></ul> | `"--initial-working-folder=C:\\Users\\name\\MyProject"` |
 | matlab-display-mode | Specify whether to show the MATLAB desktop. Use `desktop` mode (default) to show the MATLAB desktop. Use `nodesktop` mode to use MATLAB only from your AI application, without the MATLAB desktop. Note that in `nodesktop` mode, commands requiring a graphical interface (such as `edit`, `open`, `open_system`, `uifigure`, and `appdesigner`) will still open MATLAB windows on your desktop.| `"--matlab-display-mode=nodesktop"` |
 | disable-telemetry | To disable anonymized data collection, set this argument to `true`. For details, see [Data Collection](#data-collection). | `"--disable-telemetry=true"` |
 
