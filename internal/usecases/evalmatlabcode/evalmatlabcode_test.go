@@ -79,6 +79,57 @@ func TestUsecase_Execute_HappyPath(t *testing.T) {
 	assert.Equal(t, expectedResponse, response, "Response should match expected value")
 }
 
+func TestUsecase_Execute_EscapesSingleQuotesInPath(t *testing.T) {
+	// Arrange
+	mockLogger := testutils.NewInspectableLogger()
+
+	mockPathValidator := &mocks.MockPathValidator{}
+	defer mockPathValidator.AssertExpectations(t)
+
+	mockClient := &entitiesmocks.MockMATLABSessionClient{}
+	defer mockClient.AssertExpectations(t)
+
+	ctx := t.Context()
+	projectPath := filepath.Join("Users", "O'Brien", "project")
+	validatedProjectPath := projectPath
+	expectedEscapedPath := "Users" + string(filepath.Separator) + "O''Brien" + string(filepath.Separator) + "project"
+
+	evalRequest := evalmatlabcode.Args{
+		ProjectPath: projectPath,
+		Code:        "disp('Hello')",
+	}
+
+	expectedResponse := entities.EvalResponse{
+		ConsoleOutput: "Hello",
+	}
+
+	mockPathValidator.EXPECT().
+		ValidateFolderPath(projectPath).
+		Return(validatedProjectPath, nil).
+		Once()
+
+	mockClient.EXPECT().
+		Eval(ctx, mockLogger.AsMockArg(), entities.EvalRequest{
+			Code: "cd('" + expectedEscapedPath + "')",
+		}).
+		Return(entities.EvalResponse{}, nil).
+		Once()
+
+	mockClient.EXPECT().
+		Eval(ctx, mockLogger.AsMockArg(), entities.EvalRequest{Code: evalRequest.Code}).
+		Return(expectedResponse, nil).
+		Once()
+
+	usecase := evalmatlabcode.New(mockPathValidator)
+
+	// Act
+	response, err := usecase.Execute(ctx, mockLogger, mockClient, evalRequest)
+
+	// Assert
+	require.NoError(t, err, "Execute should not return an error")
+	assert.Equal(t, expectedResponse, response, "Response should match expected value")
+}
+
 func TestUsecase_Execute_EmptyProjectPath_SkipsCd(t *testing.T) {
 	// Arrange
 	mockLogger := testutils.NewInspectableLogger()

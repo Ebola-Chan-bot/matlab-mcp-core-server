@@ -6,13 +6,12 @@ import (
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/tests/functional/sdk/testbinaries"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
 	"github.com/stretchr/testify/suite"
 )
 
 // ServerWithMATLABFeatureTestSuite tests SDK MATLAB feature functionalities.
 type ServerWithMATLABFeatureTestSuite struct {
-	suite.Suite
+	SDKTestSuite
 
 	serverDetails testbinaries.ServerDetails
 }
@@ -28,12 +27,11 @@ func TestServerWithMATLABFeatureTestSuite(t *testing.T) {
 
 func (s *ServerWithMATLABFeatureTestSuite) TestSDK_MATLABFeature_HappyPath() {
 	// Arrange
-	client := mcpclient.NewClient(s.T().Context(), s.serverDetails.BinaryLocation(), nil, "--log-level=debug")
-
-	session, err := client.CreateSession(s.T().Context())
-	s.Require().NoError(err, "should create MCP session")
+	session := s.CreateSession(s.serverDetails.BinaryLocation(), nil)
 	defer func() {
-		s.Require().NoError(session.Close(), "closing session should not error")
+		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
+		s.AssertNoErrorLogs(session)
+		session.DumpLogsOnFailure(s.T())
 	}()
 
 	// Act

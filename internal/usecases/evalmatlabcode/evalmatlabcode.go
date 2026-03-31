@@ -5,9 +5,9 @@ package evalmatlabcode
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/matlabstring"
 )
 
 type Args struct {
@@ -44,7 +44,7 @@ func (u *Usecase) Execute(ctx context.Context, sessionLogger entities.Logger, cl
 		}
 
 		cdRequest := entities.EvalRequest{
-			Code: fmt.Sprintf("cd('%s')", strings.ReplaceAll(validatedPath, "'", "''")),
+			Code: fmt.Sprintf("cd('%s')", matlabstring.EscapeSingleQuotes(validatedPath)),
 		}
 		_, err = client.Eval(ctx, sessionLogger, cdRequest)
 		if err != nil {

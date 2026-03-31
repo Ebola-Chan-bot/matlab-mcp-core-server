@@ -42,10 +42,11 @@ type WorkflowTestSuite struct {
 // - run_matlab_test_file (test execution)
 func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 	ctx := s.T().Context()
-	session, dumpLogs := s.CreateMCPSession(ctx, nil)
-	defer dumpLogs(s.T())
+	session := s.CreateMCPSession(ctx, nil)
 	defer func() {
-		s.Require().NoError(session.Close(), "closing session should not error")
+		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
+		s.AssertNoErrorLogs(session)
+		session.DumpLogsOnFailure(s.T())
 	}()
 
 	// Step 1: Read coding guidelines (AI references standards before writing code)
@@ -128,10 +129,11 @@ func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 // - stop_matlab_session (clean up session)
 func (s *WorkflowTestSuite) TestParallelExperimentationWorkflow() {
 	ctx := s.T().Context()
-	mcpSession, dumpLogs := s.CreateMCPSession(ctx, nil, "--use-single-matlab-session=false")
-	defer dumpLogs(s.T())
+	mcpSession := s.CreateMCPSession(ctx, nil, "--use-single-matlab-session=false")
 	defer func() {
-		s.Require().NoError(mcpSession.Close(), "closing MCP session should not error")
+		s.NoError(mcpSession.Close(), "closing MCP session should not error") //nolint:testifylint // assert in defer to avoid FailNow
+		s.AssertNoErrorLogs(mcpSession)
+		mcpSession.DumpLogsOnFailure(s.T())
 	}()
 
 	sm := mcpSession.NewSessionManager()

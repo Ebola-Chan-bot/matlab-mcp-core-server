@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package system_test
 
@@ -30,10 +30,11 @@ func (s *CLITestSuite) TestMATLABRootFlag() {
 	env := pathcontrol.UpdateEnvEntry(os.Environ(), "PATH", newPath)
 
 	ctx := s.T().Context()
-	session, dumpLogs := s.CreateMCPSession(ctx, env, "--matlab-root="+s.matlabRoot())
-	defer dumpLogs(s.T())
+	session := s.CreateMCPSession(ctx, env, "--matlab-root="+s.matlabRoot())
 	defer func() {
-		s.Require().NoError(session.Close(), "closing session should not error")
+		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
+		s.AssertNoErrorLogs(session)
+		session.DumpLogsOnFailure(s.T())
 	}()
 
 	output, err := session.EvaluateCode(ctx, "disp('Server functional'); 2+2", s.testDataDir)

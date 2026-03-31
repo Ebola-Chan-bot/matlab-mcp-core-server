@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package testutils
 
@@ -116,7 +116,7 @@ func (il *InspectableLogger) With(key string, value interface{}) entities.Logger
 		errorLogs: il.errorLogs,
 		Fields:    newFields,
 
-		lock: new(sync.Mutex),
+		lock: il.lock,
 	}
 }
 

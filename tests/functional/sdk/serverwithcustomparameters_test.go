@@ -11,13 +11,12 @@ import (
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
 	"github.com/matlab/matlab-mcp-core-server/tests/functional/sdk/testbinaries"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
 	"github.com/stretchr/testify/suite"
 )
 
 // ServerWithCustomParametersTestSuite tests the custom parameters functionality of the SDK.
 type ServerWithCustomParametersTestSuite struct {
-	suite.Suite
+	SDKTestSuite
 
 	serverDetails testbinaries.ServerWithCustomParametersDetails
 }
@@ -37,16 +36,16 @@ func (s *ServerWithCustomParametersTestSuite) TestSDK_CustomParameter_HappyPath(
 	expectedRecordedID := s.serverDetails.CustomRecordedParamID()
 	expectedRecordedValue := "someOtherValue"
 
-	client := mcpclient.NewClient(s.T().Context(), s.serverDetails.BinaryLocation(), nil,
-		"--log-level=debug",
+	session := s.CreateSession(
+		s.serverDetails.BinaryLocation(),
+		nil,
 		"--"+s.serverDetails.CustomParamFlagName()+"="+expectedValue,
 		"--"+s.serverDetails.CustomRecordedParamFlagName()+"="+expectedRecordedValue,
 	)
-
-	session, err := client.CreateSession(s.T().Context())
-	s.Require().NoError(err, "should create MCP session")
 	defer func() {
-		s.Require().NoError(session.Close(), "closing session should not error")
+		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
+		s.AssertNoErrorLogs(session)
+		session.DumpLogsOnFailure(s.T())
 	}()
 
 	// Check for unstructured content output tool
@@ -90,12 +89,11 @@ func (s *ServerWithCustomParametersTestSuite) TestSDK_CustomParameter_Recorded_B
 	expectedRecordedValue := "someValue"
 
 	env := append(os.Environ(), s.serverDetails.CustomRecordedParamEnvVar()+"="+expectedRecordedValue)
-	client := mcpclient.NewClient(s.T().Context(), s.serverDetails.BinaryLocation(), env)
-
-	session, err := client.CreateSession(s.T().Context())
-	s.Require().NoError(err, "should create MCP session")
+	session := s.CreateSession(s.serverDetails.BinaryLocation(), env)
 	defer func() {
-		s.Require().NoError(session.Close(), "closing session should not error")
+		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
+		s.AssertNoErrorLogs(session)
+		session.DumpLogsOnFailure(s.T())
 	}()
 
 	// Check that the log features the custom parameter values

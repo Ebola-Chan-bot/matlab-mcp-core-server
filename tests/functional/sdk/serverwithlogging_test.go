@@ -5,20 +5,18 @@ package sdk_test
 import (
 	"context"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
 	"github.com/matlab/matlab-mcp-core-server/tests/functional/sdk/testbinaries"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
 	"github.com/stretchr/testify/suite"
 )
 
 // ServerWithLoggingTestSuite tests SDK logging functionalities.
 type ServerWithLoggingTestSuite struct {
-	suite.Suite
+	SDKTestSuite
 
 	serverDetails testbinaries.ServerWithLoggingDetails
 }
@@ -36,17 +34,15 @@ func (s *ServerWithLoggingTestSuite) TestSDK_Logging_DependenciesAndToolsProvide
 	// Arrange
 	logFolder, err := os.MkdirTemp("", "server_session") // Can't use s.T().Tempdir() because too long for socket path
 	s.Require().NoError(err)
-	defer s.Require().NoError(os.RemoveAll(logFolder))
-
-	client := mcpclient.NewClient(s.T().Context(), s.serverDetails.BinaryLocation(), nil,
-		"--log-level=debug",
-		"--log-folder="+logFolder,
-	)
-
-	session, err := client.CreateSession(s.T().Context())
-	s.Require().NoError(err, "should create MCP session")
 	defer func() {
-		s.Require().NoError(session.Close(), "closing session should not error")
+		s.NoError(os.RemoveAll(logFolder), "should remove log folder")
+	}()
+
+	// This suite intentionally verifies logging behavior and may emit ERROR logs.
+	session := s.CreateSession(s.serverDetails.BinaryLocation(), nil, "--log-folder="+logFolder)
+	defer func() {
+		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
+		session.DumpLogsOnFailure(s.T())
 	}()
 
 	// Act
@@ -54,13 +50,11 @@ func (s *ServerWithLoggingTestSuite) TestSDK_Logging_DependenciesAndToolsProvide
 	s.Require().NoError(err, "should call tool successfully")
 
 	// Assert
-	serverLogPattern := filepath.Join(logFolder, "server-*.log")
-
 	ctx, cancel := context.WithTimeout(s.T().Context(), 2*time.Second) // Timeout for the logs to write to disk
 	defer cancel()
 
 	_, err = retry.Retry(ctx, func() (struct{}, bool, error) {
-		logContent, err := readAllServerLogs(serverLogPattern)
+		logContent, err := session.ReadServerLogs()
 		if err != nil {
 			return struct{}{}, false, err
 		}
@@ -78,19 +72,17 @@ func (s *ServerWithLoggingTestSuite) TestSDK_Logging_ToolHandlerLogsToFile() {
 	// Arrange
 	logFolder, err := os.MkdirTemp("", "server_session") // Can't use s.T().Tempdir() because too long for socket path
 	s.Require().NoError(err)
-	defer s.Require().NoError(os.RemoveAll(logFolder))
+	defer func() {
+		s.NoError(os.RemoveAll(logFolder), "should remove log folder")
+	}()
 
 	name := "World"
 
-	client := mcpclient.NewClient(s.T().Context(), s.serverDetails.BinaryLocation(), nil,
-		"--log-level=debug",
-		"--log-folder="+logFolder,
-	)
-
-	session, err := client.CreateSession(s.T().Context())
-	s.Require().NoError(err, "should create MCP session")
+	// This suite intentionally verifies logging behavior and may emit ERROR logs.
+	session := s.CreateSession(s.serverDetails.BinaryLocation(), nil, "--log-folder="+logFolder)
 	defer func() {
-		s.Require().NoError(session.Close(), "closing session should not error")
+		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
+		session.DumpLogsOnFailure(s.T())
 	}()
 
 	// Act
@@ -101,13 +93,11 @@ func (s *ServerWithLoggingTestSuite) TestSDK_Logging_ToolHandlerLogsToFile() {
 	s.Require().NoError(err, "should call structured tool successfully")
 
 	// Assert
-	serverLogPattern := filepath.Join(logFolder, "server-*.log")
-
 	ctx, cancel := context.WithTimeout(s.T().Context(), 2*time.Second) // Timeout for the logs to write to disk
 	defer cancel()
 
 	_, err = retry.Retry(ctx, func() (struct{}, bool, error) {
-		logContent, err := readAllServerLogs(serverLogPattern)
+		logContent, err := session.ReadServerLogs()
 		if err != nil {
 			return struct{}{}, false, err
 		}
@@ -119,22 +109,4 @@ func (s *ServerWithLoggingTestSuite) TestSDK_Logging_ToolHandlerLogsToFile() {
 	}, retry.NewLinearRetryStrategy(200*time.Millisecond))
 
 	s.Require().NoError(err)
-}
-
-func readAllServerLogs(pattern string) (string, error) {
-	logFiles, err := filepath.Glob(pattern)
-	if err != nil {
-		return "", err
-	}
-
-	var combined strings.Builder
-	for _, logFile := range logFiles {
-		content, err := os.ReadFile(logFile) //nolint:gosec // G304: logFile is a controlled test path
-		if err != nil {
-			return "", err
-		}
-		combined.Write(content)
-	}
-
-	return combined.String(), nil
 }

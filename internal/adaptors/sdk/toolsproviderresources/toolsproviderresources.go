@@ -28,6 +28,12 @@ func (f *Factory[Dependencies]) New(
 	internal definition.ToolsProviderResources,
 ) publictypes.ToolsProviderResources[Dependencies] {
 	var dependencies Dependencies
+	if internal.Dependencies == nil {
+		return &toolsProviderResourcesAdaptor[Dependencies]{
+			logger:       f.loggerFactory.New(internal.Logger),
+			dependencies: dependencies,
+		}
+	}
 	castDependencies, ok := internal.Dependencies.(Dependencies)
 	if ok {
 		dependencies = castDependencies

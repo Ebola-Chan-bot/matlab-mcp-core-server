@@ -1,13 +1,13 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package runmatlabtestfile
 
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/matlabstring"
 )
 
 type Args struct {
@@ -40,7 +40,7 @@ func (u *Usecase) Execute(ctx context.Context, sessionLogger entities.Logger, cl
 	}
 
 	runCodeRequest := entities.EvalRequest{
-		Code: fmt.Sprintf("runtests('%s')", strings.ReplaceAll(validatedPath, "'", "''")),
+		Code: fmt.Sprintf("runtests('%s')", matlabstring.EscapeSingleQuotes(validatedPath)),
 	}
 
 	response, err := client.EvalWithCapture(ctx, sessionLogger, runCodeRequest)

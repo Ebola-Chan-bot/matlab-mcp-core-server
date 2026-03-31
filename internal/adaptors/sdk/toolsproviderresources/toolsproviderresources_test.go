@@ -148,6 +148,44 @@ func TestFactory_New_Dependencies_HappyPath(t *testing.T) {
 	require.Equal(t, expectedDependencies, resources.Dependencies())
 }
 
+func TestFactory_New_Dependencies_Nil(t *testing.T) {
+	// Arrange
+	mockLoggerFactory := &toolsproviderresourcesmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockInternalLogger := &entitiesmocks.MockLogger{}
+	defer mockInternalLogger.AssertExpectations(t)
+
+	mockInternalConfig := &configmocks.MockGenericConfig{}
+	defer mockInternalConfig.AssertExpectations(t)
+
+	mockMessageCatalog := &definitionmocks.MockMessageCatalog{}
+	defer mockMessageCatalog.AssertExpectations(t)
+
+	mockBaseToolLoggerFactory := &basetoolmocks.MockLoggerFactory{}
+	defer mockBaseToolLoggerFactory.AssertExpectations(t)
+
+	mockLoggerFactory.EXPECT().
+		New(mockInternalLogger).
+		Return(nil).
+		Once()
+
+	internalResources := definition.NewToolsProviderResources(
+		mockInternalLogger,
+		mockInternalConfig,
+		mockMessageCatalog,
+		nil,
+		mockBaseToolLoggerFactory,
+	)
+
+	// Act
+	resources := toolsproviderresources.NewFactory[*TestDependencies](mockLoggerFactory).New(internalResources)
+
+	// Assert
+	require.NotNil(t, resources)
+	require.Nil(t, resources.Dependencies())
+}
+
 func TestFactory_New_Dependencies_CastFailure(t *testing.T) {
 	// Arrange
 	mockLoggerFactory := &toolsproviderresourcesmocks.MockLoggerFactory{}
