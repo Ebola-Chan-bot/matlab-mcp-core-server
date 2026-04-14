@@ -94,64 +94,37 @@ func (g *GlobalMATLAB) Client(ctx context.Context, logger entities.Logger) (enti
 	g.lock.Lock()
 	defer g.lock.Unlock()
 
-	// 如果已有发现的客户端，直接返回
+	// 如果已有发现的客户端，验证其是否仍然存活
 	if g.discoveredClient != nil {
-		return g.discoveredClient, nil
+		pingResult := g.discoveredClient.Ping(ctx, logger)
+		if pingResult.IsAlive {
+			return g.discoveredClient, nil
+		}
+		logger.Warn("之前发现的 MATLAB 会话已无响应，尝试重新发现")
+		g.discoveredClient = nil
 	}
 
-	// 首次调用时尝试发现已有会话
+	// 首次调用时初始化启动配置（非 existing-session-only 模式需要）
 	g.initOnce.Do(func() {
-		// 检查是否为仅连接已有会话模式
-		existingOnly := false
-		if cfg, cfgErr := g.configFactory.Config(); cfgErr == nil {
-			existingOnly = cfg.ExistingSessionOnly()
-		}
-
-		// 先尝试发现已存在的会话
-		if connectionDetails := g.sessionDiscovery.DiscoverExistingSession(logger); connectionDetails != nil {
-			logger.With("host", connectionDetails.Host).
-				With("port", connectionDetails.Port).
-				Info("Found existing MATLAB session, attempting to connect")
-
-			client, err := g.clientFactory.New(*connectionDetails)
+		existingOnly := g.isExistingSessionOnly()
+		if !existingOnly {
+			err := g.initializeStartupConfig(ctx, logger)
 			if err != nil {
-				if existingOnly {
-					g.initError = fmt.Errorf("existing-session-only mode: found session at %s:%s but failed to create client: %w", connectionDetails.Host, connectionDetails.Port, err)
-					return
-				}
-				logger.WithError(err).Warn("Failed to create client for discovered session, will start new session")
-			} else {
-				// 验证连接是否工作
-				pingResult := client.Ping(ctx, logger)
-				if pingResult.IsAlive {
-					logger.Info("Successfully connected to existing MATLAB session")
-					// Deploy +matlab_mcp helper files for EvalWithCapture support
-					if err := g.deployHelperFiles(ctx, logger, client); err != nil {
-						logger.WithError(err).Warn("Failed to deploy helper files to existing session, EvalWithCapture may not work")
-					}
-					g.discoveredClient = client
-					return
-				}
-				if existingOnly {
-					g.initError = fmt.Errorf("existing-session-only mode: found session at %s:%s but it is not responding to ping", connectionDetails.Host, connectionDetails.Port)
-					return
-				}
-				logger.Warn("Discovered session not responding, will start new session")
+				g.initError = err
 			}
-		} else if existingOnly {
-			g.initError = fmt.Errorf("existing-session-only mode: no existing MATLAB session found. Please run 'RegisterMatlabSession' in MATLAB first to register a session for discovery")
-			return
-		}
-
-		// 没有发现的会话或连接失败，初始化启动配置
-		err := g.initializeStartupConfig(ctx, logger)
-		if err != nil {
-			g.initError = err
 		}
 	})
 
-	if g.discoveredClient != nil {
-		return g.discoveredClient, nil
+	// 尝试发现已存在的会话
+	if client, err := g.tryDiscoverExistingSession(ctx, logger); err != nil {
+		return nil, err
+	} else if client != nil {
+		return client, nil
+	}
+
+	// 没有发现可用的已有会话
+	if g.isExistingSessionOnly() {
+		return nil, fmt.Errorf("existing-session-only mode: no existing MATLAB session found. Please run 'RegisterMatlabSession' in MATLAB first to register a session for discovery")
 	}
 
 	if g.initError != nil {
@@ -159,6 +132,51 @@ func (g *GlobalMATLAB) Client(ctx context.Context, logger entities.Logger) (enti
 	}
 
 	return g.getOrCreateClient(ctx, logger)
+}
+
+// tryDiscoverExistingSession 尝试发现并连接到一个已存在的 MATLAB 会话。
+// 成功返回 (client, nil)，未找到返回 (nil, nil)，致命错误返回 (nil, err)。
+func (g *GlobalMATLAB) tryDiscoverExistingSession(ctx context.Context, logger entities.Logger) (entities.MATLABSessionClient, error) {
+	connectionDetails := g.sessionDiscovery.DiscoverExistingSession(logger)
+	if connectionDetails == nil {
+		return nil, nil
+	}
+
+	logger.With("host", connectionDetails.Host).
+		With("port", connectionDetails.Port).
+		Info("发现已有 MATLAB 会话，正在尝试连接")
+
+	client, err := g.clientFactory.New(*connectionDetails)
+	if err != nil {
+		if g.isExistingSessionOnly() {
+			return nil, fmt.Errorf("existing-session-only 模式：在 %s:%s 发现会话但创建客户端失败: %w", connectionDetails.Host, connectionDetails.Port, err)
+		}
+		logger.WithError(err).Warn("为已发现的会话创建客户端失败")
+		return nil, nil
+	}
+
+	pingResult := client.Ping(ctx, logger)
+	if !pingResult.IsAlive {
+		if g.isExistingSessionOnly() {
+			return nil, fmt.Errorf("existing-session-only 模式：在 %s:%s 发现会话但 ping 无响应", connectionDetails.Host, connectionDetails.Port)
+		}
+		logger.Warn("已发现的会话无响应")
+		return nil, nil
+	}
+
+	logger.Info("已成功连接到已有 MATLAB 会话")
+	if err := g.deployHelperFiles(ctx, logger, client); err != nil {
+		logger.WithError(err).Warn("向已有会话部署辅助文件失败，EvalWithCapture 可能无法工作")
+	}
+	g.discoveredClient = client
+	return client, nil
+}
+
+func (g *GlobalMATLAB) isExistingSessionOnly() bool {
+	if cfg, cfgErr := g.configFactory.Config(); cfgErr == nil {
+		return cfg.ExistingSessionOnly()
+	}
+	return false
 }
 
 func (g *GlobalMATLAB) getOrCreateClient(ctx context.Context, logger entities.Logger) (entities.MATLABSessionClient, error) {
