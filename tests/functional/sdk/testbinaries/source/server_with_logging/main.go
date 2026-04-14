@@ -8,6 +8,7 @@ import (
 
 	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
 	"github.com/matlab/matlab-mcp-core-server/pkg/server"
+	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
 )
 
 func main() {
@@ -19,7 +20,7 @@ func main() {
 		DependenciesProvider: func(dependenciesProviderResources server.DependenciesProviderResources) (Dependencies, i18n.Error) {
 			return DependenciesProvider(dependenciesProviderResources)
 		},
-		ToolsProvider: func(toolsProviderResources server.ToolsProviderResources[Dependencies]) []server.Tool {
+		ToolsProvider: func(toolsProviderResources server.ToolsProviderResources[Dependencies]) []tools.Tool {
 			return ToolsProvider(toolsProviderResources)
 		},
 	}

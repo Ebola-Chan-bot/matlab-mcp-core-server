@@ -5,6 +5,7 @@ package osfacade
 import (
 	"io"
 	"os"
+	"path/filepath"
 	"runtime"
 )
 
@@ -46,4 +47,9 @@ func (osw *OsFacade) Stderr() io.Writer {
 // GOOS wraps the runtime.GOOS function to retrieve the OS.
 func (osw *OsFacade) GOOS() string {
 	return runtime.GOOS
+}
+
+// IsAbs wraps filepath.IsAbs to check whether a path is absolute.
+func (osw *OsFacade) IsAbs(path string) bool {
+	return filepath.IsAbs(path)
 }

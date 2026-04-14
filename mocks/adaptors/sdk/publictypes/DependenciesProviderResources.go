@@ -127,3 +127,49 @@ func (_c *MockDependenciesProviderResources_Logger_Call) RunAndReturn(run func()
 	_c.Call.Return(run)
 	return _c
 }
+
+// Watchdog provides a mock function for the type MockDependenciesProviderResources
+func (_mock *MockDependenciesProviderResources) Watchdog() publictypes.Watchdog {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Watchdog")
+	}
+
+	var r0 publictypes.Watchdog
+	if returnFunc, ok := ret.Get(0).(func() publictypes.Watchdog); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(publictypes.Watchdog)
+		}
+	}
+	return r0
+}
+
+// MockDependenciesProviderResources_Watchdog_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Watchdog'
+type MockDependenciesProviderResources_Watchdog_Call struct {
+	*mock.Call
+}
+
+// Watchdog is a helper method to define mock.On call
+func (_e *MockDependenciesProviderResources_Expecter) Watchdog() *MockDependenciesProviderResources_Watchdog_Call {
+	return &MockDependenciesProviderResources_Watchdog_Call{Call: _e.mock.On("Watchdog")}
+}
+
+func (_c *MockDependenciesProviderResources_Watchdog_Call) Run(run func()) *MockDependenciesProviderResources_Watchdog_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockDependenciesProviderResources_Watchdog_Call) Return(watchdog publictypes.Watchdog) *MockDependenciesProviderResources_Watchdog_Call {
+	_c.Call.Return(watchdog)
+	return _c
+}
+
+func (_c *MockDependenciesProviderResources_Watchdog_Call) RunAndReturn(run func() publictypes.Watchdog) *MockDependenciesProviderResources_Watchdog_Call {
+	_c.Call.Return(run)
+	return _c
+}

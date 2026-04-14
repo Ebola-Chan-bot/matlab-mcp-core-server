@@ -38,7 +38,7 @@ func (_m *MockParser) EXPECT() *MockParser_Expecter {
 }
 
 // Parse provides a mock function for the type MockParser
-func (_mock *MockParser) Parse(args []string) ([]entities.Parameter, map[string]any, messages.Error) {
+func (_mock *MockParser) Parse(args []string) ([]entities.Parameter, map[string]any, []string, messages.Error) {
 	ret := _mock.Called(args)
 
 	if len(ret) == 0 {
@@ -47,8 +47,9 @@ func (_mock *MockParser) Parse(args []string) ([]entities.Parameter, map[string]
 
 	var r0 []entities.Parameter
 	var r1 map[string]any
-	var r2 messages.Error
-	if returnFunc, ok := ret.Get(0).(func([]string) ([]entities.Parameter, map[string]any, messages.Error)); ok {
+	var r2 []string
+	var r3 messages.Error
+	if returnFunc, ok := ret.Get(0).(func([]string) ([]entities.Parameter, map[string]any, []string, messages.Error)); ok {
 		return returnFunc(args)
 	}
 	if returnFunc, ok := ret.Get(0).(func([]string) []entities.Parameter); ok {
@@ -65,14 +66,21 @@ func (_mock *MockParser) Parse(args []string) ([]entities.Parameter, map[string]
 			r1 = ret.Get(1).(map[string]any)
 		}
 	}
-	if returnFunc, ok := ret.Get(2).(func([]string) messages.Error); ok {
+	if returnFunc, ok := ret.Get(2).(func([]string) []string); ok {
 		r2 = returnFunc(args)
 	} else {
 		if ret.Get(2) != nil {
-			r2 = ret.Get(2).(messages.Error)
+			r2 = ret.Get(2).([]string)
 		}
 	}
-	return r0, r1, r2
+	if returnFunc, ok := ret.Get(3).(func([]string) messages.Error); ok {
+		r3 = returnFunc(args)
+	} else {
+		if ret.Get(3) != nil {
+			r3 = ret.Get(3).(messages.Error)
+		}
+	}
+	return r0, r1, r2, r3
 }
 
 // MockParser_Parse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Parse'
@@ -99,12 +107,12 @@ func (_c *MockParser_Parse_Call) Run(run func(args []string)) *MockParser_Parse_
 	return _c
 }
 
-func (_c *MockParser_Parse_Call) Return(parameters []entities.Parameter, stringToV map[string]any, error messages.Error) *MockParser_Parse_Call {
-	_c.Call.Return(parameters, stringToV, error)
+func (_c *MockParser_Parse_Call) Return(parameters []entities.Parameter, stringToV map[string]any, strings []string, error messages.Error) *MockParser_Parse_Call {
+	_c.Call.Return(parameters, stringToV, strings, error)
 	return _c
 }
 
-func (_c *MockParser_Parse_Call) RunAndReturn(run func(args []string) ([]entities.Parameter, map[string]any, messages.Error)) *MockParser_Parse_Call {
+func (_c *MockParser_Parse_Call) RunAndReturn(run func(args []string) ([]entities.Parameter, map[string]any, []string, messages.Error)) *MockParser_Parse_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -80,6 +80,9 @@ func FromError(catalog LocaleSpecificCatalog, err Error) string {
 	case *StartupErrors_FailedToStartWatchdogProcess_Error:
 		msg := catalog.Get(StartupErrors_FailedToStartWatchdogProcess)
 		return msg
+	case *StartupErrors_GenericInitializeFailure_Error:
+		msg := catalog.Get(StartupErrors_GenericInitializeFailure)
+		return msg
 	case *StartupErrors_InvalidDisplayMode_Error:
 		msg := catalog.Get(StartupErrors_InvalidDisplayMode)
 		return fmt.Sprintf(
@@ -113,6 +116,16 @@ func FromError(catalog LocaleSpecificCatalog, err Error) string {
 		)
 	case *StartupErrors_ParseFailed_Error:
 		msg := catalog.Get(StartupErrors_ParseFailed)
+		return fmt.Sprintf(
+			msg,
+			e.Attr0,
+			e.Attr1,
+		)
+	case *StartupErrors_TelemetryInitializationFailed_Error:
+		msg := catalog.Get(StartupErrors_TelemetryInitializationFailed)
+		return msg
+	case *StartupErrors_WriteError_Error:
+		msg := catalog.Get(StartupErrors_WriteError)
 		return fmt.Sprintf(
 			msg,
 			e.Attr0,

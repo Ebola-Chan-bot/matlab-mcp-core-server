@@ -44,7 +44,7 @@ func TestSelector_DefaultParameters_DescriptionsResolved(t *testing.T) {
 	for key, description := range expectedDescriptions {
 		times := 1
 		if key == messages.CLIMessages_InternalUseDescription {
-			times = 2
+			times = 5
 		}
 
 		mockMessageCatalog.EXPECT().
@@ -87,7 +87,7 @@ func TestSelector_DefaultParameters_MATLABEnabled(t *testing.T) {
 	parameters := sut.DefaultParameters()
 
 	// Assert
-	assert.Len(t, parameters, 12)
+	assert.Len(t, parameters, 15)
 
 	for _, p := range parameters {
 		assert.True(t, p.GetActive(), "parameter %s should be active", p.GetID())
@@ -103,13 +103,16 @@ func TestSelector_DefaultParameters_MATLABDisabled(t *testing.T) {
 	defer mockMessageCatalog.AssertExpectations(t)
 
 	commonParameterIDs := map[string]bool{
-		"HelpMode":         true,
-		"VersionMode":      true,
-		"DisableTelemetry": true,
-		"BaseDir":          true,
-		"LogLevel":         true,
-		"WatchdogMode":     true,
-		"ServerInstanceID": true,
+		"HelpMode":                           true,
+		"VersionMode":                        true,
+		"DisableTelemetry":                   true,
+		"BaseDir":                            true,
+		"LogLevel":                           true,
+		"WatchdogMode":                       true,
+		"ServerInstanceID":                   true,
+		"TelemetryCollectorEndpoint":         true,
+		"TelemetryCollectionInterval":        true,
+		"TelemetryCollectorEndpointInsecure": true,
 	}
 
 	matlabParameterIDs := map[string]bool{
@@ -135,7 +138,7 @@ func TestSelector_DefaultParameters_MATLABDisabled(t *testing.T) {
 	parameters := sut.DefaultParameters()
 
 	// Assert
-	assert.Len(t, parameters, 12)
+	assert.Len(t, parameters, 15)
 
 	for _, p := range parameters {
 		if commonParameterIDs[p.GetID()] {

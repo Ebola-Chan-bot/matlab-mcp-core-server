@@ -25,7 +25,7 @@ type ProcessManager struct {
 	checkParentAliveInterval time.Duration
 }
 
-func New(osLayer OSLayer) *ProcessManager {
+func NewProcessManager(osLayer OSLayer) *ProcessManager {
 	return &ProcessManager{
 		osLayer: osLayer,
 

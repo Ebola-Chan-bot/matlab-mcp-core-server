@@ -24,7 +24,7 @@ type ToolsProviderResources[Dependencies any] interface {
 
 type ToolsProvider[Dependencies any] func(ToolsProviderResources[Dependencies]) []Tool
 
-type ToolCallRequest interface { //nolint:iface // Semantically different interfaces
+type ToolCallRequest interface {
 	Logger() Logger
 	Config() Config
 }

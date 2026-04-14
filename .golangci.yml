@@ -45,6 +45,8 @@ linters:
           - github.com/stretchr/testify
           - github.com/google/uuid
           - github.com/spf13/pflag
+          - go.opentelemetry.io/otel
+          - go.opentelemetry.io/collector
     depguard:
       rules:
         # Rule #1: pkg/* may only import internal/adaptors/sdk

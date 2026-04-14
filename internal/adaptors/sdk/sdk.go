@@ -16,6 +16,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/toolcallrequest"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/toolsprovider"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/toolsproviderresources"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/watchdog"
 	"github.com/matlab/matlab-mcp-core-server/internal/wire/adaptor"
 )
 
@@ -25,9 +26,11 @@ func NewServer[Dependencies any](
 	messagesFactory := messages.NewFactory()
 	loggerFactory := logger.NewFactory()
 	configFactory := config.NewFactory(messagesFactory)
+	watchdogFactory := watchdog.NewFactory()
 	dependenciesProviderResourcesFactory := dependenciesproviderresources.NewFactory(
 		loggerFactory,
 		configFactory,
+		watchdogFactory,
 	)
 	dependenciesProviderFactory := dependenciesprovider.NewFactory[Dependencies](
 		dependenciesProviderResourcesFactory,

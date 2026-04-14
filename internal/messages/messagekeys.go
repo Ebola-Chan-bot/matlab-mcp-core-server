@@ -35,6 +35,8 @@ const (
 	StartupErrors_InvalidParameterType                      messageKey = "StartupErrors_InvalidParameterType"
 	StartupErrors_MissingValue                              messageKey = "StartupErrors_MissingValue"
 	StartupErrors_ParseFailed                               messageKey = "StartupErrors_ParseFailed"
+	StartupErrors_TelemetryInitializationFailed             messageKey = "StartupErrors_TelemetryInitializationFailed"
+	StartupErrors_WriteError                                messageKey = "StartupErrors_WriteError"
 )
 
 // MessageKey is a specific type to signify message catalog keys.

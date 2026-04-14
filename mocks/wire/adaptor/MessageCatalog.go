@@ -87,6 +87,57 @@ func (_c *MockMessageCatalog_Get_Call) RunAndReturn(run func(key messages.Messag
 	return _c
 }
 
+// GetFromError provides a mock function for the type MockMessageCatalog
+func (_mock *MockMessageCatalog) GetFromError(err messages.Error) string {
+	ret := _mock.Called(err)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetFromError")
+	}
+
+	var r0 string
+	if returnFunc, ok := ret.Get(0).(func(messages.Error) string); ok {
+		r0 = returnFunc(err)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	return r0
+}
+
+// MockMessageCatalog_GetFromError_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetFromError'
+type MockMessageCatalog_GetFromError_Call struct {
+	*mock.Call
+}
+
+// GetFromError is a helper method to define mock.On call
+//   - err messages.Error
+func (_e *MockMessageCatalog_Expecter) GetFromError(err interface{}) *MockMessageCatalog_GetFromError_Call {
+	return &MockMessageCatalog_GetFromError_Call{Call: _e.mock.On("GetFromError", err)}
+}
+
+func (_c *MockMessageCatalog_GetFromError_Call) Run(run func(err messages.Error)) *MockMessageCatalog_GetFromError_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 messages.Error
+		if args[0] != nil {
+			arg0 = args[0].(messages.Error)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockMessageCatalog_GetFromError_Call) Return(s string) *MockMessageCatalog_GetFromError_Call {
+	_c.Call.Return(s)
+	return _c
+}
+
+func (_c *MockMessageCatalog_GetFromError_Call) RunAndReturn(run func(err messages.Error) string) *MockMessageCatalog_GetFromError_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetFromGeneralError provides a mock function for the type MockMessageCatalog
 func (_mock *MockMessageCatalog) GetFromGeneralError(err error) (string, bool) {
 	ret := _mock.Called(err)

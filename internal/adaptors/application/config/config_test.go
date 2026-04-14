@@ -3,8 +3,10 @@
 package config_test
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters"
@@ -16,8 +18,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func configDefaultParsedArgs() map[string]any {
-	params := []entities.Parameter{
+func defaultParameters() []entities.Parameter {
+	return []entities.Parameter{
 		defaultparameters.HelpMode(),
 		defaultparameters.VersionMode(),
 		defaultparameters.DisableTelemetry(),
@@ -30,10 +32,15 @@ func configDefaultParsedArgs() map[string]any {
 		defaultparameters.ServerInstanceID(),
 		defaultparameters.InitializeMATLABOnStartup(),
 		defaultparameters.MATLABDisplayMode(),
+		defaultparameters.TelemetryCollectorEndpoint(),
+		defaultparameters.TelemetryCollectionInterval(),
+		defaultparameters.TelemetryCollectorEndpointInsecure(),
 	}
+}
 
+func configDefaultParsedArgs() map[string]any {
 	result := make(map[string]any)
-	for _, p := range params {
+	for _, p := range defaultParameters() {
 		result[p.GetID()] = p.GetDefaultValue()
 	}
 	return result
@@ -58,6 +65,9 @@ func TestNewConfig_InvalidParameterType(t *testing.T) {
 		{name: "WatchdogMode wrong type", key: defaultparameters.WatchdogMode().GetID(), invalidValue: "false", expectedType: "bool"},
 		{name: "ServerInstanceID wrong type", key: defaultparameters.ServerInstanceID().GetID(), invalidValue: 123, expectedType: "string"},
 		{name: "MATLABDisplayMode wrong type", key: defaultparameters.MATLABDisplayMode().GetID(), invalidValue: 123, expectedType: "string"},
+		{name: "TelemetryCollectorEndpoint wrong type", key: defaultparameters.TelemetryCollectorEndpoint().GetID(), invalidValue: 123, expectedType: "string"},
+		{name: "TelemetryCollectionInterval wrong type", key: defaultparameters.TelemetryCollectionInterval().GetID(), invalidValue: "1m", expectedType: "time.Duration"},
+		{name: "TelemetryCollectorEndpointInsecure wrong type", key: defaultparameters.TelemetryCollectorEndpointInsecure().GetID(), invalidValue: "false", expectedType: "bool"},
 	}
 
 	for _, tc := range testCases {
@@ -85,7 +95,7 @@ func TestNewConfig_InvalidParameterType(t *testing.T) {
 
 			mockParser.EXPECT().
 				Parse(args[1:]).
-				Return([]entities.Parameter{}, parsedArgs, nil).
+				Return([]entities.Parameter{}, parsedArgs, []string{}, nil).
 				Once()
 
 			expectedError := messages.New_StartupErrors_InvalidParameterType_Error(tc.key, tc.expectedType)
@@ -117,6 +127,9 @@ func TestNewConfig_MissingParameter(t *testing.T) {
 		{name: "missing WatchdogMode", missingKey: defaultparameters.WatchdogMode().GetID()},
 		{name: "missing ServerInstanceID", missingKey: defaultparameters.ServerInstanceID().GetID()},
 		{name: "missing MATLABDisplayMode", missingKey: defaultparameters.MATLABDisplayMode().GetID()},
+		{name: "missing TelemetryCollectorEndpoint", missingKey: defaultparameters.TelemetryCollectorEndpoint().GetID()},
+		{name: "missing TelemetryCollectionInterval", missingKey: defaultparameters.TelemetryCollectionInterval().GetID()},
+		{name: "missing TelemetryCollectorEndpointInsecure", missingKey: defaultparameters.TelemetryCollectorEndpointInsecure().GetID()},
 	}
 
 	for _, tc := range testCases {
@@ -144,7 +157,7 @@ func TestNewConfig_MissingParameter(t *testing.T) {
 
 			mockParser.EXPECT().
 				Parse(args[1:]).
-				Return([]entities.Parameter{}, parsedArgs, nil).
+				Return([]entities.Parameter{}, parsedArgs, []string{}, nil).
 				Once()
 
 			expectedError := messages.New_StartupErrors_InvalidParameterKey_Error(tc.missingKey)
@@ -180,7 +193,7 @@ func TestNewConfig_ParseError(t *testing.T) {
 
 	mockParser.EXPECT().
 		Parse(args[1:]).
-		Return(nil, nil, messages.AnError).
+		Return(nil, nil, nil, messages.AnError).
 		Once()
 
 	// Act
@@ -215,7 +228,7 @@ func TestNewConfig_InvalidLogLevel(t *testing.T) {
 
 	mockParser.EXPECT().
 		Parse(args[1:]).
-		Return([]entities.Parameter{}, parsedArgs, nil).
+		Return([]entities.Parameter{}, parsedArgs, []string{}, nil).
 		Once()
 
 	expectedError := messages.New_StartupErrors_InvalidLogLevel_Error("invalid-level")
@@ -251,7 +264,7 @@ func TestConfig_Version_HappyPath(t *testing.T) {
 
 	mockParser.EXPECT().
 		Parse(args[1:]).
-		Return([]entities.Parameter{}, configDefaultParsedArgs(), nil).
+		Return([]entities.Parameter{}, configDefaultParsedArgs(), []string{}, nil).
 		Once()
 
 	mockBuildInfo.EXPECT().
@@ -267,6 +280,41 @@ func TestConfig_Version_HappyPath(t *testing.T) {
 
 	// Assert
 	require.Equal(t, expectedVersion, version)
+}
+
+func TestConfig_SpecifiedParameters_HappyPath(t *testing.T) {
+	// Arrange
+	mockOSLayer := &configmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockParser := &configmocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
+
+	programName := "testprocess"
+	args := []string{programName}
+	expectedSpecifiedParameters := []string{"DisableTelemetry", "LogLevel"}
+
+	mockOSLayer.EXPECT().
+		Args().
+		Return(args).
+		Once()
+
+	mockParser.EXPECT().
+		Parse(args[1:]).
+		Return(defaultParameters(), configDefaultParsedArgs(), expectedSpecifiedParameters, nil).
+		Once()
+
+	// Act
+	cfg, err := config.NewConfig(mockOSLayer, mockParser, mockBuildInfo)
+	require.NoError(t, err)
+
+	result := cfg.SpecifiedParameters()
+
+	// Assert
+	require.Equal(t, expectedSpecifiedParameters, result)
 }
 
 func TestConfig_InitializeMATLABOnStartup_DisabledWhenNotSingleSession(t *testing.T) {
@@ -294,7 +342,7 @@ func TestConfig_InitializeMATLABOnStartup_DisabledWhenNotSingleSession(t *testin
 
 	mockParser.EXPECT().
 		Parse(args[1:]).
-		Return([]entities.Parameter{}, parsedArgs, nil).
+		Return([]entities.Parameter{}, parsedArgs, []string{}, nil).
 		Once()
 
 	// Act
@@ -303,6 +351,55 @@ func TestConfig_InitializeMATLABOnStartup_DisabledWhenNotSingleSession(t *testin
 	// Assert
 	require.NoError(t, err)
 	assert.False(t, cfg.InitializeMATLABOnStartup(), "InitializeMATLABOnStartup should be false when UseSingleMATLABSession is false")
+}
+
+func TestNewConfig_TelemetryCollectionInterval_FallsBackToDefaultWhenNotPositive(t *testing.T) {
+	testCases := []struct {
+		name     string
+		interval time.Duration
+	}{
+		{name: "zero interval", interval: 0},
+		{name: "negative interval", interval: -time.Minute},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Arrange
+			mockOSLayer := &configmocks.MockOSLayer{}
+			defer mockOSLayer.AssertExpectations(t)
+
+			mockParser := &configmocks.MockParser{}
+			defer mockParser.AssertExpectations(t)
+
+			mockBuildInfo := &configmocks.MockBuildInfo{}
+			defer mockBuildInfo.AssertExpectations(t)
+
+			programName := "testprocess"
+			args := []string{programName}
+
+			parsedArgs := configDefaultParsedArgs()
+			parsedArgs[defaultparameters.TelemetryCollectionInterval().GetID()] = tc.interval
+
+			expectedInterval := defaultparameters.TelemetryCollectionInterval().GetTypedDefaultValue()
+
+			mockOSLayer.EXPECT().
+				Args().
+				Return(args).
+				Once()
+
+			mockParser.EXPECT().
+				Parse(args[1:]).
+				Return([]entities.Parameter{}, parsedArgs, []string{}, nil).
+				Once()
+
+			// Act
+			cfg, err := config.NewConfig(mockOSLayer, mockParser, mockBuildInfo)
+
+			// Assert
+			require.NoError(t, err)
+			assert.Equal(t, expectedInterval, cfg.TelemetryCollectionInterval())
+		})
+	}
 }
 
 func TestConfig_RecordToLogger_HappyPath(t *testing.T) {
@@ -352,7 +449,7 @@ func TestConfig_RecordToLogger_HappyPath(t *testing.T) {
 
 	mockParser.EXPECT().
 		Parse(args[1:]).
-		Return(parameters, parsedArgs, nil)
+		Return(parameters, parsedArgs, []string{}, nil)
 
 	mockOSLayer.EXPECT().
 		Args().
@@ -378,5 +475,73 @@ func TestConfig_RecordToLogger_HappyPath(t *testing.T) {
 		actualValue, exists := fields[expectedField]
 		require.True(t, exists, "%s field not found in log", expectedField)
 		assert.Equal(t, expectedValue, actualValue, "%s field has incorrect value", expectedField)
+	}
+}
+
+func TestConfig_AsPIISafeJSONString_HappyPath(t *testing.T) {
+	// Arrange
+	mockOSLayer := &configmocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockParser := &configmocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	mockBuildInfo := &configmocks.MockBuildInfo{}
+	defer mockBuildInfo.AssertExpectations(t)
+
+	programName := "testprocess"
+	args := []string{programName}
+
+	parameters := defaultParameters()
+	parsedArgs := configDefaultParsedArgs()
+
+	mockOSLayer.EXPECT().
+		Args().
+		Return(args).
+		Once()
+
+	mockParser.EXPECT().
+		Parse(args[1:]).
+		Return(parameters, parsedArgs, []string{}, nil).
+		Once()
+
+	// Act
+	cfg, err := config.NewConfig(mockOSLayer, mockParser, mockBuildInfo)
+	require.NoError(t, err)
+
+	result := cfg.AsPIISafeJSONString()
+
+	// Assert
+	var parsed map[string]any
+	require.NoError(t, json.Unmarshal([]byte(result), &parsed))
+
+	piiSafeParams := []entities.Parameter{
+		defaultparameters.HelpMode(),
+		defaultparameters.VersionMode(),
+		defaultparameters.DisableTelemetry(),
+		defaultparameters.UseSingleMATLABSession(),
+		defaultparameters.LogLevel(),
+		defaultparameters.InitializeMATLABOnStartup(),
+		defaultparameters.MATLABDisplayMode(),
+		defaultparameters.WatchdogMode(),
+		defaultparameters.TelemetryCollectionInterval(),
+		defaultparameters.TelemetryCollectorEndpointInsecure(),
+	}
+	for _, param := range piiSafeParams {
+		var expected any
+		raw, _ := json.Marshal(parsedArgs[param.GetID()])
+		_ = json.Unmarshal(raw, &expected)
+		assert.Equal(t, expected, parsed[param.GetID()], "%s should show actual value", param.GetID())
+	}
+
+	redactedParams := []entities.Parameter{
+		defaultparameters.PreferredLocalMATLABRoot(),
+		defaultparameters.PreferredMATLABStartingDirectory(),
+		defaultparameters.BaseDir(),
+		defaultparameters.ServerInstanceID(),
+		defaultparameters.TelemetryCollectorEndpoint(),
+	}
+	for _, param := range redactedParams {
+		assert.Equal(t, config.RedactedValue, parsed[param.GetID()], "%s should be redacted", param.GetID())
 	}
 }

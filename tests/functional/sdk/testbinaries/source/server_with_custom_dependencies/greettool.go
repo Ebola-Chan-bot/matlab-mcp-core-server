@@ -6,7 +6,6 @@ import (
 	"context"
 
 	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
-	"github.com/matlab/matlab-mcp-core-server/pkg/server"
 	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
 )
 
@@ -18,8 +17,8 @@ type DataServiceForTool interface {
 	GetData(name string) string
 }
 
-func NewGreetTool(dataService DataServiceForTool) server.Tool {
-	return server.NewToolWithUnstructuredContentOutput(
+func NewGreetTool(dataService DataServiceForTool) tools.Tool {
+	return tools.NewToolWithUnstructuredContentOutput(
 		tools.NewDefinition(
 			"greet",
 			"Greet",

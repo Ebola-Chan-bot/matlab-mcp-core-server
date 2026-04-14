@@ -252,6 +252,22 @@ func New_StartupErrors_FailedToStartWatchdogProcess_Error() *StartupErrors_Faile
 	return &StartupErrors_FailedToStartWatchdogProcess_Error{}
 }
 
+// StartupErrors_GenericInitializeFailure_Error defines an error corresponding to the "StartupErrors_GenericInitializeFailure" message catalog message
+type StartupErrors_GenericInitializeFailure_Error struct {
+}
+
+// Error makes StartupErrors_GenericInitializeFailure_Error satisfy the error interface.
+func (e *StartupErrors_GenericInitializeFailure_Error) Error() string {
+	return "StartupErrors_GenericInitializeFailure_Error"
+}
+
+func (*StartupErrors_GenericInitializeFailure_Error) marker() {}
+
+// New_StartupErrors_GenericInitializeFailure_Error makes a new StartupErrors_GenericInitializeFailure_Error error.
+func New_StartupErrors_GenericInitializeFailure_Error() *StartupErrors_GenericInitializeFailure_Error {
+	return &StartupErrors_GenericInitializeFailure_Error{}
+}
+
 // StartupErrors_InvalidDisplayMode_Error defines an error corresponding to the "StartupErrors_InvalidDisplayMode" message catalog message
 type StartupErrors_InvalidDisplayMode_Error struct {
 	Attr0 string
@@ -379,6 +395,46 @@ func New_StartupErrors_ParseFailed_Error(
 	attr1 string,
 ) *StartupErrors_ParseFailed_Error {
 	return &StartupErrors_ParseFailed_Error{
+		Attr0: attr0,
+		Attr1: attr1,
+	}
+}
+
+// StartupErrors_TelemetryInitializationFailed_Error defines an error corresponding to the "StartupErrors_TelemetryInitializationFailed" message catalog message
+type StartupErrors_TelemetryInitializationFailed_Error struct {
+}
+
+// Error makes StartupErrors_TelemetryInitializationFailed_Error satisfy the error interface.
+func (e *StartupErrors_TelemetryInitializationFailed_Error) Error() string {
+	return "StartupErrors_TelemetryInitializationFailed_Error"
+}
+
+func (*StartupErrors_TelemetryInitializationFailed_Error) marker() {}
+
+// New_StartupErrors_TelemetryInitializationFailed_Error makes a new StartupErrors_TelemetryInitializationFailed_Error error.
+func New_StartupErrors_TelemetryInitializationFailed_Error() *StartupErrors_TelemetryInitializationFailed_Error {
+	return &StartupErrors_TelemetryInitializationFailed_Error{}
+}
+
+// StartupErrors_WriteError_Error defines an error corresponding to the "StartupErrors_WriteError" message catalog message
+type StartupErrors_WriteError_Error struct {
+	Attr0 string
+	Attr1 string
+}
+
+// Error makes StartupErrors_WriteError_Error satisfy the error interface.
+func (e *StartupErrors_WriteError_Error) Error() string {
+	return "StartupErrors_WriteError_Error"
+}
+
+func (*StartupErrors_WriteError_Error) marker() {}
+
+// New_StartupErrors_WriteError_Error makes a new StartupErrors_WriteError_Error error.
+func New_StartupErrors_WriteError_Error(
+	attr0 string,
+	attr1 string,
+) *StartupErrors_WriteError_Error {
+	return &StartupErrors_WriteError_Error{
 		Attr0: attr0,
 		Attr1: attr1,
 	}

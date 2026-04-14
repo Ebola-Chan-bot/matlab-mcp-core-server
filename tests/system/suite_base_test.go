@@ -155,14 +155,14 @@ func (s *SystemTestSuite) SetupTest() {
 //
 // Usage:
 //
-//	session := s.CreateMCPSession(ctx, nil)
+//	session := s.CreateMCPSession(ctx, nil, nil)
 //	defer func() {
 //		s.NoError(session.Close()) // assert in defer to avoid short-circuiting log dump
 //		session.DumpLogsOnFailure(s.T())
 //	}()
 //
 // If env is nil, the suite's defaultEnv is used.
-func (s *SystemTestSuite) CreateMCPSession(ctx context.Context, env []string, args ...string) *SystemSession {
+func (s *SystemTestSuite) CreateMCPSession(ctx context.Context, env []string, sessionOpts []mcpclient.CreateSessionOption, args ...string) *SystemSession {
 	if env == nil {
 		env = s.defaultEnv
 	}
@@ -200,7 +200,7 @@ func (s *SystemTestSuite) CreateMCPSession(ctx context.Context, env []string, ar
 	args = append(defaults, args...)
 
 	client := mcpclient.NewClient(ctx, s.mcpServerPath, env, args...)
-	mcpSession, err := client.CreateSession(ctx)
+	mcpSession, err := client.CreateSession(ctx, sessionOpts...)
 	s.Require().NoError(err, "should create MCP session")
 
 	return &SystemSession{

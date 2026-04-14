@@ -15,6 +15,7 @@ type Parameter[ValueType supportedParameterValueType] struct {
 	DefaultValue ValueType
 
 	RecordToLog bool
+	PIISafe     bool
 }
 
 func (p Parameter[ValueType]) GetID() string {
@@ -48,4 +49,8 @@ func (p Parameter[ValueType]) GetActive() bool {
 
 func (p Parameter[ValueType]) GetRecordToLog() bool {
 	return p.RecordToLog
+}
+
+func (p Parameter[ValueType]) GetPIISafe() bool {
+	return p.PIISafe
 }

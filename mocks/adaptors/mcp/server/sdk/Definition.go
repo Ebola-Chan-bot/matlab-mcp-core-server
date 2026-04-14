@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -33,6 +34,50 @@ type MockDefinition_Expecter struct {
 
 func (_m *MockDefinition) EXPECT() *MockDefinition_Expecter {
 	return &MockDefinition_Expecter{mock: &_m.Mock}
+}
+
+// Features provides a mock function for the type MockDefinition
+func (_mock *MockDefinition) Features() definition.Features {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Features")
+	}
+
+	var r0 definition.Features
+	if returnFunc, ok := ret.Get(0).(func() definition.Features); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(definition.Features)
+	}
+	return r0
+}
+
+// MockDefinition_Features_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Features'
+type MockDefinition_Features_Call struct {
+	*mock.Call
+}
+
+// Features is a helper method to define mock.On call
+func (_e *MockDefinition_Expecter) Features() *MockDefinition_Features_Call {
+	return &MockDefinition_Features_Call{Call: _e.mock.On("Features")}
+}
+
+func (_c *MockDefinition_Features_Call) Run(run func()) *MockDefinition_Features_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockDefinition_Features_Call) Return(features definition.Features) *MockDefinition_Features_Call {
+	_c.Call.Return(features)
+	return _c
+}
+
+func (_c *MockDefinition_Features_Call) RunAndReturn(run func() definition.Features) *MockDefinition_Features_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Instructions provides a mock function for the type MockDefinition

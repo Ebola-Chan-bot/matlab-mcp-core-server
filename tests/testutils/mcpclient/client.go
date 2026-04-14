@@ -57,8 +57,24 @@ func GetMCPClientImplementation() *mcp.Implementation {
 	}
 }
 
-// NewClient creates a new MCP client
+// NewClient creates a new MCP client with roots capability enabled.
 func NewClient(ctx context.Context, serverPath string, env []string, args ...string) *MCPClient {
+	return newClient(ctx, serverPath, env, &mcp.ClientOptions{
+		Capabilities: &mcp.ClientCapabilities{
+			RootsV2: &mcp.RootCapabilities{ListChanged: true},
+		},
+	}, args...)
+}
+
+// NewClientWithoutRootsCapability creates a new MCP client that does not
+// advertise roots capability. The server will not request roots from this client.
+func NewClientWithoutRootsCapability(ctx context.Context, serverPath string, env []string, args ...string) *MCPClient {
+	return newClient(ctx, serverPath, env, &mcp.ClientOptions{
+		Capabilities: &mcp.ClientCapabilities{},
+	}, args...)
+}
+
+func newClient(ctx context.Context, serverPath string, env []string, clientOpts *mcp.ClientOptions, args ...string) *MCPClient {
 	cmd := exec.CommandContext(ctx, serverPath, args...)
 	stderr := &syncBuffer{}
 	cmd.Stderr = stderr
@@ -71,7 +87,7 @@ func NewClient(ctx context.Context, serverPath string, env []string, args ...str
 		Command:           cmd,
 		TerminateDuration: 3 * time.Minute,
 	}
-	client := mcp.NewClient(GetMCPClientImplementation(), nil)
+	client := mcp.NewClient(GetMCPClientImplementation(), clientOpts)
 
 	return &MCPClient{
 		client:    client,
@@ -80,7 +96,27 @@ func NewClient(ctx context.Context, serverPath string, env []string, args ...str
 	}
 }
 
-func (c *MCPClient) CreateSession(ctx context.Context) (*MCPClientSession, error) {
+// CreateSessionOption configures the client before connecting to the server.
+type CreateSessionOption func(*MCPClient)
+
+// WithRoots returns a CreateSessionOption that adds roots to the client before
+// the MCP handshake. This ensures the server receives roots during initialization.
+func WithRoots(roots ...*mcp.Root) CreateSessionOption {
+	return func(c *MCPClient) {
+		c.client.AddRoots(roots...)
+	}
+}
+
+// AddRoots adds roots to the MCP client. Roots can be added before or after
+// creating a session. If a session is already connected, the server is notified.
+func (c *MCPClient) AddRoots(roots ...*mcp.Root) {
+	c.client.AddRoots(roots...)
+}
+
+func (c *MCPClient) CreateSession(ctx context.Context, opts ...CreateSessionOption) (*MCPClientSession, error) {
+	for _, opt := range opts {
+		opt(c)
+	}
 	session, err := c.client.Connect(ctx, c.transport, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create MCP client session: %w", err)

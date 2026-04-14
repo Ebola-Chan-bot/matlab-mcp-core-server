@@ -4,6 +4,7 @@ package parser
 
 import (
 	"errors"
+	"time"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/spf13/pflag"
@@ -20,6 +21,8 @@ func (p *Parser) setupFlags() {
 			p.flagSet.Bool(flagName, defaultValue, parameter.GetDescription())
 		case string:
 			p.flagSet.String(flagName, defaultValue, parameter.GetDescription())
+		case time.Duration:
+			p.flagSet.Duration(flagName, defaultValue, parameter.GetDescription())
 		}
 		if parameter.GetHiddenFlag() {
 			_ = p.flagSet.MarkHidden(flagName) // Logically impossible to hit NotExistError
@@ -27,7 +30,7 @@ func (p *Parser) setupFlags() {
 	}
 }
 
-func (p *Parser) parseFlags(args []string, specifiedArgs map[string]any) messages.Error {
+func (p *Parser) parseFlags(args []string, specifiedArgs map[string]any, specifiedParameters map[string]struct{}) messages.Error {
 	err := p.flagSet.Parse(args)
 	if err != nil {
 		return p.convertToUserFacingError(err)
@@ -46,6 +49,8 @@ func (p *Parser) parseFlags(args []string, specifiedArgs map[string]any) message
 			val, err = p.flagSet.GetBool(f.Name)
 		case string:
 			val, err = p.flagSet.GetString(f.Name)
+		case time.Duration:
+			val, err = p.flagSet.GetDuration(f.Name)
 		default:
 			// If you hit this error, it means this switch is not implementing a supported type in `pkg/config`
 			messagesErr = messages.New_StartupErrors_ParseFailed_Error("\n", internalErrorText)
@@ -58,6 +63,7 @@ func (p *Parser) parseFlags(args []string, specifiedArgs map[string]any) message
 		}
 
 		specifiedArgs[parameter.GetID()] = val
+		specifiedParameters[parameter.GetID()] = struct{}{}
 	})
 
 	return messagesErr

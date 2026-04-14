@@ -37,11 +37,14 @@ func (s *Selector) DefaultParameters() []entities.Parameter {
 	parameterDefs := []parameter.ParameterWithDescriptionFromMessageCatalog{
 		defaultparameters.HelpMode(),
 		defaultparameters.VersionMode(),
-		defaultparameters.DisableTelemetry(),
 		defaultparameters.BaseDir(),
 		defaultparameters.LogLevel(),
 		defaultparameters.WatchdogMode(),
 		defaultparameters.ServerInstanceID(),
+		defaultparameters.DisableTelemetry(),
+		defaultparameters.TelemetryCollectorEndpoint(),
+		defaultparameters.TelemetryCollectionInterval(),
+		defaultparameters.TelemetryCollectorEndpointInsecure(),
 	}
 
 	matlabParameters := []parameter.ParameterWithDescriptionFromMessageCatalog{

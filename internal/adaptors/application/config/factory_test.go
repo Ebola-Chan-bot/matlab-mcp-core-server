@@ -52,7 +52,7 @@ func TestFactory_Config_HappyPath(t *testing.T) {
 
 	mockParser.EXPECT().
 		Parse(args[1:]).
-		Return([]entities.Parameter{}, configDefaultParsedArgs(), nil).
+		Return([]entities.Parameter{}, configDefaultParsedArgs(), []string{}, nil).
 		Once()
 
 	factory := config.NewFactory(mockParser, mockOSLayer, mockBuildInfo)
@@ -86,7 +86,7 @@ func TestFactory_Config_IsSingleton(t *testing.T) {
 
 	mockParser.EXPECT().
 		Parse(args[1:]).
-		Return([]entities.Parameter{}, configDefaultParsedArgs(), nil).
+		Return([]entities.Parameter{}, configDefaultParsedArgs(), []string{}, nil).
 		Once()
 
 	factory := config.NewFactory(mockParser, mockOSLayer, mockBuildInfo)
@@ -122,7 +122,7 @@ func TestFactory_Config_SingletonPreservesError(t *testing.T) {
 
 	mockParser.EXPECT().
 		Parse(args[1:]).
-		Return(nil, nil, messages.AnError).
+		Return(nil, nil, nil, messages.AnError).
 		Once()
 
 	factory := config.NewFactory(mockParser, mockOSLayer, mockBuildInfo)

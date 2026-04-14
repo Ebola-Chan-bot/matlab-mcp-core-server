@@ -7,6 +7,7 @@ package mocks
 import (
 	"context"
 
+	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -38,18 +39,20 @@ func (_m *MockModeSelector) EXPECT() *MockModeSelector_Expecter {
 }
 
 // StartAndWaitForCompletion provides a mock function for the type MockModeSelector
-func (_mock *MockModeSelector) StartAndWaitForCompletion(ctx context.Context) error {
+func (_mock *MockModeSelector) StartAndWaitForCompletion(ctx context.Context) messages.Error {
 	ret := _mock.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartAndWaitForCompletion")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context) error); ok {
+	var r0 messages.Error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) messages.Error); ok {
 		r0 = returnFunc(ctx)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(messages.Error)
+		}
 	}
 	return r0
 }
@@ -78,12 +81,12 @@ func (_c *MockModeSelector_StartAndWaitForCompletion_Call) Run(run func(ctx cont
 	return _c
 }
 
-func (_c *MockModeSelector_StartAndWaitForCompletion_Call) Return(err error) *MockModeSelector_StartAndWaitForCompletion_Call {
-	_c.Call.Return(err)
+func (_c *MockModeSelector_StartAndWaitForCompletion_Call) Return(error messages.Error) *MockModeSelector_StartAndWaitForCompletion_Call {
+	_c.Call.Return(error)
 	return _c
 }
 
-func (_c *MockModeSelector_StartAndWaitForCompletion_Call) RunAndReturn(run func(ctx context.Context) error) *MockModeSelector_StartAndWaitForCompletion_Call {
+func (_c *MockModeSelector_StartAndWaitForCompletion_Call) RunAndReturn(run func(ctx context.Context) messages.Error) *MockModeSelector_StartAndWaitForCompletion_Call {
 	_c.Call.Return(run)
 	return _c
 }

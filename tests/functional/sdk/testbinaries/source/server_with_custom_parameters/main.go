@@ -9,6 +9,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/pkg/config"
 	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
 	"github.com/matlab/matlab-mcp-core-server/pkg/server"
+	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
 )
 
 func main() {
@@ -39,8 +40,8 @@ func main() {
 			return nil, nil
 		},
 
-		ToolsProvider: func(_ server.ToolsProviderResources[any]) []server.Tool {
-			return []server.Tool{
+		ToolsProvider: func(_ server.ToolsProviderResources[any]) []tools.Tool {
+			return []tools.Tool{
 				NewGreetTool(),
 				NewGreetStructuredTool(),
 			}

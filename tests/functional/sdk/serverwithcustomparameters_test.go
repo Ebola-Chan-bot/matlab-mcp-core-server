@@ -39,6 +39,7 @@ func (s *ServerWithCustomParametersTestSuite) TestSDK_CustomParameter_HappyPath(
 	session := s.CreateSession(
 		s.serverDetails.BinaryLocation(),
 		nil,
+		nil,
 		"--"+s.serverDetails.CustomParamFlagName()+"="+expectedValue,
 		"--"+s.serverDetails.CustomRecordedParamFlagName()+"="+expectedRecordedValue,
 	)
@@ -89,7 +90,7 @@ func (s *ServerWithCustomParametersTestSuite) TestSDK_CustomParameter_Recorded_B
 	expectedRecordedValue := "someValue"
 
 	env := append(os.Environ(), s.serverDetails.CustomRecordedParamEnvVar()+"="+expectedRecordedValue)
-	session := s.CreateSession(s.serverDetails.BinaryLocation(), env)
+	session := s.CreateSession(s.serverDetails.BinaryLocation(), env, nil)
 	defer func() {
 		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
 		s.AssertNoErrorLogs(session)

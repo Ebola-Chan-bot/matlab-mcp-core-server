@@ -7,7 +7,6 @@ import (
 
 	"github.com/matlab/matlab-mcp-core-server/pkg/config"
 	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
-	"github.com/matlab/matlab-mcp-core-server/pkg/server"
 	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
 )
 
@@ -20,8 +19,8 @@ type GreetStructuredToolOutput struct {
 	ParameterValue string `json:"configValue"`
 }
 
-func NewGreetStructuredTool() server.Tool {
-	return server.NewToolWithStructuredContentOutput(
+func NewGreetStructuredTool() tools.Tool {
+	return tools.NewToolWithStructuredContentOutput(
 		tools.NewDefinition(
 			"greet-structured",
 			"Greet (Structured Content Output)",

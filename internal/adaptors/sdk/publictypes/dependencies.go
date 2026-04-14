@@ -2,9 +2,10 @@
 
 package publictypes
 
-type DependenciesProviderResources interface { //nolint:iface // Semantically different interfaces
+type DependenciesProviderResources interface {
 	Logger() Logger
 	Config() Config
+	Watchdog() Watchdog
 }
 
 type DependenciesProvider[Dependencies any] func(DependenciesProviderResources) (Dependencies, Error)

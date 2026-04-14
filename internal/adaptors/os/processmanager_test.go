@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNew_HappyPath(t *testing.T) {
+func TestNewProcessManager_HappyPath(t *testing.T) {
 	// Arrange
 	mockOSLayer := &osmocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
@@ -26,7 +26,7 @@ func TestNew_HappyPath(t *testing.T) {
 		Once()
 
 	// Act
-	pm := osadaptor.New(mockOSLayer)
+	pm := osadaptor.NewProcessManager(mockOSLayer)
 
 	// Assert
 	assert.NotNil(t, pm, "ProcessManager instance should not be nil")
@@ -59,7 +59,7 @@ func TestProcessManager_FindProcess_Unix_HappyPath(t *testing.T) {
 				Return(nil).
 				Once()
 
-			pm := osadaptor.New(mockOSLayer)
+			pm := osadaptor.NewProcessManager(mockOSLayer)
 
 			// Act
 			result := pm.FindProcess(processPid)
@@ -90,7 +90,7 @@ func TestProcessManager_FindProcess_Windows_HappyPath(t *testing.T) {
 		Return(mockProcess, nil).
 		Once()
 
-	pm := osadaptor.New(mockOSLayer)
+	pm := osadaptor.NewProcessManager(mockOSLayer)
 
 	// Act
 	result := pm.FindProcess(processPid)
@@ -117,7 +117,7 @@ func TestProcessManager_FindProcess_OSLayerFindProcessError(t *testing.T) {
 		Return(nil, expectedError).
 		Once()
 
-	pm := osadaptor.New(mockOSLayer)
+	pm := osadaptor.NewProcessManager(mockOSLayer)
 
 	// Act
 	result := pm.FindProcess(processPid)
@@ -154,7 +154,7 @@ func TestProcessManager_FindProcess_Unix_ProcessSignalError(t *testing.T) {
 				Return(signalError).
 				Once()
 
-			pm := osadaptor.New(mockOSLayer)
+			pm := osadaptor.NewProcessManager(mockOSLayer)
 
 			// Act
 			result := pm.FindProcess(processPid)
@@ -197,7 +197,7 @@ func TestProcessManager_WaitForProcessToComplete_Unix_HappyPath(t *testing.T) {
 				Return(fmt.Errorf("process not found")).
 				Once()
 
-			pm := osadaptor.New(mockOSLayer)
+			pm := osadaptor.NewProcessManager(mockOSLayer)
 
 			tickInterval := 1 * time.Millisecond
 			pm.SetCheckParentAliveInterval(tickInterval)
@@ -242,7 +242,7 @@ func TestProcessManager_WaitForProcessToComplete_Windows_HappyPath(t *testing.T)
 		}).
 		Once()
 
-	pm := osadaptor.New(mockOSLayer)
+	pm := osadaptor.NewProcessManager(mockOSLayer)
 
 	// Act
 	startTime := time.Now()
@@ -263,7 +263,7 @@ func TestProcessManager_InterruptSignalChan_ReturnsChannel(t *testing.T) {
 		Return("linux").
 		Once()
 
-	pm := osadaptor.New(mockOSLayer)
+	pm := osadaptor.NewProcessManager(mockOSLayer)
 
 	// Act
 	signalChan := pm.InterruptSignalChan()

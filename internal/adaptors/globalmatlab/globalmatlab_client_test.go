@@ -60,7 +60,7 @@ func TestGlobalMATLAB_Client_HappyPath(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -141,7 +141,7 @@ func TestGlobalMATLAB_Client_StartingDirectorySet(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -222,7 +222,7 @@ func TestGlobalMATLAB_Client_ShowMATLABDesktopFalse(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -340,7 +340,7 @@ func TestGlobalMATLAB_Client_MATLABStartingDirSelectionError(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return("", assert.AnError).
 		Once()
 
@@ -419,7 +419,7 @@ func TestGlobalMATLAB_Client_StartMATLABSessionError(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -493,7 +493,7 @@ func TestGlobalMATLAB_Client_GetMATLABSessionClientError(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -598,7 +598,7 @@ func TestGlobalMATLAB_Client_GetMATLABSessionClientError_RetrySucceeds(t *testin
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -743,7 +743,7 @@ func TestGlobalMATLAB_Client_ReturnsMATLABStartupCachedErrorOnSubsequentClientCa
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -832,7 +832,7 @@ func TestGlobalMATLAB_Client_ConcurrentCallsWaitForCompletion(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -945,7 +945,7 @@ func TestGlobalMATLAB_Client_RestartOnGetClientFailure(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -1059,7 +1059,7 @@ func TestGlobalMATLAB_Client_DoesNotErrorIfStopSessionError(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -1173,7 +1173,7 @@ func TestGlobalMATLAB_Client_RestartFailure_OnExistingSession(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 
@@ -1268,7 +1268,7 @@ func TestGlobalMATLAB_Client_ConfigError(t *testing.T) {
 		Once()
 
 	mockMATLABStartingDirSelector.EXPECT().
-		SelectMatlabStartingDir().
+		SelectMatlabStartingDir(mockLogger.AsMockArg()).
 		Return(expectedMATLABStartingDir, nil).
 		Once()
 

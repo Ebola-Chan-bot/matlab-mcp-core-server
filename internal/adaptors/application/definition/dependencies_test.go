@@ -22,11 +22,20 @@ func TestNewDependenciesProviderResources_HappyPath(t *testing.T) {
 	mockMessageCatalog := &definitionmocks.MockMessageCatalog{}
 	defer mockMessageCatalog.AssertExpectations(t)
 
+	mockWatchdog := &definitionmocks.MockWatchdog{}
+	defer mockWatchdog.AssertExpectations(t)
+
 	// Act
-	result := definition.NewDependenciesProviderResources(mockLogger, mockConfig, mockMessageCatalog)
+	result := definition.NewDependenciesProviderResources(
+		mockLogger,
+		mockConfig,
+		mockMessageCatalog,
+		mockWatchdog,
+	)
 
 	// Assert
 	require.Equal(t, mockLogger, result.Logger)
 	require.Equal(t, mockConfig, result.Config)
 	require.Equal(t, mockMessageCatalog, result.MessageCatalog)
+	require.Equal(t, mockWatchdog, result.Watchdog)
 }

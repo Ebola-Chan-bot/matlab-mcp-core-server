@@ -4,13 +4,14 @@ package config
 
 import (
 	"sync"
+	"time"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
 type Parser interface {
-	Parse(args []string) ([]entities.Parameter, map[string]any, messages.Error)
+	Parse(args []string) ([]entities.Parameter, map[string]any, []string, messages.Error)
 }
 
 type OSLayer interface {
@@ -42,6 +43,14 @@ type Config interface {
 	PreferredMATLABStartingDirectory() string
 	ShouldShowMATLABDesktop() bool
 	ExistingSessionOnly() bool
+
+	// Telemetry
+	DisableTelemetry() bool
+	TelemetryCollectorEndpoint() string
+	TelemetryCollectionInterval() time.Duration
+	TelemetryCollectorEndpointInsecure() bool
+	SpecifiedParameters() []string
+	AsPIISafeJSONString() string
 }
 
 type Factory struct {

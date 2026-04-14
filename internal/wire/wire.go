@@ -16,7 +16,6 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/parser"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/buildinfo"
 	files "github.com/matlab/matlab-mcp-core-server/internal/adaptors/filesystem/files"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlab/codeanalyzer"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabrootselector"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab/matlabstartingdirselector"
@@ -24,6 +23,7 @@ import (
 	httpclient "github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/client"
 	httpserver "github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/server"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/logger"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlab/codeanalyzer"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession"
@@ -41,6 +41,8 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/plaintextlivecodegeneration"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/configurator"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/rootpathresolver"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/rootstore"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/sdk"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
@@ -55,12 +57,17 @@ import (
 	runmatlabtestfilesinglesessiontool "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/runmatlabtestfile"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/messagecatalog"
 	osadaptor "github.com/matlab/matlab-mcp-core-server/internal/adaptors/os"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry/otel/instruments"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry/otel/meter/exporter"
+	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry/otel/meter/provider"
 	watchdogclient "github.com/matlab/matlab-mcp-core-server/internal/adaptors/watchdog"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/watchdog/process"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/filefacade"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/iofacade"
 	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-core-server/internal/facades/registryfacade"
 	"github.com/matlab/matlab-mcp-core-server/internal/usecases/checkmatlabcode"
 	"github.com/matlab/matlab-mcp-core-server/internal/usecases/detectmatlabtoolboxes"
 	"github.com/matlab/matlab-mcp-core-server/internal/usecases/evalmatlabcode"
@@ -106,9 +113,39 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 		modeselector.New,
 		wire.Bind(new(modeselector.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(modeselector.Parser), new(*parser.Parser)),
+		wire.Bind(new(modeselector.TelemetryFactory), new(*telemetry.Factory)),
 		wire.Bind(new(modeselector.WatchdogProcess), new(*watchdogprocess.Watchdog)),
 		wire.Bind(new(modeselector.Orchestrator), new(*orchestrator.Orchestrator)),
 		wire.Bind(new(modeselector.OSLayer), new(*osfacade.OsFacade)),
+		wire.Bind(new(modeselector.LifecycleSignaler), new(*lifecyclesignaler.LifecycleSignaler)),
+		wire.Bind(new(modeselector.LoggerFactory), new(*logger.Factory)),
+
+		// Telemetry
+		telemetry.NewFactory,
+		wire.Bind(new(telemetry.LoggerFactory), new(*logger.Factory)),
+		wire.Bind(new(telemetry.ConfigFactory), new(*config.Factory)),
+		wire.Bind(new(telemetry.ExporterFactory), new(*exporter.Factory)),
+		wire.Bind(new(telemetry.MeterProviderFactory), new(*provider.Factory)),
+		wire.Bind(new(telemetry.InstrumentFactory), new(*instruments.Factory)),
+		wire.Bind(new(telemetry.DirectoryFactory), new(*directory.Factory)),
+		wire.Bind(new(telemetry.OSLayer), new(*osfacade.OsFacade)),
+		wire.Bind(new(telemetry.OSVersionProvider), new(osadaptor.OS)),
+		wire.Bind(new(telemetry.Definition), new(ApplicationDefinition)),
+
+		// Telemetry Instruments
+		instruments.NewFactory,
+
+		// Telemetry Exporter
+		exporter.NewFactory,
+		wire.Bind(new(exporter.LoggerFactory), new(*logger.Factory)),
+		wire.Bind(new(exporter.ConfigFactory), new(*config.Factory)),
+		wire.Bind(new(exporter.OSLayer), new(*osfacade.OsFacade)),
+
+		// Telemetry Provider
+		provider.NewFactory,
+		wire.Bind(new(provider.LoggerFactory), new(*logger.Factory)),
+		wire.Bind(new(provider.ConfigFactory), new(*config.Factory)),
+		wire.Bind(new(provider.LifecycleSignaler), new(*lifecyclesignaler.LifecycleSignaler)),
 
 		// Watchdog Process
 		watchdogprocess.New,
@@ -140,7 +177,6 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 		wire.Bind(new(orchestrator.WatchdogClient), new(*watchdogclient.Watchdog)),
 		wire.Bind(new(orchestrator.LoggerFactory), new(*logger.Factory)),
 		wire.Bind(new(orchestrator.OSSignaler), new(*osadaptor.ProcessManager)),
-		wire.Bind(new(orchestrator.GlobalMATLAB), new(*globalmatlab.GlobalMATLAB)),
 		wire.Bind(new(orchestrator.DirectoryFactory), new(*directory.Factory)),
 
 		// MCP Server
@@ -150,10 +186,20 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 		wire.Bind(new(server.LifecycleSignaler), new(*lifecyclesignaler.LifecycleSignaler)),
 		wire.Bind(new(server.MCPServerConfigurator), new(*configurator.Configurator)),
 
+		// RootStore
+		rootstore.New,
+
+		// Root Path Resolver
+		rootpathresolver.New,
+		wire.Bind(new(rootpathresolver.OSLayer), new(*osfacade.OsFacade)),
+
 		// MCP Server (SDK)
 		sdk.NewFactory,
 		wire.Bind(new(sdk.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(sdk.Definition), new(ApplicationDefinition)),
+		wire.Bind(new(sdk.RootStore), new(*rootstore.RootStore)),
+		wire.Bind(new(sdk.LoggerFactory), new(*logger.Factory)),
+		wire.Bind(new(sdk.GlobalMATLAB), new(*globalmatlab.GlobalMATLAB)),
 
 		// MCP Server Configurator
 		configurator.New,
@@ -266,6 +312,8 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 		matlabstartingdirselector.New,
 		wire.Bind(new(matlabstartingdirselector.ConfigFactory), new(*config.Factory)),
 		wire.Bind(new(matlabstartingdirselector.OSLayer), new(*osfacade.OsFacade)),
+		wire.Bind(new(matlabstartingdirselector.RootStore), new(*rootstore.RootStore)),
+		wire.Bind(new(matlabstartingdirselector.RootPathResolver), new(*rootpathresolver.RootPathResolver)),
 
 		// Entities
 		wire.Bind(new(entities.GlobalMATLAB), new(*globalmatlab.GlobalMATLAB)),
@@ -398,13 +446,19 @@ func Initialize(serverDefinition ApplicationDefinition) *Application {
 		httpclient.NewFactory,
 
 		// Process Manager
-		osadaptor.New,
+		osadaptor.NewProcessManager,
 		wire.Bind(new(osadaptor.OSLayer), new(*osfacade.OsFacade)),
+
+		// OS Adaptor
+		osadaptor.New,
+		wire.Bind(new(osadaptor.VersionOSLayer), new(*osfacade.OsFacade)),
+		wire.Bind(new(osadaptor.RegistryLayer), new(*registryfacade.RegistryFacade)),
 
 		// Facades
 		osfacade.New,
 		iofacade.New,
 		filefacade.New,
+		registryfacade.New,
 	)
 
 	return nil

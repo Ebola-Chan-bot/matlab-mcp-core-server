@@ -8,3 +8,5 @@ deploymentLog.html
 **/*.asv
 resources/.buildtool
 .agents/
+CLAUDE.md
+.claude/

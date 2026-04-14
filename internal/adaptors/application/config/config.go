@@ -3,14 +3,19 @@
 package config
 
 import (
+	"encoding/json"
+	"slices"
+	"time"
+
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
+const redactedValue = "[REDACTED]"
+
 type validatedArguments struct {
-	logLevel         entities.LogLevel
-	disableTelemetry bool
+	logLevel entities.LogLevel
 
 	versionMode  bool
 	helpMode     bool
@@ -25,11 +30,17 @@ type validatedArguments struct {
 
 	baseDirectory    string
 	serverInstanceID string
+
+	disableTelemetry                   bool
+	telemetryCollectorEndpoint         string
+	telemetryCollectionInterval        time.Duration
+	telemetryCollectorEndpointInsecure bool
 }
 
 type rawConfig struct {
-	parameters []entities.Parameter
-	parsedArgs map[string]any
+	parameters          []entities.Parameter
+	parsedArgs          map[string]any
+	specifiedParameters []string
 }
 
 func (c *rawConfig) Get(key string) (any, messages.Error) {
@@ -44,14 +55,15 @@ type config struct {
 }
 
 func newConfig(osLayer OSLayer, parser Parser, buildInfo BuildInfo) (*config, messages.Error) {
-	parameters, parsedArgs, err := parser.Parse(osLayer.Args()[1:])
+	parameters, parsedArgs, specifiedParameters, err := parser.Parse(osLayer.Args()[1:])
 	if err != nil {
 		return nil, err
 	}
 
 	rawCfg := &rawConfig{
-		parameters: parameters,
-		parsedArgs: parsedArgs,
+		parameters:          parameters,
+		parsedArgs:          parsedArgs,
+		specifiedParameters: specifiedParameters,
 	}
 
 	validated, err := validateArguments(rawCfg)
@@ -76,10 +88,6 @@ func (c *config) Version() string {
 
 func (c *config) LogLevel() entities.LogLevel {
 	return c.logLevel
-}
-
-func (c *config) DisableTelemetry() bool {
-	return c.disableTelemetry
 }
 
 func (c *config) VersionMode() bool {
@@ -131,6 +139,46 @@ func (c *config) BaseDir() string {
 
 func (c *config) ServerInstanceID() string {
 	return c.serverInstanceID
+}
+
+func (c *config) DisableTelemetry() bool {
+	return c.disableTelemetry
+}
+
+func (c *config) TelemetryCollectorEndpoint() string {
+	return c.telemetryCollectorEndpoint
+}
+
+func (c *config) TelemetryCollectionInterval() time.Duration {
+	return c.telemetryCollectionInterval
+}
+
+func (c *config) TelemetryCollectorEndpointInsecure() bool {
+	return c.telemetryCollectorEndpointInsecure
+}
+
+func (c *config) SpecifiedParameters() []string {
+	return slices.Clone(c.specifiedParameters)
+}
+
+func (c *config) AsPIISafeJSONString() string {
+	details := map[string]any{}
+
+	for _, param := range c.parameters {
+		var value any = redactedValue
+		if param.GetPIISafe() {
+			if actualValue, err := c.Get(param.GetID()); err == nil {
+				value = actualValue
+			}
+		}
+		details[param.GetID()] = value
+	}
+
+	jsonBytes, err := json.Marshal(details)
+	if err != nil {
+		return "{}"
+	}
+	return string(jsonBytes)
 }
 
 func (c *config) RecordToLogger(logger entities.Logger) {
@@ -228,6 +276,25 @@ func validateArguments(rawCfg *rawConfig) (validatedArguments, messages.Error) {
 		return validatedArguments{}, err
 	}
 
+	telemetryCollectorEndpoint, err := get(rawCfg, defaultparameters.TelemetryCollectorEndpoint())
+	if err != nil {
+		return validatedArguments{}, err
+	}
+
+	telemetryCollectionInterval, err := get(rawCfg, defaultparameters.TelemetryCollectionInterval())
+	if err != nil {
+		return validatedArguments{}, err
+	}
+
+	if telemetryCollectionInterval <= 0 {
+		telemetryCollectionInterval = defaultparameters.TelemetryCollectionInterval().GetTypedDefaultValue()
+	}
+
+	telemetryCollectorEndpointInsecure, err := get(rawCfg, defaultparameters.TelemetryCollectorEndpointInsecure())
+	if err != nil {
+		return validatedArguments{}, err
+	}
+
 	return validatedArguments{
 		logLevel:         entities.LogLevel(logLevel),
 		disableTelemetry: disableTelemetry,
@@ -245,6 +312,10 @@ func validateArguments(rawCfg *rawConfig) (validatedArguments, messages.Error) {
 
 		baseDirectory:    baseDirectory,
 		serverInstanceID: serverInstanceID,
+
+		telemetryCollectorEndpoint:         telemetryCollectorEndpoint,
+		telemetryCollectionInterval:        telemetryCollectionInterval,
+		telemetryCollectorEndpointInsecure: telemetryCollectorEndpointInsecure,
 	}, nil
 }
 

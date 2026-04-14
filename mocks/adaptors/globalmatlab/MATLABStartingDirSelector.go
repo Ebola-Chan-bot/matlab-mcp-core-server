@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -36,8 +37,8 @@ func (_m *MockMATLABStartingDirSelector) EXPECT() *MockMATLABStartingDirSelector
 }
 
 // SelectMatlabStartingDir provides a mock function for the type MockMATLABStartingDirSelector
-func (_mock *MockMATLABStartingDirSelector) SelectMatlabStartingDir() (string, error) {
-	ret := _mock.Called()
+func (_mock *MockMATLABStartingDirSelector) SelectMatlabStartingDir(logger entities.Logger) (string, error) {
+	ret := _mock.Called(logger)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SelectMatlabStartingDir")
@@ -45,16 +46,16 @@ func (_mock *MockMATLABStartingDirSelector) SelectMatlabStartingDir() (string, e
 
 	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func() (string, error)); ok {
-		return returnFunc()
+	if returnFunc, ok := ret.Get(0).(func(entities.Logger) (string, error)); ok {
+		return returnFunc(logger)
 	}
-	if returnFunc, ok := ret.Get(0).(func() string); ok {
-		r0 = returnFunc()
+	if returnFunc, ok := ret.Get(0).(func(entities.Logger) string); ok {
+		r0 = returnFunc(logger)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func() error); ok {
-		r1 = returnFunc()
+	if returnFunc, ok := ret.Get(1).(func(entities.Logger) error); ok {
+		r1 = returnFunc(logger)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -67,13 +68,20 @@ type MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call struct {
 }
 
 // SelectMatlabStartingDir is a helper method to define mock.On call
-func (_e *MockMATLABStartingDirSelector_Expecter) SelectMatlabStartingDir() *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call {
-	return &MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call{Call: _e.mock.On("SelectMatlabStartingDir")}
+//   - logger entities.Logger
+func (_e *MockMATLABStartingDirSelector_Expecter) SelectMatlabStartingDir(logger interface{}) *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call {
+	return &MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call{Call: _e.mock.On("SelectMatlabStartingDir", logger)}
 }
 
-func (_c *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call) Run(run func()) *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call {
+func (_c *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call) Run(run func(logger entities.Logger)) *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		var arg0 entities.Logger
+		if args[0] != nil {
+			arg0 = args[0].(entities.Logger)
+		}
+		run(
+			arg0,
+		)
 	})
 	return _c
 }
@@ -83,7 +91,7 @@ func (_c *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call) Return(s s
 	return _c
 }
 
-func (_c *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call) RunAndReturn(run func() (string, error)) *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call {
+func (_c *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call) RunAndReturn(run func(logger entities.Logger) (string, error)) *MockMATLABStartingDirSelector_SelectMatlabStartingDir_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -3,7 +3,6 @@
 package server_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
@@ -364,7 +363,7 @@ func TestServer_StartAndWaitForCompletion_KnownError(t *testing.T) {
 	expectedName := "test-server"
 	expectedTitle := "Test Server"
 	expectedInstructions := "Test instructions"
-	expectedError := errors.New("known error")
+	expectedError := messages.New_StartupErrors_GenericInitializeFailure_Error()
 	expectedErrorMessage := "A known error occurred"
 	expectedFeatures := publictypes.Features{
 		MATLAB: publictypes.MATLABFeature{Enabled: true},
@@ -431,137 +430,13 @@ func TestServer_StartAndWaitForCompletion_KnownError(t *testing.T) {
 		Once()
 
 	mockMessageCatalog.EXPECT().
-		GetFromGeneralError(expectedError).
-		Return(expectedErrorMessage, true).
+		GetFromError(expectedError).
+		Return(expectedErrorMessage).
 		Once()
 
 	mockErrorWriter.EXPECT().
 		Write([]byte(expectedErrorMessage+"\n")).
 		Return(len(expectedErrorMessage)+1, nil).
-		Once()
-
-	s := server.New(serverDefinition, mockFeaturesFactory, mockParametersFactory, mockDependenciesProviderFactory, mockToolsProviderFactory, mockApplicationFactory, mockErrorWriter)
-
-	// Act
-	exitCode := s.StartAndWaitForCompletion(ctx)
-
-	// Assert
-	require.Equal(t, 1, exitCode)
-}
-
-func TestServer_StartAndWaitForCompletion_UnknownError(t *testing.T) {
-	// Arrange
-	mockDependenciesProviderFactory := &servermocks.MockDependenciesProviderFactory[struct{}]{}
-	defer mockDependenciesProviderFactory.AssertExpectations(t)
-
-	mockToolsProviderFactory := &servermocks.MockToolsProviderFactory[struct{}]{}
-	defer mockToolsProviderFactory.AssertExpectations(t)
-
-	mockParametersFactory := &servermocks.MockParametersFactory{}
-	defer mockParametersFactory.AssertExpectations(t)
-
-	mockFeaturesFactory := &servermocks.MockFeaturesFactory{}
-	defer mockFeaturesFactory.AssertExpectations(t)
-
-	mockApplicationFactory := &servermocks.MockApplicationFactory{}
-	defer mockApplicationFactory.AssertExpectations(t)
-
-	mockApplication := &adaptormocks.MockApplication{}
-	defer mockApplication.AssertExpectations(t)
-
-	mockModeSelector := &adaptormocks.MockModeSelector{}
-	defer mockModeSelector.AssertExpectations(t)
-
-	mockMessageCatalog := &adaptormocks.MockMessageCatalog{}
-	defer mockMessageCatalog.AssertExpectations(t)
-
-	mockErrorWriter := &entitiesmocks.MockWriter{}
-	defer mockErrorWriter.AssertExpectations(t)
-
-	ctx := t.Context()
-	expectedName := "test-server"
-	expectedTitle := "Test Server"
-	expectedInstructions := "Test instructions"
-	expectedError := errors.New("unknown error")
-	expectedFallbackMessage := "Some generic failure message."
-	expectedWrittenOutput := expectedFallbackMessage + "\n"
-	expectedFeatures := publictypes.Features{
-		MATLAB: publictypes.MATLABFeature{Enabled: true},
-	}
-
-	serverDefinition := server.Definition[struct{}]{
-		Name:         expectedName,
-		Title:        expectedTitle,
-		Instructions: expectedInstructions,
-		Features:     expectedFeatures,
-	}
-
-	expectedInternalFeatures := definition.Features{
-		MATLAB: definition.MATLABFeature{Enabled: true},
-	}
-	expectedDefinition := definition.New(
-		expectedName,
-		expectedTitle,
-		expectedInstructions,
-		expectedInternalFeatures,
-		nil,
-		nil,
-		nil,
-	)
-
-	mockFeaturesFactory.EXPECT().
-		New(expectedFeatures).
-		Return(expectedInternalFeatures).
-		Once()
-
-	mockParametersFactory.EXPECT().
-		New([]publictypes.Parameter(nil)).
-		Return(nil).
-		Once()
-
-	mockDependenciesProviderFactory.EXPECT().
-		New(mock.Anything).
-		Return(nil).
-		Once()
-
-	mockToolsProviderFactory.EXPECT().
-		New(mock.Anything).
-		Return(nil).
-		Once()
-
-	mockApplicationFactory.EXPECT().
-		New(expectedDefinition).
-		Return(mockApplication).
-		Once()
-
-	mockApplication.EXPECT().
-		ModeSelector().
-		Return(mockModeSelector).
-		Once()
-
-	mockModeSelector.EXPECT().
-		StartAndWaitForCompletion(ctx).
-		Return(expectedError).
-		Once()
-
-	mockApplication.EXPECT().
-		MessageCatalog().
-		Return(mockMessageCatalog).
-		Once()
-
-	mockMessageCatalog.EXPECT().
-		GetFromGeneralError(expectedError).
-		Return("", false).
-		Once()
-
-	mockMessageCatalog.EXPECT().
-		Get(messages.StartupErrors_GenericInitializeFailure).
-		Return(expectedFallbackMessage).
-		Once()
-
-	mockErrorWriter.EXPECT().
-		Write([]byte(expectedWrittenOutput)).
-		Return(len(expectedWrittenOutput), nil).
 		Once()
 
 	s := server.New(serverDefinition, mockFeaturesFactory, mockParametersFactory, mockDependenciesProviderFactory, mockToolsProviderFactory, mockApplicationFactory, mockErrorWriter)

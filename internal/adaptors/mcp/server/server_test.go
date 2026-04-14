@@ -184,7 +184,7 @@ func TestServer_Run_MCPSDKServerFactoryError(t *testing.T) {
 	defer mockConfigurator.AssertExpectations(t)
 
 	mockLogger := testutils.NewInspectableLogger()
-	expectedError := &messages.StartupErrors_BadFlag_Error{}
+	expectedError := messages.AnError
 
 	mockLoggerFactory.EXPECT().
 		GetGlobalLogger().

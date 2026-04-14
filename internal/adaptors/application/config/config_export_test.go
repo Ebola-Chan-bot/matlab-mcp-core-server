@@ -6,6 +6,8 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 )
 
+const RedactedValue = redactedValue
+
 func NewConfig(osLayer OSLayer, parser Parser, buildInfo BuildInfo) (*config, messages.Error) {
 	return newConfig(osLayer, parser, buildInfo)
 }

@@ -30,7 +30,7 @@ func (s *CLITestSuite) TestMATLABRootFlag() {
 	env := pathcontrol.UpdateEnvEntry(os.Environ(), "PATH", newPath)
 
 	ctx := s.T().Context()
-	session := s.CreateMCPSession(ctx, env, "--matlab-root="+s.matlabRoot())
+	session := s.CreateMCPSession(ctx, env, nil, "--matlab-root="+s.matlabRoot())
 	defer func() {
 		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
 		s.AssertNoErrorLogs(session)

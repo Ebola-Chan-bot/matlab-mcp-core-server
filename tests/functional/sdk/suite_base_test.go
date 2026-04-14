@@ -88,13 +88,13 @@ type SDKTestSuite struct {
 //
 // Usage:
 //
-//	session := s.CreateSession(serverPath, nil)
+//	session := s.CreateSession(serverPath, nil, nil)
 //	defer func() {
 //		s.NoError(session.Close(), "closing session should not error")
 //		s.AssertNoErrorLogs(session)
 //		session.DumpLogsOnFailure(s.T())
 //	}()
-func (s *SDKTestSuite) CreateSession(serverPath string, env []string, args ...string) *SDKSession {
+func (s *SDKTestSuite) CreateSession(serverPath string, env []string, sessionOpts []mcpclient.CreateSessionOption, args ...string) *SDKSession {
 	s.T().Helper()
 	hasLogLevel := false
 	hasLogFolder := false
@@ -128,7 +128,7 @@ func (s *SDKTestSuite) CreateSession(serverPath string, env []string, args ...st
 	}
 	args = append(defaults, args...)
 	client := mcpclient.NewClient(s.T().Context(), serverPath, env, args...)
-	mcpSession, err := client.CreateSession(s.T().Context())
+	mcpSession, err := client.CreateSession(s.T().Context(), sessionOpts...)
 	s.Require().NoError(err, "should create MCP session")
 
 	session := &SDKSession{

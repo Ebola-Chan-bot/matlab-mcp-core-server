@@ -6,7 +6,6 @@ import (
 	"context"
 
 	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
-	"github.com/matlab/matlab-mcp-core-server/pkg/server"
 	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
 )
 
@@ -14,8 +13,8 @@ type ToolThatLogsInput struct {
 	Name string `json:"name"`
 }
 
-func NewToolThatLogs() server.Tool {
-	return server.NewToolWithUnstructuredContentOutput(
+func NewToolThatLogs() tools.Tool {
+	return tools.NewToolWithUnstructuredContentOutput(
 		tools.NewDefinition(
 			"tool-that-logs",
 			"Tool That Logs",

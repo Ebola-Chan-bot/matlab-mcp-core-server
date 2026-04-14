@@ -110,6 +110,23 @@ func BuildServerWithCustomDependencies(t *testing.T) ServerWithCustomDependencie
 	}
 }
 
+func BuildServerWithWatchdog(t *testing.T) ServerWithWatchdogDetails {
+	// Those string literals match the one in the source code
+	return ServerWithWatchdogDetails{
+		ServerDetails: ServerDetails{
+			binaryLocation: buildSDKServer(t, "server_with_watchdog"),
+
+			moduleName: goModName,
+
+			name:         "server-with-watchdog",
+			title:        "Server With Watchdog",
+			instructions: "This is a test server with watchdog",
+		},
+
+		getPIDToolName: "get-pid",
+	}
+}
+
 func BuildServerWithLogging(t *testing.T) ServerWithLoggingDetails {
 	// Those string literals match the one in the source code
 	return ServerWithLoggingDetails{

@@ -35,6 +35,57 @@ func (_m *MockWatchdogClient) EXPECT() *MockWatchdogClient_Expecter {
 	return &MockWatchdogClient_Expecter{mock: &_m.Mock}
 }
 
+// RegisterProcessPIDWithWatchdog provides a mock function for the type MockWatchdogClient
+func (_mock *MockWatchdogClient) RegisterProcessPIDWithWatchdog(pid int) error {
+	ret := _mock.Called(pid)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RegisterProcessPIDWithWatchdog")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(int) error); ok {
+		r0 = returnFunc(pid)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockWatchdogClient_RegisterProcessPIDWithWatchdog_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RegisterProcessPIDWithWatchdog'
+type MockWatchdogClient_RegisterProcessPIDWithWatchdog_Call struct {
+	*mock.Call
+}
+
+// RegisterProcessPIDWithWatchdog is a helper method to define mock.On call
+//   - pid int
+func (_e *MockWatchdogClient_Expecter) RegisterProcessPIDWithWatchdog(pid interface{}) *MockWatchdogClient_RegisterProcessPIDWithWatchdog_Call {
+	return &MockWatchdogClient_RegisterProcessPIDWithWatchdog_Call{Call: _e.mock.On("RegisterProcessPIDWithWatchdog", pid)}
+}
+
+func (_c *MockWatchdogClient_RegisterProcessPIDWithWatchdog_Call) Run(run func(pid int)) *MockWatchdogClient_RegisterProcessPIDWithWatchdog_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 int
+		if args[0] != nil {
+			arg0 = args[0].(int)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockWatchdogClient_RegisterProcessPIDWithWatchdog_Call) Return(err error) *MockWatchdogClient_RegisterProcessPIDWithWatchdog_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockWatchdogClient_RegisterProcessPIDWithWatchdog_Call) RunAndReturn(run func(pid int) error) *MockWatchdogClient_RegisterProcessPIDWithWatchdog_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Start provides a mock function for the type MockWatchdogClient
 func (_mock *MockWatchdogClient) Start() error {
 	ret := _mock.Called()

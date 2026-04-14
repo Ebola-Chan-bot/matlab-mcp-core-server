@@ -29,13 +29,15 @@ var messages_en_US = messageMap{
 	StartupErrors_FailedToCreateSubdirectory:                `Failed to create subdirectory in "%[1]s".`,
 	StartupErrors_FailedToGetExecutablePath:                 `Failed to get executable path.`,
 	StartupErrors_FailedToStartWatchdogProcess:              `Failed to start watchdog process.`,
-	StartupErrors_GenericInitializeFailure:                  `Failed to initialize MCP Core Server. Error: %[1]s.`,
+	StartupErrors_GenericInitializeFailure:                  `Failed to initialize MCP Core Server. For details, see the MCP server log in your AI application.`,
 	StartupErrors_InvalidDisplayMode:                        `Error with supplied arguments: invalid display mode %[1]s.`,
 	StartupErrors_InvalidLogLevel:                           `Error with supplied arguments: invalid log level %[1]s.`,
 	StartupErrors_InvalidParameterKey:                       `Invalid key "%[1]s" in configuration.`,
 	StartupErrors_InvalidParameterType:                      `Invalid type for key "%[1]s" in configuration, expected "%[2]s".`,
 	StartupErrors_MissingValue:                              `Error with supplied arguments: value required for option %[1]s.`,
 	StartupErrors_ParseFailed:                               `Error with supplied arguments: parse failed.%[1]s%[2]s`,
+	StartupErrors_TelemetryInitializationFailed:             `Failed to initialize telemetry.`,
+	StartupErrors_WriteError:                                `Failed to display %[1]s information. Error: %[2]s`,
 }
 
 var all = localeMap{

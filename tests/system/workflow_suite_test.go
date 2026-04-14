@@ -10,6 +10,8 @@ import (
 	"testing"
 
 	"github.com/matlab/matlab-mcp-core-server/tests/system/testdata"
+	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -42,7 +44,19 @@ type WorkflowTestSuite struct {
 // - run_matlab_test_file (test execution)
 func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 	ctx := s.T().Context()
-	session := s.CreateMCPSession(ctx, nil)
+
+	// Provide the test data directory as an MCP root so the server uses it as
+	// MATLAB's starting directory (fallback when no --initial-working-folder is set).
+	// File URIs require the path to start with "/" (e.g., file:///C:/path on Windows).
+	slashPath := filepath.ToSlash(s.testDataDir)
+	if !strings.HasPrefix(slashPath, "/") {
+		slashPath = "/" + slashPath
+	}
+	testDataURI := "file://" + slashPath
+	sessionOpts := []mcpclient.CreateSessionOption{
+		mcpclient.WithRoots(&mcp.Root{URI: testDataURI, Name: "test-data"}),
+	}
+	session := s.CreateMCPSession(ctx, nil, sessionOpts)
 	defer func() {
 		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
 		s.AssertNoErrorLogs(session)
@@ -78,15 +92,27 @@ func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 	s.Contains(lines, "b=3", "variable 'b' should persist on its own line")
 	s.Contains(lines, "c=5", "should compute 2 + 3 = 5 on its own line")
 
-	// Step 4: Verify MATLAB current working directory is set by optional project path argument
+	// Step 4: Verify MATLAB started in the MCP root directory
+	// The server should have used the client's root as MATLAB's initial working folder.
+	output, err = session.EvaluateCode(ctx, "pwd")
+	s.Require().NoError(err)
+	s.Contains(output, s.testDataDir, "MATLAB should start in the MCP root directory (test data dir)")
+
+	// Verify the test script is visible from the root directory
 	scriptName := strings.TrimSuffix(filepath.Base(s.testScriptPath()), filepath.Ext(s.testScriptPath()))
 	output, err = session.EvaluateCode(ctx, "which "+scriptName)
 	s.Require().NoError(err)
-	s.Contains(output, "'"+scriptName+"' not found", "script should not be in the current working folder")
+	s.Contains(output, s.testScriptPath(), "script should be found from the MCP root directory")
 
-	output, err = session.EvaluateCode(ctx, "which "+scriptName, s.testDataDir)
+	// Step 4b: Verify projectPath parameter changes MATLAB's working directory
+	tmpDir := s.T().TempDir()
+	output, err = session.EvaluateCode(ctx, "pwd", tmpDir)
 	s.Require().NoError(err)
-	s.Contains(output, s.testScriptPath(), "should have changed to the script directory")
+	s.Contains(output, tmpDir, "projectPath should change MATLAB's working directory")
+
+	output, err = session.EvaluateCode(ctx, "which "+scriptName)
+	s.Require().NoError(err)
+	s.Contains(output, "'"+scriptName+"' not found", "script should not be found after cd to temp dir")
 
 	// Step 5: Code quality checking - analyze existing code for issues
 	// First check code with problems to see what issues are detected
@@ -129,7 +155,7 @@ func (s *WorkflowTestSuite) TestInteractiveDevelopmentWorkflow() {
 // - stop_matlab_session (clean up session)
 func (s *WorkflowTestSuite) TestParallelExperimentationWorkflow() {
 	ctx := s.T().Context()
-	mcpSession := s.CreateMCPSession(ctx, nil, "--use-single-matlab-session=false")
+	mcpSession := s.CreateMCPSession(ctx, nil, nil, "--use-single-matlab-session=false")
 	defer func() {
 		s.NoError(mcpSession.Close(), "closing MCP session should not error") //nolint:testifylint // assert in defer to avoid FailNow
 		s.AssertNoErrorLogs(mcpSession)

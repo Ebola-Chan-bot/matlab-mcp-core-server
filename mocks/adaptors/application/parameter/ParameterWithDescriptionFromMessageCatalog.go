@@ -392,6 +392,50 @@ func (_c *MockParameterWithDescriptionFromMessageCatalog_GetID_Call) RunAndRetur
 	return _c
 }
 
+// GetPIISafe provides a mock function for the type MockParameterWithDescriptionFromMessageCatalog
+func (_mock *MockParameterWithDescriptionFromMessageCatalog) GetPIISafe() bool {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPIISafe")
+	}
+
+	var r0 bool
+	if returnFunc, ok := ret.Get(0).(func() bool); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	return r0
+}
+
+// MockParameterWithDescriptionFromMessageCatalog_GetPIISafe_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPIISafe'
+type MockParameterWithDescriptionFromMessageCatalog_GetPIISafe_Call struct {
+	*mock.Call
+}
+
+// GetPIISafe is a helper method to define mock.On call
+func (_e *MockParameterWithDescriptionFromMessageCatalog_Expecter) GetPIISafe() *MockParameterWithDescriptionFromMessageCatalog_GetPIISafe_Call {
+	return &MockParameterWithDescriptionFromMessageCatalog_GetPIISafe_Call{Call: _e.mock.On("GetPIISafe")}
+}
+
+func (_c *MockParameterWithDescriptionFromMessageCatalog_GetPIISafe_Call) Run(run func()) *MockParameterWithDescriptionFromMessageCatalog_GetPIISafe_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockParameterWithDescriptionFromMessageCatalog_GetPIISafe_Call) Return(b bool) *MockParameterWithDescriptionFromMessageCatalog_GetPIISafe_Call {
+	_c.Call.Return(b)
+	return _c
+}
+
+func (_c *MockParameterWithDescriptionFromMessageCatalog_GetPIISafe_Call) RunAndReturn(run func() bool) *MockParameterWithDescriptionFromMessageCatalog_GetPIISafe_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetRecordToLog provides a mock function for the type MockParameterWithDescriptionFromMessageCatalog
 func (_mock *MockParameterWithDescriptionFromMessageCatalog) GetRecordToLog() bool {
 	ret := _mock.Called()

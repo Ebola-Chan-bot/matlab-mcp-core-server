@@ -80,57 +80,6 @@ func (_c *MockOSLayer_GOOS_Call) RunAndReturn(run func() string) *MockOSLayer_GO
 	return _c
 }
 
-// Getenv provides a mock function for the type MockOSLayer
-func (_mock *MockOSLayer) Getenv(key string) string {
-	ret := _mock.Called(key)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Getenv")
-	}
-
-	var r0 string
-	if returnFunc, ok := ret.Get(0).(func(string) string); ok {
-		r0 = returnFunc(key)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-	return r0
-}
-
-// MockOSLayer_Getenv_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Getenv'
-type MockOSLayer_Getenv_Call struct {
-	*mock.Call
-}
-
-// Getenv is a helper method to define mock.On call
-//   - key string
-func (_e *MockOSLayer_Expecter) Getenv(key interface{}) *MockOSLayer_Getenv_Call {
-	return &MockOSLayer_Getenv_Call{Call: _e.mock.On("Getenv", key)}
-}
-
-func (_c *MockOSLayer_Getenv_Call) Run(run func(key string)) *MockOSLayer_Getenv_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
-		if args[0] != nil {
-			arg0 = args[0].(string)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
-func (_c *MockOSLayer_Getenv_Call) Return(s string) *MockOSLayer_Getenv_Call {
-	_c.Call.Return(s)
-	return _c
-}
-
-func (_c *MockOSLayer_Getenv_Call) RunAndReturn(run func(key string) string) *MockOSLayer_Getenv_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Stat provides a mock function for the type MockOSLayer
 func (_mock *MockOSLayer) Stat(path string) (osfacade.FileInfo, error) {
 	ret := _mock.Called(path)

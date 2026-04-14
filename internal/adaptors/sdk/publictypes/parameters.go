@@ -11,4 +11,5 @@ type Parameter interface {
 	GetDefaultValue() any
 	GetActive() bool
 	GetRecordToLog() bool
+	GetPIISafe() bool
 }

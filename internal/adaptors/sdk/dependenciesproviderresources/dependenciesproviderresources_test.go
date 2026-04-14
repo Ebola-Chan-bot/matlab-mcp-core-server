@@ -23,8 +23,15 @@ func TestNewFactory_HappyPath(t *testing.T) {
 	mockConfigFactory := &dependenciesproviderresourcesmocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
+	mockWatchdogFactory := &dependenciesproviderresourcesmocks.MockWatchdogFactory{}
+	defer mockWatchdogFactory.AssertExpectations(t)
+
 	// Act
-	factory := dependenciesproviderresources.NewFactory(mockLoggerFactory, mockConfigFactory)
+	factory := dependenciesproviderresources.NewFactory(
+		mockLoggerFactory,
+		mockConfigFactory,
+		mockWatchdogFactory,
+	)
 
 	// Assert
 	require.NotNil(t, factory)
@@ -38,6 +45,9 @@ func TestFactory_New_HappyPath(t *testing.T) {
 	mockConfigFactory := &dependenciesproviderresourcesmocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
+	mockWatchdogFactory := &dependenciesproviderresourcesmocks.MockWatchdogFactory{}
+	defer mockWatchdogFactory.AssertExpectations(t)
+
 	mockInternalLogger := &entitiesmocks.MockLogger{}
 	defer mockInternalLogger.AssertExpectations(t)
 
@@ -46,6 +56,9 @@ func TestFactory_New_HappyPath(t *testing.T) {
 
 	mockMessageCatalog := &definitionmocks.MockMessageCatalog{}
 	defer mockMessageCatalog.AssertExpectations(t)
+
+	mockWatchdog := &definitionmocks.MockWatchdog{}
+	defer mockWatchdog.AssertExpectations(t)
 
 	mockLoggerFactory.EXPECT().
 		New(mockInternalLogger).
@@ -57,14 +70,24 @@ func TestFactory_New_HappyPath(t *testing.T) {
 		Return(nil).
 		Once()
 
+	mockWatchdogFactory.EXPECT().
+		New(mockInternalLogger, mockWatchdog).
+		Return(nil).
+		Once()
+
 	internalResources := definition.NewDependenciesProviderResources(
 		mockInternalLogger,
 		mockInternalConfig,
 		mockMessageCatalog,
+		mockWatchdog,
 	)
 
 	// Act
-	resources := dependenciesproviderresources.NewFactory(mockLoggerFactory, mockConfigFactory).New(internalResources)
+	resources := dependenciesproviderresources.NewFactory(
+		mockLoggerFactory,
+		mockConfigFactory,
+		mockWatchdogFactory,
+	).New(internalResources)
 
 	// Assert
 	require.NotNil(t, resources)
@@ -78,6 +101,9 @@ func TestFactory_New_Logger(t *testing.T) {
 	mockConfigFactory := &dependenciesproviderresourcesmocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
+	mockWatchdogFactory := &dependenciesproviderresourcesmocks.MockWatchdogFactory{}
+	defer mockWatchdogFactory.AssertExpectations(t)
+
 	mockInternalLogger := &entitiesmocks.MockLogger{}
 	defer mockInternalLogger.AssertExpectations(t)
 
@@ -86,6 +112,9 @@ func TestFactory_New_Logger(t *testing.T) {
 
 	mockMessageCatalog := &definitionmocks.MockMessageCatalog{}
 	defer mockMessageCatalog.AssertExpectations(t)
+
+	mockWatchdog := &definitionmocks.MockWatchdog{}
+	defer mockWatchdog.AssertExpectations(t)
 
 	expectedLogger := &publictypesmocks.MockLogger{}
 	defer expectedLogger.AssertExpectations(t)
@@ -100,14 +129,24 @@ func TestFactory_New_Logger(t *testing.T) {
 		Return(nil).
 		Once()
 
+	mockWatchdogFactory.EXPECT().
+		New(mockInternalLogger, mockWatchdog).
+		Return(nil).
+		Once()
+
 	internalResources := definition.NewDependenciesProviderResources(
 		mockInternalLogger,
 		mockInternalConfig,
 		mockMessageCatalog,
+		mockWatchdog,
 	)
 
 	// Act
-	resources := dependenciesproviderresources.NewFactory(mockLoggerFactory, mockConfigFactory).New(internalResources)
+	resources := dependenciesproviderresources.NewFactory(
+		mockLoggerFactory,
+		mockConfigFactory,
+		mockWatchdogFactory,
+	).New(internalResources)
 
 	// Assert
 	require.Equal(t, expectedLogger, resources.Logger())
@@ -121,6 +160,9 @@ func TestFactory_New_Config(t *testing.T) {
 	mockConfigFactory := &dependenciesproviderresourcesmocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
+	mockWatchdogFactory := &dependenciesproviderresourcesmocks.MockWatchdogFactory{}
+	defer mockWatchdogFactory.AssertExpectations(t)
+
 	mockInternalLogger := &entitiesmocks.MockLogger{}
 	defer mockInternalLogger.AssertExpectations(t)
 
@@ -129,6 +171,9 @@ func TestFactory_New_Config(t *testing.T) {
 
 	mockMessageCatalog := &definitionmocks.MockMessageCatalog{}
 	defer mockMessageCatalog.AssertExpectations(t)
+
+	mockWatchdog := &definitionmocks.MockWatchdog{}
+	defer mockWatchdog.AssertExpectations(t)
 
 	expectedConfig := &publictypesmocks.MockConfig{}
 	defer expectedConfig.AssertExpectations(t)
@@ -143,15 +188,84 @@ func TestFactory_New_Config(t *testing.T) {
 		Return(expectedConfig).
 		Once()
 
+	mockWatchdogFactory.EXPECT().
+		New(mockInternalLogger, mockWatchdog).
+		Return(nil).
+		Once()
+
 	internalResources := definition.NewDependenciesProviderResources(
 		mockInternalLogger,
 		mockInternalConfig,
 		mockMessageCatalog,
+		mockWatchdog,
 	)
 
 	// Act
-	resources := dependenciesproviderresources.NewFactory(mockLoggerFactory, mockConfigFactory).New(internalResources)
+	resources := dependenciesproviderresources.NewFactory(
+		mockLoggerFactory,
+		mockConfigFactory,
+		mockWatchdogFactory,
+	).New(internalResources)
 
 	// Assert
 	require.Equal(t, expectedConfig, resources.Config())
+}
+
+func TestFactory_New_Watchdog(t *testing.T) {
+	// Arrange
+	mockLoggerFactory := &dependenciesproviderresourcesmocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockConfigFactory := &dependenciesproviderresourcesmocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockWatchdogFactory := &dependenciesproviderresourcesmocks.MockWatchdogFactory{}
+	defer mockWatchdogFactory.AssertExpectations(t)
+
+	mockInternalLogger := &entitiesmocks.MockLogger{}
+	defer mockInternalLogger.AssertExpectations(t)
+
+	mockInternalConfig := &internalconfigmocks.MockGenericConfig{}
+	defer mockInternalConfig.AssertExpectations(t)
+
+	mockMessageCatalog := &definitionmocks.MockMessageCatalog{}
+	defer mockMessageCatalog.AssertExpectations(t)
+
+	mockWatchdog := &definitionmocks.MockWatchdog{}
+	defer mockWatchdog.AssertExpectations(t)
+
+	expectedWatchdog := &publictypesmocks.MockWatchdog{}
+	defer expectedWatchdog.AssertExpectations(t)
+
+	mockLoggerFactory.EXPECT().
+		New(mockInternalLogger).
+		Return(nil).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		New(mockInternalConfig, mockMessageCatalog).
+		Return(nil).
+		Once()
+
+	mockWatchdogFactory.EXPECT().
+		New(mockInternalLogger, mockWatchdog).
+		Return(expectedWatchdog).
+		Once()
+
+	internalResources := definition.NewDependenciesProviderResources(
+		mockInternalLogger,
+		mockInternalConfig,
+		mockMessageCatalog,
+		mockWatchdog,
+	)
+
+	// Act
+	resources := dependenciesproviderresources.NewFactory(
+		mockLoggerFactory,
+		mockConfigFactory,
+		mockWatchdogFactory,
+	).New(internalResources)
+
+	// Assert
+	require.Equal(t, expectedWatchdog, resources.Watchdog())
 }

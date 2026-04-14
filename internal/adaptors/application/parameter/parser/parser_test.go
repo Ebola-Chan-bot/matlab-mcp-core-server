@@ -59,12 +59,13 @@ func TestParser_Parse_HappyPath(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	require.NoError(t, err)
 	assert.Equal(t, paramDefaultValue, result[paramID])
 	assert.Equal(t, []entities.Parameter{mockParam}, parameters)
+	assert.Empty(t, specifiedParameters)
 }
 
 func TestParser_Parse_FlagOverridesDefault(t *testing.T) {
@@ -113,12 +114,13 @@ func TestParser_Parse_FlagOverridesDefault(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	require.NoError(t, err)
 	assert.Equal(t, expectedFlagValue, result[paramID])
 	assert.Equal(t, []entities.Parameter{mockParam}, parameters)
+	assert.Equal(t, []string{paramID}, specifiedParameters)
 }
 
 func TestParser_Parse_EnvVarOverridesDefault(t *testing.T) {
@@ -166,12 +168,13 @@ func TestParser_Parse_EnvVarOverridesDefault(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	require.NoError(t, err)
 	assert.Equal(t, expectedEnvValue, result[paramID])
 	assert.Equal(t, []entities.Parameter{mockParam}, parameters)
+	assert.Equal(t, []string{paramID}, specifiedParameters)
 }
 
 func TestParser_Parse_FlagOverridesEnvVar(t *testing.T) {
@@ -221,12 +224,13 @@ func TestParser_Parse_FlagOverridesEnvVar(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	require.NoError(t, err)
 	assert.Equal(t, expectedFlagValue, result[paramID])
 	assert.Equal(t, []entities.Parameter{mockParam}, parameters)
+	assert.Equal(t, []string{paramID}, specifiedParameters)
 }
 
 func TestParser_Parse_ParameterWithNoFlag(t *testing.T) {
@@ -274,12 +278,13 @@ func TestParser_Parse_ParameterWithNoFlag(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	require.NoError(t, err)
 	assert.Equal(t, expectedEnvValue, result[paramID])
 	assert.Equal(t, []entities.Parameter{mockParam}, parameters)
+	assert.Equal(t, []string{paramID}, specifiedParameters)
 }
 
 func TestParser_Parse_EmptyParameterID(t *testing.T) {
@@ -315,13 +320,14 @@ func TestParser_Parse_EmptyParameterID(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	expectedError := messages.New_StartupErrors_InvalidParameterKey_Error("")
 	require.Equal(t, expectedError, err)
 	assert.Nil(t, result)
 	assert.Nil(t, parameters)
+	assert.Nil(t, specifiedParameters)
 }
 
 func TestParser_Parse_DuplicateParameterID(t *testing.T) {
@@ -377,13 +383,14 @@ func TestParser_Parse_DuplicateParameterID(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	expectedError := messages.New_StartupErrors_DuplicateParameter_Error(duplicateID, "parameter ID", duplicateID)
 	require.Equal(t, expectedError, err)
 	assert.Nil(t, result)
 	assert.Nil(t, parameters)
+	assert.Nil(t, specifiedParameters)
 }
 
 func TestParser_Parse_DuplicateFlagName(t *testing.T) {
@@ -445,13 +452,14 @@ func TestParser_Parse_DuplicateFlagName(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	expectedError := messages.New_StartupErrors_DuplicateParameter_Error(param2ID, "flag name", duplicateFlagName)
 	require.Equal(t, expectedError, err)
 	assert.Nil(t, result)
 	assert.Nil(t, parameters)
+	assert.Nil(t, specifiedParameters)
 }
 
 func TestParser_Parse_DuplicateEnvVarName(t *testing.T) {
@@ -518,13 +526,14 @@ func TestParser_Parse_DuplicateEnvVarName(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	expectedError := messages.New_StartupErrors_DuplicateParameter_Error(param2ID, "env var name", duplicateEnvVar)
 	require.Equal(t, expectedError, err)
 	assert.Nil(t, result)
 	assert.Nil(t, parameters)
+	assert.Nil(t, specifiedParameters)
 }
 
 func TestParser_Parse_DuplicateEnvVarNameCaseInsensitive(t *testing.T) {
@@ -590,13 +599,14 @@ func TestParser_Parse_DuplicateEnvVarNameCaseInsensitive(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	expectedError := messages.New_StartupErrors_DuplicateParameter_Error(param2ID, "env var name", "DUPLICATE_ENV")
 	require.Equal(t, expectedError, err)
 	assert.Nil(t, result)
 	assert.Nil(t, parameters)
+	assert.Nil(t, specifiedParameters)
 }
 
 func TestParser_Usage_HappyPath(t *testing.T) {

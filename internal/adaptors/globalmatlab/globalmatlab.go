@@ -31,7 +31,7 @@ type MATLABRootSelector interface {
 }
 
 type MATLABStartingDirSelector interface {
-	SelectMatlabStartingDir() (string, error)
+	SelectMatlabStartingDir(logger entities.Logger) (string, error)
 }
 
 type SessionDiscovery interface {
@@ -219,7 +219,7 @@ func (g *GlobalMATLAB) initializeStartupConfig(ctx context.Context, logger entit
 
 	g.matlabRoot = matlabRoot
 
-	matlabStartingDirectory, err := g.matlabStartingDirSelector.SelectMatlabStartingDir()
+	matlabStartingDirectory, err := g.matlabStartingDirSelector.SelectMatlabStartingDir(logger)
 	if err != nil {
 		logger.WithError(err).Warn("failed to determine MATLAB starting directory, proceeding without one")
 		return nil

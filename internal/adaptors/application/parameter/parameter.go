@@ -25,6 +25,7 @@ type Parameter[ValueType any] struct {
 
 	active      bool
 	recordToLog bool
+	piiSafe     bool
 }
 
 func NewParameter[ValueType any](
@@ -35,6 +36,7 @@ func NewParameter[ValueType any](
 	descriptionKey messages.MessageKey,
 	defaultValue ValueType,
 	recordToLog bool,
+	piiSafe bool,
 ) *Parameter[ValueType] {
 	return &Parameter[ValueType]{
 		id:             id,
@@ -46,6 +48,7 @@ func NewParameter[ValueType any](
 
 		active:      true,
 		recordToLog: recordToLog,
+		piiSafe:     piiSafe,
 	}
 }
 
@@ -73,6 +76,10 @@ func (p Parameter[ValueType]) GetDefaultValue() any {
 	return p.defaultValue
 }
 
+func (p Parameter[ValueType]) GetTypedDefaultValue() ValueType {
+	return p.defaultValue
+}
+
 func (p *Parameter[ValueType]) SetDescription(description string) {
 	p.description = description
 }
@@ -91,4 +98,8 @@ func (p Parameter[ValueType]) GetActive() bool {
 
 func (p Parameter[ValueType]) GetRecordToLog() bool {
 	return p.recordToLog
+}
+
+func (p Parameter[ValueType]) GetPIISafe() bool {
+	return p.piiSafe
 }

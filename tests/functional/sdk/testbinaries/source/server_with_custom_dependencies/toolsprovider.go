@@ -4,7 +4,7 @@ package main
 
 import (
 	"github.com/matlab/matlab-mcp-core-server/pkg/logger"
-	"github.com/matlab/matlab-mcp-core-server/pkg/server"
+	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
 )
 
 type ToolsProviderResources interface {
@@ -12,12 +12,12 @@ type ToolsProviderResources interface {
 	Dependencies() Dependencies
 }
 
-func ToolsProvider(resources ToolsProviderResources) []server.Tool {
+func ToolsProvider(resources ToolsProviderResources) []tools.Tool {
 	resources.Logger().Info("Creating Tools")
 
 	dataService := resources.Dependencies().DataService
 
-	return []server.Tool{
+	return []tools.Tool{
 		NewGreetTool(dataService),
 	}
 }

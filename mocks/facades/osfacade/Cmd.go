@@ -38,6 +38,61 @@ func (_m *MockCmd) EXPECT() *MockCmd_Expecter {
 	return &MockCmd_Expecter{mock: &_m.Mock}
 }
 
+// Output provides a mock function for the type MockCmd
+func (_mock *MockCmd) Output() ([]byte, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Output")
+	}
+
+	var r0 []byte
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() ([]byte, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() []byte); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockCmd_Output_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Output'
+type MockCmd_Output_Call struct {
+	*mock.Call
+}
+
+// Output is a helper method to define mock.On call
+func (_e *MockCmd_Expecter) Output() *MockCmd_Output_Call {
+	return &MockCmd_Output_Call{Call: _e.mock.On("Output")}
+}
+
+func (_c *MockCmd_Output_Call) Run(run func()) *MockCmd_Output_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockCmd_Output_Call) Return(bytes []byte, err error) *MockCmd_Output_Call {
+	_c.Call.Return(bytes, err)
+	return _c
+}
+
+func (_c *MockCmd_Output_Call) RunAndReturn(run func() ([]byte, error)) *MockCmd_Output_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SetSysProcAttr provides a mock function for the type MockCmd
 func (_mock *MockCmd) SetSysProcAttr(attr *syscall.SysProcAttr) {
 	_mock.Called(attr)

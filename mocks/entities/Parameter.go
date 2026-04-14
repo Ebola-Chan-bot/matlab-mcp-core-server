@@ -345,6 +345,50 @@ func (_c *MockParameter_GetID_Call) RunAndReturn(run func() string) *MockParamet
 	return _c
 }
 
+// GetPIISafe provides a mock function for the type MockParameter
+func (_mock *MockParameter) GetPIISafe() bool {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPIISafe")
+	}
+
+	var r0 bool
+	if returnFunc, ok := ret.Get(0).(func() bool); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	return r0
+}
+
+// MockParameter_GetPIISafe_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPIISafe'
+type MockParameter_GetPIISafe_Call struct {
+	*mock.Call
+}
+
+// GetPIISafe is a helper method to define mock.On call
+func (_e *MockParameter_Expecter) GetPIISafe() *MockParameter_GetPIISafe_Call {
+	return &MockParameter_GetPIISafe_Call{Call: _e.mock.On("GetPIISafe")}
+}
+
+func (_c *MockParameter_GetPIISafe_Call) Run(run func()) *MockParameter_GetPIISafe_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockParameter_GetPIISafe_Call) Return(b bool) *MockParameter_GetPIISafe_Call {
+	_c.Call.Return(b)
+	return _c
+}
+
+func (_c *MockParameter_GetPIISafe_Call) RunAndReturn(run func() bool) *MockParameter_GetPIISafe_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetRecordToLog provides a mock function for the type MockParameter
 func (_mock *MockParameter) GetRecordToLog() bool {
 	ret := _mock.Called()

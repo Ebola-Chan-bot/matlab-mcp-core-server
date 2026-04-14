@@ -10,6 +10,7 @@ import (
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
 	modeselectormocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/modeselector"
+	telemetrymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/telemetry"
 	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,6 +20,9 @@ func TestNew_HappyPath(t *testing.T) {
 	// Arrange
 	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
 
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
@@ -32,13 +36,22 @@ func TestNew_HappyPath(t *testing.T) {
 	mockParser := &modeselectormocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
 	// Act
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Assert
@@ -50,6 +63,9 @@ func TestStartAndWaitForCompletion_ConfigError(t *testing.T) {
 	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
@@ -62,7 +78,13 @@ func TestStartAndWaitForCompletion_ConfigError(t *testing.T) {
 	mockParser := &modeselectormocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
-	expectedError := &messages.StartupErrors_BadFlag_Error{}
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	expectedError := messages.AnError
 
 	mockConfigFactory.EXPECT().
 		Config().
@@ -72,9 +94,12 @@ func TestStartAndWaitForCompletion_ConfigError(t *testing.T) {
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Act
@@ -84,6 +109,132 @@ func TestStartAndWaitForCompletion_ConfigError(t *testing.T) {
 	require.ErrorIs(t, err, expectedError, "StartAndWaitForCompletion should return the error from Config")
 }
 
+func TestStartAndWaitForCompletion_GetGlobalLoggerError(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
+	defer mockConfig.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
+	defer mockWatchdogProcess.AssertExpectations(t)
+
+	mockOrchestrator := &modeselectormocks.MockOrchestrator{}
+	defer mockOrchestrator.AssertExpectations(t)
+
+	mockOsLayer := &modeselectormocks.MockOSLayer{}
+	defer mockOsLayer.AssertExpectations(t)
+
+	mockParser := &modeselectormocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	expectedError := messages.AnError
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(nil, expectedError).
+		Once()
+
+	modeSelectorInstance := modeselector.New(
+		mockConfigFactory,
+		mockParser,
+		mockTelemetryFactory,
+		mockWatchdogProcess,
+		mockOrchestrator,
+		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
+	)
+
+	// Act
+	err := modeSelectorInstance.StartAndWaitForCompletion(t.Context())
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "StartAndWaitForCompletion should return the error from GetGlobalLogger")
+}
+
+func TestStartAndWaitForCompletion_TelemetryError(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
+	defer mockConfig.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
+	defer mockWatchdogProcess.AssertExpectations(t)
+
+	mockOrchestrator := &modeselectormocks.MockOrchestrator{}
+	defer mockOrchestrator.AssertExpectations(t)
+
+	mockOsLayer := &modeselectormocks.MockOSLayer{}
+	defer mockOsLayer.AssertExpectations(t)
+
+	mockParser := &modeselectormocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	expectedError := messages.AnError
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(nil, expectedError).
+		Once()
+
+	modeSelectorInstance := modeselector.New(
+		mockConfigFactory,
+		mockParser,
+		mockTelemetryFactory,
+		mockWatchdogProcess,
+		mockOrchestrator,
+		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
+	)
+
+	// Act
+	err := modeSelectorInstance.StartAndWaitForCompletion(t.Context())
+
+	// Assert
+	require.ErrorIs(t, err, expectedError, "StartAndWaitForCompletion should return the error from Telemetry")
+}
+
 func TestStartAndWaitForCompletion_VersionMode_HappyPath(t *testing.T) {
 	// Arrange
 	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
@@ -91,6 +242,12 @@ func TestStartAndWaitForCompletion_VersionMode_HappyPath(t *testing.T) {
 
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
 
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
@@ -107,11 +264,35 @@ func TestStartAndWaitForCompletion_VersionMode_HappyPath(t *testing.T) {
 	mockStdout := &entitiesmocks.MockWriter{}
 	defer mockStdout.AssertExpectations(t)
 
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	expectedCtx := t.Context()
 	expectedVersion := "25.6.68"
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
 
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
 		Once()
 
 	mockConfig.EXPECT().
@@ -139,16 +320,28 @@ func TestStartAndWaitForCompletion_VersionMode_HappyPath(t *testing.T) {
 		Return(len(expectedVersion)+1, nil).
 		Once()
 
+	mockLifecycleSignaler.EXPECT().
+		RequestShutdown().
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		WaitForShutdownToComplete().
+		Return(nil).
+		Once()
+
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Act
-	err := modeSelectorInstance.StartAndWaitForCompletion(t.Context())
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
 
 	// Assert
 	require.NoError(t, err, "StartAndWaitForCompletion should not return an error in version mode")
@@ -161,6 +354,12 @@ func TestStartAndWaitForCompletion_VersionMode_WriteError(t *testing.T) {
 
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
 
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
@@ -177,12 +376,36 @@ func TestStartAndWaitForCompletion_VersionMode_WriteError(t *testing.T) {
 	mockParser := &modeselectormocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	expectedCtx := t.Context()
 	expectedVersion := "25.6.68"
-	expectedError := assert.AnError
+	writeError := assert.AnError
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
 
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
 		Once()
 
 	mockConfig.EXPECT().
@@ -207,31 +430,52 @@ func TestStartAndWaitForCompletion_VersionMode_WriteError(t *testing.T) {
 
 	mockStdout.EXPECT().
 		Write([]byte(fmt.Sprintf("%s\n", expectedVersion))).
-		Return(0, expectedError).
+		Return(0, writeError).
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		RequestShutdown().
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		WaitForShutdownToComplete().
+		Return(nil).
 		Once()
 
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Act
-	err := modeSelectorInstance.StartAndWaitForCompletion(t.Context())
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
 
 	// Assert
-	require.ErrorIs(t, err, expectedError, "StartAndWaitForCompletion should return the error from Write")
+	var writeErr *messages.StartupErrors_WriteError_Error
+	require.ErrorAs(t, err, &writeErr)
+	require.Equal(t, "version", writeErr.Attr0)
+	require.Equal(t, writeError.Error(), writeErr.Attr1)
 }
 
-func TestStartAndWaitForCompletion_WatchdogMode_HappyPath(t *testing.T) {
+func TestStartAndWaitForCompletion_VersionMode_ShutdownError(t *testing.T) {
 	// Arrange
 	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
 	defer mockConfigFactory.AssertExpectations(t)
 
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
 
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
@@ -245,11 +489,155 @@ func TestStartAndWaitForCompletion_WatchdogMode_HappyPath(t *testing.T) {
 	mockParser := &modeselectormocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
-	ctx := t.Context()
+	mockStdout := &entitiesmocks.MockWriter{}
+	defer mockStdout.AssertExpectations(t)
+
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	expectedCtx := t.Context()
+	expectedVersion := "25.6.68"
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
 
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
+		Once()
+
+	mockConfig.EXPECT().
+		HelpMode().
+		Return(false).
+		Once()
+
+	mockConfig.EXPECT().
+		VersionMode().
+		Return(true).
+		Once()
+
+	mockOsLayer.EXPECT().
+		Stdout().
+		Return(mockStdout).
+		Once()
+
+	mockConfig.EXPECT().
+		Version().
+		Return(expectedVersion).
+		Once()
+
+	mockStdout.EXPECT().
+		Write([]byte(fmt.Sprintf("%s\n", expectedVersion))).
+		Return(len(expectedVersion)+1, nil).
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		RequestShutdown().
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		WaitForShutdownToComplete().
+		Return(assert.AnError).
+		Once()
+
+	mockLogger.EXPECT().
+		WithError(assert.AnError).
+		Return(mockLogger).
+		Once()
+
+	mockLogger.EXPECT().
+		Warn("Shutdown failed").
+		Once()
+
+	modeSelectorInstance := modeselector.New(
+		mockConfigFactory,
+		mockParser,
+		mockTelemetryFactory,
+		mockWatchdogProcess,
+		mockOrchestrator,
+		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
+	)
+
+	// Act
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
+
+	// Assert
+	require.NoError(t, err, "StartAndWaitForCompletion should not return an error when only shutdown fails")
+}
+
+func TestStartAndWaitForCompletion_WatchdogMode_HappyPath(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
+	defer mockConfig.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
+
+	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
+	defer mockWatchdogProcess.AssertExpectations(t)
+
+	mockOrchestrator := &modeselectormocks.MockOrchestrator{}
+	defer mockOrchestrator.AssertExpectations(t)
+
+	mockOsLayer := &modeselectormocks.MockOSLayer{}
+	defer mockOsLayer.AssertExpectations(t)
+
+	mockParser := &modeselectormocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	expectedCtx := t.Context()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
 		Once()
 
 	mockConfig.EXPECT().
@@ -268,20 +656,23 @@ func TestStartAndWaitForCompletion_WatchdogMode_HappyPath(t *testing.T) {
 		Once()
 
 	mockWatchdogProcess.EXPECT().
-		StartAndWaitForCompletion(ctx).
+		StartAndWaitForCompletion(expectedCtx).
 		Return(nil).
 		Once()
 
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Act
-	err := modeSelectorInstance.StartAndWaitForCompletion(ctx)
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
 
 	// Assert
 	require.NoError(t, err, "StartAndWaitForCompletion should not return an error in watchdog mode")
@@ -295,6 +686,12 @@ func TestStartAndWaitForCompletion_WatchdogMode_StartAndWaitError(t *testing.T) 
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
+
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
@@ -307,12 +704,35 @@ func TestStartAndWaitForCompletion_WatchdogMode_StartAndWaitError(t *testing.T) 
 	mockParser := &modeselectormocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
-	expectedError := assert.AnError
-	ctx := t.Context()
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	watchdogError := assert.AnError
+	expectedCtx := t.Context()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
 
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
 		Once()
 
 	mockConfig.EXPECT().
@@ -331,23 +751,36 @@ func TestStartAndWaitForCompletion_WatchdogMode_StartAndWaitError(t *testing.T) 
 		Once()
 
 	mockWatchdogProcess.EXPECT().
-		StartAndWaitForCompletion(ctx).
-		Return(expectedError).
+		StartAndWaitForCompletion(expectedCtx).
+		Return(watchdogError).
+		Once()
+
+	mockLogger.EXPECT().
+		WithError(watchdogError).
+		Return(mockLogger).
+		Once()
+
+	mockLogger.EXPECT().
+		Error("Server failed with unexpected error").
 		Once()
 
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Act
-	err := modeSelectorInstance.StartAndWaitForCompletion(ctx)
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
 
 	// Assert
-	require.ErrorIs(t, err, expectedError, "StartAndWaitForCompletion should return the error from StartAndWaitForCompletion")
+	var genericErr *messages.StartupErrors_GenericInitializeFailure_Error
+	require.ErrorAs(t, err, &genericErr)
 }
 
 func TestStartAndWaitForCompletion_DefaultMode_HappyPath(t *testing.T) {
@@ -357,6 +790,12 @@ func TestStartAndWaitForCompletion_DefaultMode_HappyPath(t *testing.T) {
 
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
 
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
@@ -370,11 +809,34 @@ func TestStartAndWaitForCompletion_DefaultMode_HappyPath(t *testing.T) {
 	mockParser := &modeselectormocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
-	ctx := t.Context()
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	expectedCtx := t.Context()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
 
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
 		Once()
 
 	mockConfig.EXPECT().
@@ -393,20 +855,23 @@ func TestStartAndWaitForCompletion_DefaultMode_HappyPath(t *testing.T) {
 		Once()
 
 	mockOrchestrator.EXPECT().
-		StartAndWaitForCompletion(ctx).
+		StartAndWaitForCompletion(expectedCtx).
 		Return(nil).
 		Once()
 
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Act
-	err := modeSelectorInstance.StartAndWaitForCompletion(ctx)
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
 
 	// Assert
 	require.NoError(t, err, "StartAndWaitForCompletion should not return an error in default mode")
@@ -420,6 +885,12 @@ func TestStartAndWaitForCompletion_DefaultMode_StartAndWaitError(t *testing.T) {
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
+
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
@@ -432,12 +903,35 @@ func TestStartAndWaitForCompletion_DefaultMode_StartAndWaitError(t *testing.T) {
 	mockParser := &modeselectormocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
-	expectedError := assert.AnError
-	ctx := t.Context()
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	orchestratorError := assert.AnError
+	expectedCtx := t.Context()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
 
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
 		Once()
 
 	mockConfig.EXPECT().
@@ -456,23 +950,131 @@ func TestStartAndWaitForCompletion_DefaultMode_StartAndWaitError(t *testing.T) {
 		Once()
 
 	mockOrchestrator.EXPECT().
-		StartAndWaitForCompletion(ctx).
+		StartAndWaitForCompletion(expectedCtx).
+		Return(orchestratorError).
+		Once()
+
+	mockLogger.EXPECT().
+		WithError(orchestratorError).
+		Return(mockLogger).
+		Once()
+
+	mockLogger.EXPECT().
+		Error("Server failed with unexpected error").
+		Once()
+
+	modeSelectorInstance := modeselector.New(
+		mockConfigFactory,
+		mockParser,
+		mockTelemetryFactory,
+		mockWatchdogProcess,
+		mockOrchestrator,
+		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
+	)
+
+	// Act
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
+
+	// Assert
+	var genericErr *messages.StartupErrors_GenericInitializeFailure_Error
+	require.ErrorAs(t, err, &genericErr)
+}
+
+func TestStartAndWaitForCompletion_DefaultMode_StartAndWaitMessagesError(t *testing.T) {
+	// Arrange
+	mockConfigFactory := &modeselectormocks.MockConfigFactory{}
+	defer mockConfigFactory.AssertExpectations(t)
+
+	mockConfig := &configmocks.MockConfig{}
+	defer mockConfig.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
+
+	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
+	defer mockWatchdogProcess.AssertExpectations(t)
+
+	mockOrchestrator := &modeselectormocks.MockOrchestrator{}
+	defer mockOrchestrator.AssertExpectations(t)
+
+	mockOsLayer := &modeselectormocks.MockOSLayer{}
+	defer mockOsLayer.AssertExpectations(t)
+
+	mockParser := &modeselectormocks.MockParser{}
+	defer mockParser.AssertExpectations(t)
+
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	expectedError := messages.AnError
+	expectedCtx := t.Context()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
+
+	mockConfigFactory.EXPECT().
+		Config().
+		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
+		Once()
+
+	mockConfig.EXPECT().
+		HelpMode().
+		Return(false).
+		Once()
+
+	mockConfig.EXPECT().
+		VersionMode().
+		Return(false).
+		Once()
+
+	mockConfig.EXPECT().
+		WatchdogMode().
+		Return(false).
+		Once()
+
+	mockOrchestrator.EXPECT().
+		StartAndWaitForCompletion(expectedCtx).
 		Return(expectedError).
 		Once()
 
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Act
-	err := modeSelectorInstance.StartAndWaitForCompletion(ctx)
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
 
 	// Assert
-	require.ErrorIs(t, err, expectedError, "StartAndWaitForCompletion should return the error from StartAndWaitForCompletion")
+	require.ErrorIs(t, err, expectedError, "StartAndWaitForCompletion should pass through messages.Error without wrapping")
 }
 
 func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) {
@@ -482,6 +1084,12 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) 
 
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
 
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
@@ -498,12 +1106,35 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) 
 	mockStdout := &entitiesmocks.MockWriter{}
 	defer mockStdout.AssertExpectations(t)
 
-	dummyHelpText := "Help me get my feet back on the ground."
-	ctx := t.Context()
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	helpText := "Help me get my feet back on the ground."
+	expectedCtx := t.Context()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
 
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
 		Once()
 
 	mockConfig.EXPECT().
@@ -513,7 +1144,7 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) 
 
 	mockParser.EXPECT().
 		Usage().
-		Return(dummyHelpText, nil).
+		Return(helpText, nil).
 		Once()
 
 	mockOsLayer.EXPECT().
@@ -522,20 +1153,32 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitHappyPath(t *testing.T) 
 		Once()
 
 	mockStdout.EXPECT().
-		Write([]byte(fmt.Sprintf("%s\n", dummyHelpText))).
-		Return(len(dummyHelpText)+1, nil).
+		Write([]byte(fmt.Sprintf("%s\n", helpText))).
+		Return(len(helpText)+1, nil).
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		RequestShutdown().
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		WaitForShutdownToComplete().
+		Return(nil).
 		Once()
 
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Act
-	err := modeSelectorInstance.StartAndWaitForCompletion(ctx)
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
 
 	// Assert
 	require.NoError(t, err)
@@ -549,6 +1192,12 @@ func TestStartAndWaitForCompletion_HelpMode_UsageError(t *testing.T) {
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
 
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
+
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
 
@@ -561,11 +1210,34 @@ func TestStartAndWaitForCompletion_HelpMode_UsageError(t *testing.T) {
 	mockParser := &modeselectormocks.MockParser{}
 	defer mockParser.AssertExpectations(t)
 
-	ctx := t.Context()
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	expectedCtx := t.Context()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
 
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
 		Once()
 
 	mockConfig.EXPECT().
@@ -578,16 +1250,28 @@ func TestStartAndWaitForCompletion_HelpMode_UsageError(t *testing.T) {
 		Return("", messages.AnError).
 		Once()
 
+	mockLifecycleSignaler.EXPECT().
+		RequestShutdown().
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		WaitForShutdownToComplete().
+		Return(nil).
+		Once()
+
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Act
-	err := modeSelectorInstance.StartAndWaitForCompletion(ctx)
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
 
 	// Assert
 	require.ErrorIs(t, err, messages.AnError)
@@ -600,6 +1284,12 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitWriteError(t *testing.T)
 
 	mockConfig := &configmocks.MockConfig{}
 	defer mockConfig.AssertExpectations(t)
+
+	mockTelemetryFactory := &modeselectormocks.MockTelemetryFactory{}
+	defer mockTelemetryFactory.AssertExpectations(t)
+
+	mockTelemetry := &telemetrymocks.MockTelemetry{}
+	defer mockTelemetry.AssertExpectations(t)
 
 	mockWatchdogProcess := &modeselectormocks.MockWatchdogProcess{}
 	defer mockWatchdogProcess.AssertExpectations(t)
@@ -616,13 +1306,36 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitWriteError(t *testing.T)
 	mockStdout := &entitiesmocks.MockWriter{}
 	defer mockStdout.AssertExpectations(t)
 
-	dummyHelpText := "Help me get my feet back on the ground."
-	dummyError := assert.AnError
-	ctx := t.Context()
+	mockLoggerFactory := &modeselectormocks.MockLoggerFactory{}
+	defer mockLoggerFactory.AssertExpectations(t)
+
+	mockLogger := &entitiesmocks.MockLogger{}
+	defer mockLogger.AssertExpectations(t)
+
+	mockLifecycleSignaler := &modeselectormocks.MockLifecycleSignaler{}
+	defer mockLifecycleSignaler.AssertExpectations(t)
+
+	helpText := "Help me get my feet back on the ground."
+	writeError := assert.AnError
+	expectedCtx := t.Context()
+
+	mockLoggerFactory.EXPECT().
+		GetGlobalLogger().
+		Return(mockLogger, nil).
+		Once()
 
 	mockConfigFactory.EXPECT().
 		Config().
 		Return(mockConfig, nil).
+		Once()
+
+	mockTelemetryFactory.EXPECT().
+		Telemetry().
+		Return(mockTelemetry, nil).
+		Once()
+
+	mockTelemetry.EXPECT().
+		RecordServerStart(expectedCtx).
 		Once()
 
 	mockConfig.EXPECT().
@@ -632,7 +1345,16 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitWriteError(t *testing.T)
 
 	mockParser.EXPECT().
 		Usage().
-		Return(dummyHelpText, nil).
+		Return(helpText, nil).
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		RequestShutdown().
+		Once()
+
+	mockLifecycleSignaler.EXPECT().
+		WaitForShutdownToComplete().
+		Return(nil).
 		Once()
 
 	mockOsLayer.EXPECT().
@@ -641,21 +1363,27 @@ func TestStartAndWaitForCompletion_HelpMode_StartAndWaitWriteError(t *testing.T)
 		Once()
 
 	mockStdout.EXPECT().
-		Write([]byte(fmt.Sprintf("%s\n", dummyHelpText))).
-		Return(0, dummyError).
+		Write([]byte(fmt.Sprintf("%s\n", helpText))).
+		Return(0, writeError).
 		Once()
 
 	modeSelectorInstance := modeselector.New(
 		mockConfigFactory,
 		mockParser,
+		mockTelemetryFactory,
 		mockWatchdogProcess,
 		mockOrchestrator,
 		mockOsLayer,
+		mockLifecycleSignaler,
+		mockLoggerFactory,
 	)
 
 	// Act
-	err := modeSelectorInstance.StartAndWaitForCompletion(ctx)
+	err := modeSelectorInstance.StartAndWaitForCompletion(expectedCtx)
 
 	// Assert
-	require.ErrorIs(t, err, dummyError)
+	var writeErr *messages.StartupErrors_WriteError_Error
+	require.ErrorAs(t, err, &writeErr)
+	require.Equal(t, "help", writeErr.Attr0)
+	require.Equal(t, writeError.Error(), writeErr.Attr1)
 }

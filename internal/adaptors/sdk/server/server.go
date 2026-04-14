@@ -10,7 +10,6 @@ import (
 	publictypes "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/toolsprovider"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	"github.com/matlab/matlab-mcp-core-server/internal/wire/adaptor"
 )
 
@@ -87,15 +86,8 @@ func (s *Server[Dependencies]) StartAndWaitForCompletion(ctx context.Context) in
 
 	if err := application.ModeSelector().StartAndWaitForCompletion(ctx); err != nil {
 		messageCatalog := application.MessageCatalog()
-
-		errorMessage, ok := messageCatalog.GetFromGeneralError(err)
-		if ok {
-			fmt.Fprintf(s.errorWriter, "%s\n", errorMessage) //nolint:errcheck // Nothing we can do then
-			return 1
-		}
-
-		fallbackMessage := messageCatalog.Get(messages.StartupErrors_GenericInitializeFailure)
-		fmt.Fprintf(s.errorWriter, "%s\n", fallbackMessage) //nolint:errcheck // Nothing we can do then
+		errorMessage := messageCatalog.GetFromError(err)
+		fmt.Fprintf(s.errorWriter, "%s\n", errorMessage) //nolint:errcheck // Nothing we can do then
 		return 1
 	}
 

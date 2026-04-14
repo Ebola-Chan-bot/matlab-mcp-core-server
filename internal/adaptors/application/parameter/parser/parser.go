@@ -4,6 +4,7 @@ package parser
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 
@@ -58,9 +59,9 @@ func (p *Parser) Usage() (string, messages.Error) {
 	return p.usageText, nil
 }
 
-func (p *Parser) Parse(args []string) ([]entities.Parameter, map[string]any, messages.Error) {
+func (p *Parser) Parse(args []string) ([]entities.Parameter, map[string]any, []string, messages.Error) {
 	if err := p.initialize(); err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	specifiedArgs := make(map[string]any)
@@ -68,15 +69,23 @@ func (p *Parser) Parse(args []string) ([]entities.Parameter, map[string]any, mes
 		specifiedArgs[param.GetID()] = param.GetDefaultValue()
 	}
 
-	if err := p.parseEnvVars(specifiedArgs); err != nil {
-		return nil, nil, err
+	specifiedParameters := map[string]struct{}{}
+
+	if err := p.parseEnvVars(specifiedArgs, specifiedParameters); err != nil {
+		return nil, nil, nil, err
 	}
 
-	if err := p.parseFlags(args, specifiedArgs); err != nil {
-		return nil, nil, err
+	if err := p.parseFlags(args, specifiedArgs, specifiedParameters); err != nil {
+		return nil, nil, nil, err
 	}
 
-	return p.parameters, specifiedArgs, nil
+	specifiedIDs := make([]string, 0, len(specifiedParameters))
+	for id := range specifiedParameters {
+		specifiedIDs = append(specifiedIDs, id)
+	}
+	sort.Strings(specifiedIDs)
+
+	return p.parameters, specifiedArgs, specifiedIDs, nil
 }
 
 func (p *Parser) initialize() messages.Error {

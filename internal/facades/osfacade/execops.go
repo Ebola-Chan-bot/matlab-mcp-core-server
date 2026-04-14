@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package osfacade
 
@@ -23,8 +23,9 @@ type Cmd interface {
 	StdinPipe() (io.Writer, error)
 	StdoutPipe() (io.Reader, error)
 	StderrPipe() (io.Reader, error)
-	SetSysProcAttr(attr *syscall.SysProcAttr)
 	Start() error
+	Output() ([]byte, error)
+	SetSysProcAttr(attr *syscall.SysProcAttr)
 }
 
 // Command wraps the exec.Command

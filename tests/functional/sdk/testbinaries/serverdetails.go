@@ -92,6 +92,16 @@ func (s ServerWithCustomDependenciesDetails) GreetToolName() string {
 	return s.greetToolName
 }
 
+type ServerWithWatchdogDetails struct {
+	ServerDetails
+
+	getPIDToolName string
+}
+
+func (s ServerWithWatchdogDetails) GetPIDToolName() string {
+	return s.getPIDToolName
+}
+
 type ServerWithLoggingDetails struct {
 	ServerDetails
 

@@ -39,7 +39,7 @@ func (s *ServerWithLoggingTestSuite) TestSDK_Logging_DependenciesAndToolsProvide
 	}()
 
 	// This suite intentionally verifies logging behavior and may emit ERROR logs.
-	session := s.CreateSession(s.serverDetails.BinaryLocation(), nil, "--log-folder="+logFolder)
+	session := s.CreateSession(s.serverDetails.BinaryLocation(), nil, nil, "--log-folder="+logFolder)
 	defer func() {
 		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
 		session.DumpLogsOnFailure(s.T())
@@ -79,7 +79,7 @@ func (s *ServerWithLoggingTestSuite) TestSDK_Logging_ToolHandlerLogsToFile() {
 	name := "World"
 
 	// This suite intentionally verifies logging behavior and may emit ERROR logs.
-	session := s.CreateSession(s.serverDetails.BinaryLocation(), nil, "--log-folder="+logFolder)
+	session := s.CreateSession(s.serverDetails.BinaryLocation(), nil, nil, "--log-folder="+logFolder)
 	defer func() {
 		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
 		session.DumpLogsOnFailure(s.T())

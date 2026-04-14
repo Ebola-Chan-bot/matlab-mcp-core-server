@@ -27,7 +27,7 @@ func TestServerWithCustomToolsTestSuite(t *testing.T) {
 
 func (s *ServerWithCustomToolsTestSuite) TestSDK_CustomTools_HappyPath() {
 	// Connect to a session
-	session := s.CreateSession(s.serverDetails.BinaryLocation(), nil)
+	session := s.CreateSession(s.serverDetails.BinaryLocation(), nil, nil)
 	defer func() {
 		s.NoError(session.Close(), "closing session should not error") //nolint:testifylint // assert in defer to avoid FailNow
 		s.AssertNoErrorLogs(session)

@@ -5,6 +5,8 @@
 package mocks
 
 import (
+	"time"
+
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
 	"github.com/matlab/matlab-mcp-core-server/internal/messages"
 	mock "github.com/stretchr/testify/mock"
@@ -35,6 +37,50 @@ type MockConfig_Expecter struct {
 
 func (_m *MockConfig) EXPECT() *MockConfig_Expecter {
 	return &MockConfig_Expecter{mock: &_m.Mock}
+}
+
+// AsPIISafeJSONString provides a mock function for the type MockConfig
+func (_mock *MockConfig) AsPIISafeJSONString() string {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for AsPIISafeJSONString")
+	}
+
+	var r0 string
+	if returnFunc, ok := ret.Get(0).(func() string); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	return r0
+}
+
+// MockConfig_AsPIISafeJSONString_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AsPIISafeJSONString'
+type MockConfig_AsPIISafeJSONString_Call struct {
+	*mock.Call
+}
+
+// AsPIISafeJSONString is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) AsPIISafeJSONString() *MockConfig_AsPIISafeJSONString_Call {
+	return &MockConfig_AsPIISafeJSONString_Call{Call: _e.mock.On("AsPIISafeJSONString")}
+}
+
+func (_c *MockConfig_AsPIISafeJSONString_Call) Run(run func()) *MockConfig_AsPIISafeJSONString_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockConfig_AsPIISafeJSONString_Call) Return(s string) *MockConfig_AsPIISafeJSONString_Call {
+	_c.Call.Return(s)
+	return _c
+}
+
+func (_c *MockConfig_AsPIISafeJSONString_Call) RunAndReturn(run func() string) *MockConfig_AsPIISafeJSONString_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // BaseDir provides a mock function for the type MockConfig
@@ -77,6 +123,50 @@ func (_c *MockConfig_BaseDir_Call) Return(s string) *MockConfig_BaseDir_Call {
 }
 
 func (_c *MockConfig_BaseDir_Call) RunAndReturn(run func() string) *MockConfig_BaseDir_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DisableTelemetry provides a mock function for the type MockConfig
+func (_mock *MockConfig) DisableTelemetry() bool {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for DisableTelemetry")
+	}
+
+	var r0 bool
+	if returnFunc, ok := ret.Get(0).(func() bool); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	return r0
+}
+
+// MockConfig_DisableTelemetry_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DisableTelemetry'
+type MockConfig_DisableTelemetry_Call struct {
+	*mock.Call
+}
+
+// DisableTelemetry is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) DisableTelemetry() *MockConfig_DisableTelemetry_Call {
+	return &MockConfig_DisableTelemetry_Call{Call: _e.mock.On("DisableTelemetry")}
+}
+
+func (_c *MockConfig_DisableTelemetry_Call) Run(run func()) *MockConfig_DisableTelemetry_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockConfig_DisableTelemetry_Call) Return(b bool) *MockConfig_DisableTelemetry_Call {
+	_c.Call.Return(b)
+	return _c
+}
+
+func (_c *MockConfig_DisableTelemetry_Call) RunAndReturn(run func() bool) *MockConfig_DisableTelemetry_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -489,6 +579,184 @@ func (_c *MockConfig_ShouldShowMATLABDesktop_Call) Return(b bool) *MockConfig_Sh
 }
 
 func (_c *MockConfig_ShouldShowMATLABDesktop_Call) RunAndReturn(run func() bool) *MockConfig_ShouldShowMATLABDesktop_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SpecifiedParameters provides a mock function for the type MockConfig
+func (_mock *MockConfig) SpecifiedParameters() []string {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for SpecifiedParameters")
+	}
+
+	var r0 []string
+	if returnFunc, ok := ret.Get(0).(func() []string); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+	return r0
+}
+
+// MockConfig_SpecifiedParameters_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SpecifiedParameters'
+type MockConfig_SpecifiedParameters_Call struct {
+	*mock.Call
+}
+
+// SpecifiedParameters is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) SpecifiedParameters() *MockConfig_SpecifiedParameters_Call {
+	return &MockConfig_SpecifiedParameters_Call{Call: _e.mock.On("SpecifiedParameters")}
+}
+
+func (_c *MockConfig_SpecifiedParameters_Call) Run(run func()) *MockConfig_SpecifiedParameters_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockConfig_SpecifiedParameters_Call) Return(strings []string) *MockConfig_SpecifiedParameters_Call {
+	_c.Call.Return(strings)
+	return _c
+}
+
+func (_c *MockConfig_SpecifiedParameters_Call) RunAndReturn(run func() []string) *MockConfig_SpecifiedParameters_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TelemetryCollectionInterval provides a mock function for the type MockConfig
+func (_mock *MockConfig) TelemetryCollectionInterval() time.Duration {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for TelemetryCollectionInterval")
+	}
+
+	var r0 time.Duration
+	if returnFunc, ok := ret.Get(0).(func() time.Duration); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(time.Duration)
+	}
+	return r0
+}
+
+// MockConfig_TelemetryCollectionInterval_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TelemetryCollectionInterval'
+type MockConfig_TelemetryCollectionInterval_Call struct {
+	*mock.Call
+}
+
+// TelemetryCollectionInterval is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) TelemetryCollectionInterval() *MockConfig_TelemetryCollectionInterval_Call {
+	return &MockConfig_TelemetryCollectionInterval_Call{Call: _e.mock.On("TelemetryCollectionInterval")}
+}
+
+func (_c *MockConfig_TelemetryCollectionInterval_Call) Run(run func()) *MockConfig_TelemetryCollectionInterval_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockConfig_TelemetryCollectionInterval_Call) Return(duration time.Duration) *MockConfig_TelemetryCollectionInterval_Call {
+	_c.Call.Return(duration)
+	return _c
+}
+
+func (_c *MockConfig_TelemetryCollectionInterval_Call) RunAndReturn(run func() time.Duration) *MockConfig_TelemetryCollectionInterval_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TelemetryCollectorEndpoint provides a mock function for the type MockConfig
+func (_mock *MockConfig) TelemetryCollectorEndpoint() string {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for TelemetryCollectorEndpoint")
+	}
+
+	var r0 string
+	if returnFunc, ok := ret.Get(0).(func() string); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	return r0
+}
+
+// MockConfig_TelemetryCollectorEndpoint_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TelemetryCollectorEndpoint'
+type MockConfig_TelemetryCollectorEndpoint_Call struct {
+	*mock.Call
+}
+
+// TelemetryCollectorEndpoint is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) TelemetryCollectorEndpoint() *MockConfig_TelemetryCollectorEndpoint_Call {
+	return &MockConfig_TelemetryCollectorEndpoint_Call{Call: _e.mock.On("TelemetryCollectorEndpoint")}
+}
+
+func (_c *MockConfig_TelemetryCollectorEndpoint_Call) Run(run func()) *MockConfig_TelemetryCollectorEndpoint_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockConfig_TelemetryCollectorEndpoint_Call) Return(s string) *MockConfig_TelemetryCollectorEndpoint_Call {
+	_c.Call.Return(s)
+	return _c
+}
+
+func (_c *MockConfig_TelemetryCollectorEndpoint_Call) RunAndReturn(run func() string) *MockConfig_TelemetryCollectorEndpoint_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TelemetryCollectorEndpointInsecure provides a mock function for the type MockConfig
+func (_mock *MockConfig) TelemetryCollectorEndpointInsecure() bool {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for TelemetryCollectorEndpointInsecure")
+	}
+
+	var r0 bool
+	if returnFunc, ok := ret.Get(0).(func() bool); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	return r0
+}
+
+// MockConfig_TelemetryCollectorEndpointInsecure_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TelemetryCollectorEndpointInsecure'
+type MockConfig_TelemetryCollectorEndpointInsecure_Call struct {
+	*mock.Call
+}
+
+// TelemetryCollectorEndpointInsecure is a helper method to define mock.On call
+func (_e *MockConfig_Expecter) TelemetryCollectorEndpointInsecure() *MockConfig_TelemetryCollectorEndpointInsecure_Call {
+	return &MockConfig_TelemetryCollectorEndpointInsecure_Call{Call: _e.mock.On("TelemetryCollectorEndpointInsecure")}
+}
+
+func (_c *MockConfig_TelemetryCollectorEndpointInsecure_Call) Run(run func()) *MockConfig_TelemetryCollectorEndpointInsecure_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockConfig_TelemetryCollectorEndpointInsecure_Call) Return(b bool) *MockConfig_TelemetryCollectorEndpointInsecure_Call {
+	_c.Call.Return(b)
+	return _c
+}
+
+func (_c *MockConfig_TelemetryCollectorEndpointInsecure_Call) RunAndReturn(run func() bool) *MockConfig_TelemetryCollectorEndpointInsecure_Call {
 	_c.Call.Return(run)
 	return _c
 }

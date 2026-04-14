@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/matlab/matlab-mcp-core-server/pkg/server"
+	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 		Title:        "Server With Custom Tools",
 		Instructions: "This is a test server with custom tools",
 
-		ToolsProvider: func(toolsProviderResources server.ToolsProviderResources[any]) []server.Tool {
+		ToolsProvider: func(toolsProviderResources server.ToolsProviderResources[any]) []tools.Tool {
 			return ToolsProvider(toolsProviderResources)
 		},
 	}

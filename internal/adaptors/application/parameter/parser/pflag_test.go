@@ -4,6 +4,7 @@ package parser_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/parser"
 	"github.com/matlab/matlab-mcp-core-server/internal/entities"
@@ -52,12 +53,13 @@ func TestParser_Parse_BoolFlagImplicitTrue(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	require.NoError(t, err)
 	assert.Equal(t, true, result[paramID])
 	assert.Equal(t, []entities.Parameter{mockParam}, parameters)
+	assert.Equal(t, []string{paramID}, specifiedParameters)
 }
 
 func TestParser_Parse_HiddenFlag(t *testing.T) {
@@ -100,12 +102,13 @@ func TestParser_Parse_HiddenFlag(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	require.NoError(t, err)
 	assert.Equal(t, expectedValue, result[paramID])
 	assert.Equal(t, []entities.Parameter{mockParam}, parameters)
+	assert.Equal(t, []string{paramID}, specifiedParameters)
 }
 
 func TestParser_Parse_BadFlag(t *testing.T) {
@@ -135,13 +138,111 @@ func TestParser_Parse_BadFlag(t *testing.T) {
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
 	usage, _ := p.Usage()
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	expectedError := messages.New_StartupErrors_BadFlag_Error(badFlagName, "\n", usage)
 	require.Equal(t, expectedError, err)
 	assert.Nil(t, result)
 	assert.Nil(t, parameters)
+	assert.Nil(t, specifiedParameters)
+}
+
+func TestParser_Parse_DurationFlag(t *testing.T) {
+	// Arrange
+	mockOSLayer := &parsermocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockDefaultParamFactory := &parsermocks.MockDefaultParameterFactory{}
+	defer mockDefaultParamFactory.AssertExpectations(t)
+
+	mockParamFactory := &parsermocks.MockParameterFactory{}
+	defer mockParamFactory.AssertExpectations(t)
+
+	paramID := "duration-param"
+	paramFlagName := "my-duration"
+
+	mockParam := newMockParam(
+		t,
+		paramID,
+		paramFlagName,
+		"",
+		time.Minute,
+		"Test duration description",
+		false,
+		true,
+	)
+
+	mockDefaultParamFactory.EXPECT().
+		DefaultParameters().
+		Return([]entities.Parameter{}).
+		Once()
+
+	mockParamFactory.EXPECT().
+		Parameters().
+		Return([]entities.Parameter{mockParam}).
+		Once()
+
+	args := []string{"--" + paramFlagName + "=5m30s"}
+
+	// Act
+	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
+	parameters, result, specifiedParameters, err := p.Parse(args)
+
+	// Assert
+	require.NoError(t, err)
+	assert.Equal(t, 5*time.Minute+30*time.Second, result[paramID])
+	assert.Equal(t, []entities.Parameter{mockParam}, parameters)
+	assert.Equal(t, []string{paramID}, specifiedParameters)
+}
+
+func TestParser_Parse_BadDurationFlagValue(t *testing.T) {
+	// Arrange
+	mockOSLayer := &parsermocks.MockOSLayer{}
+	defer mockOSLayer.AssertExpectations(t)
+
+	mockDefaultParamFactory := &parsermocks.MockDefaultParameterFactory{}
+	defer mockDefaultParamFactory.AssertExpectations(t)
+
+	mockParamFactory := &parsermocks.MockParameterFactory{}
+	defer mockParamFactory.AssertExpectations(t)
+
+	paramFlagName := "my-duration"
+	badValue := "notaduration"
+
+	mockParam := newMockParam(
+		t,
+		"duration-param",
+		paramFlagName,
+		"",
+		time.Minute,
+		"Test duration description",
+		false,
+		true,
+	)
+
+	mockDefaultParamFactory.EXPECT().
+		DefaultParameters().
+		Return([]entities.Parameter{}).
+		Once()
+
+	mockParamFactory.EXPECT().
+		Parameters().
+		Return([]entities.Parameter{mockParam}).
+		Once()
+
+	args := []string{"--" + paramFlagName + "=" + badValue}
+
+	// Act
+	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
+	parameters, result, specifiedParameters, err := p.Parse(args)
+
+	// Assert
+	expectedError := messages.New_StartupErrors_BadValue_Error(badValue, paramFlagName)
+	require.Equal(t, expectedError, err)
+	assert.Nil(t, result)
+	assert.Nil(t, parameters)
+	assert.Nil(t, specifiedParameters)
 }
 
 func TestParser_Parse_BadBoolFlagValue(t *testing.T) {
@@ -183,13 +284,14 @@ func TestParser_Parse_BadBoolFlagValue(t *testing.T) {
 
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	expectedError := messages.New_StartupErrors_BadValue_Error(badValue, paramFlagName)
 	require.Equal(t, expectedError, err)
 	assert.Nil(t, result)
 	assert.Nil(t, parameters)
+	assert.Nil(t, specifiedParameters)
 }
 
 func TestParser_Parse_InactiveParameterFlagSkipped(t *testing.T) {
@@ -231,13 +333,14 @@ func TestParser_Parse_InactiveParameterFlagSkipped(t *testing.T) {
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
 	usage, _ := p.Usage()
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	expectedError := messages.New_StartupErrors_BadFlag_Error(flagName, "\n", usage)
 	require.Equal(t, expectedError, err)
 	assert.Nil(t, result)
 	assert.Nil(t, parameters)
+	assert.Nil(t, specifiedParameters)
 }
 
 func TestParser_Parse_BadFlagSyntax(t *testing.T) {
@@ -267,11 +370,12 @@ func TestParser_Parse_BadFlagSyntax(t *testing.T) {
 	// Act
 	p := parser.New(mockOSLayer, mockDefaultParamFactory, mockParamFactory)
 	usage, _ := p.Usage()
-	parameters, result, err := p.Parse(args)
+	parameters, result, specifiedParameters, err := p.Parse(args)
 
 	// Assert
 	expectedError := messages.New_StartupErrors_BadSyntax_Error(badArg, "\n", usage)
 	require.Equal(t, expectedError, err)
 	assert.Nil(t, result)
 	assert.Nil(t, parameters)
+	assert.Nil(t, specifiedParameters)
 }

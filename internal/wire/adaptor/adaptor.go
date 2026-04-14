@@ -12,11 +12,12 @@ import (
 )
 
 type ModeSelector interface {
-	StartAndWaitForCompletion(ctx context.Context) error
+	StartAndWaitForCompletion(ctx context.Context) messages.Error
 }
 
 type MessageCatalog interface {
 	GetFromGeneralError(err error) (string, bool)
+	GetFromError(err messages.Error) string
 	Get(key messages.MessageKey) string
 }
 
