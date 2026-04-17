@@ -1,3 +1,6 @@
+由于上游已正式支持本分支的核心功能（复用已有MATLAB会话），本分支进入归档状态暂停维护，请使用上游官方版本。
+
+PS：官方你一声不吭删了我在 File Exchange 上的发布是否有点不地道，好歹给我发个邮件。另外你自家的正式版也没见上架啊，急着删我的意义是啥？
 # MATLAB MCP Core Server
 
 Run MATLAB® using AI applications with the official MATLAB MCP Server from MathWorks®. The MATLAB MCP Core Server allows your AI applications to:
