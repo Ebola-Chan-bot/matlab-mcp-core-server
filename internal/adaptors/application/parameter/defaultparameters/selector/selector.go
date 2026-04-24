@@ -73,7 +73,10 @@ func (s *Selector) DefaultParameters() []entities.Parameter {
 
 	parameters := make([]entities.Parameter, len(parameterDefs))
 	for i, parameterDef := range parameterDefs {
-		s.resolveDescription(parameterDef)
+		// Only resolve the description of not hidden (visible) flags
+		if !parameterDef.GetHiddenFlag() {
+			s.resolveDescription(parameterDef)
+		}
 		parameters[i] = parameterDef
 	}
 	return parameters

@@ -14,7 +14,7 @@ import (
 	selectormocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/parameter/defaultparameters/selector"
 )
 
-func TestSelector_DefaultParameters_DescriptionsResolved(t *testing.T) {
+func TestSelector_DefaultParameters_DescriptionsResolvedForVisibleParameters(t *testing.T) {
 	// Arrange
 	mockAppDef := &selectormocks.MockApplicationDefinition{}
 	defer mockAppDef.AssertExpectations(t)
@@ -24,76 +24,59 @@ func TestSelector_DefaultParameters_DescriptionsResolved(t *testing.T) {
 
 	expectedDescriptions := map[messages.MessageKey]struct {
 		description string
-		times       int
 	}{
 		messages.CLIMessages_HelpDescription: {
 			description: "Help description",
-			times:       1,
 		},
 		messages.CLIMessages_VersionDescription: {
 			description: "Version description",
-			times:       1,
 		},
 		messages.CLIMessages_InstallMATLABAddOnDescription: {
 			description: "Install MATLAB Add-On description",
-			times:       1,
 		},
 		messages.CLIMessages_DisableTelemetryDescription: {
 			description: "Disable telemetry description",
-			times:       1,
 		},
 		messages.CLIMessages_BaseDirDescription: {
 			description: "Base dir description",
-			times:       1,
 		},
 		messages.CLIMessages_LogLevelDescription: {
 			description: "Log level description",
-			times:       1,
-		},
-		messages.CLIMessages_InternalUseDescription: {
-			description: "Internal use description",
-			times:       9,
 		},
 		messages.CLIMessages_PreferredLocalMATLABRootDescription: {
 			description: "MATLAB root description",
-			times:       1,
 		},
 		messages.CLIMessages_PreferredMATLABStartingDirectoryDescription: {
 			description: "MATLAB starting directory description",
-			times:       1,
-		},
-		messages.CLIMessages_UseSingleMATLABSessionDescription: {
-			description: "Single MATLAB session description",
-			times:       1,
 		},
 		messages.CLIMessages_InitializeMATLABOnStartupDescription: {
 			description: "Initialize MATLAB on startup description",
-			times:       1,
 		},
 		messages.CLIMessages_DisplayModeDescription: {
 			description: "Display mode description",
-			times:       1,
 		},
 		messages.CLIMessages_MATLABSessionModeDescription: {
 			description: "MATLAB session mode description",
-			times:       1,
 		},
 		messages.CLIMessages_ExtensionFileDescription: {
 			description: "Extension file description",
-			times:       1,
 		},
 	}
 
 	mockAppDef.EXPECT().
 		Features().
-		Return(definition.Features{}).
+		Return(definition.Features{
+			MATLAB: definition.MATLABFeature{
+				Enabled: true,
+			},
+		}).
 		Once()
 
 	for key, expected := range expectedDescriptions {
 		mockMessageCatalog.EXPECT().
 			Get(key).
 			Return(expected.description).
-			Times(expected.times)
+			Once()
 	}
 
 	sut := selector.New(mockAppDef, mockMessageCatalog)
@@ -102,9 +85,18 @@ func TestSelector_DefaultParameters_DescriptionsResolved(t *testing.T) {
 	parameters := sut.DefaultParameters()
 
 	// Assert
+	expectedNumParametersWithNonEmptyDescription := len(expectedDescriptions)
+	numParametersWithNonEmptyDescription := 0
 	for _, p := range parameters {
-		assert.NotEmpty(t, p.GetDescription(), "parameter %s should have a description", p.GetID())
+		if !p.GetHiddenFlag() {
+			numParametersWithNonEmptyDescription += 1
+		}
 	}
+
+	assert.Equal(t,
+		expectedNumParametersWithNonEmptyDescription,
+		numParametersWithNonEmptyDescription,
+	)
 }
 
 func TestSelector_DefaultParameters_MATLABEnabled(t *testing.T) {
