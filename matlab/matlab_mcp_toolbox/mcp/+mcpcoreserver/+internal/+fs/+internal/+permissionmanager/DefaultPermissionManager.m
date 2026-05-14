@@ -86,9 +86,9 @@ classdef DefaultPermissionManager < mcpcoreserver.internal.fs.internal.permissio
             isDir = obj.FSFacade.isfolder(path);
 
             try
-                userSid = obj.WindowsACLManager.getCurrentUserSid();
+                userSid = obj.WindowsACLManager.getCurrentUserSID();
                 sids = [userSid, obj.SYSTEM_SID, obj.ADMINISTRATORS_SID];
-                obj.WindowsACLManager.setProtectedAcl(path, sids, isDir);
+                obj.WindowsACLManager.setProtectedACL(path, sids, isDir);
             catch ME
                 throw(addCause(mcpcoreserver.internal.error.Errors.FailedToSetPermissions(path), ME));
             end
@@ -124,9 +124,9 @@ classdef DefaultPermissionManager < mcpcoreserver.internal.fs.internal.permissio
             %   Uses SIDs throughout for locale-independent comparison.
 
             try
-                userSid = obj.WindowsACLManager.getCurrentUserSid();
-                allowedSids = obj.WindowsACLManager.getAllowedSids(path);
-                daclProtected = obj.WindowsACLManager.isDaclProtected(path);
+                userSid = obj.WindowsACLManager.getCurrentUserSID();
+                allowedSids = obj.WindowsACLManager.getAllowedSIDs(path);
+                daclProtected = obj.WindowsACLManager.isDACLProtected(path);
             catch
                 throw(mcpcoreserver.internal.error.Errors.FailedToGetFileAttributes(path));
             end

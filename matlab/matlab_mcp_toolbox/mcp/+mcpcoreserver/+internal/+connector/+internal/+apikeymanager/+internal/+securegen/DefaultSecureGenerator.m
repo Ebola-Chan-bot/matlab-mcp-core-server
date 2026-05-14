@@ -9,6 +9,7 @@ classdef DefaultSecureGenerator < mcpcoreserver.internal.connector.internal.apik
     properties (GetAccess = private, SetAccess = immutable)
         OSFacade(1, 1) mcpcoreserver.internal.facade.os.OSFacade = mcpcoreserver.internal.facade.os.DefaultOSFacade()
         FSFacade(1, 1) mcpcoreserver.internal.facade.fs.FSFacade = mcpcoreserver.internal.facade.fs.DefaultFSFacade()
+        DotNetFacade(1, 1) mcpcoreserver.internal.facade.dotnet.DotNetFacade = mcpcoreserver.internal.facade.dotnet.DefaultDotNetFacade()
     end
 
     properties (Constant, Access = private)
@@ -50,11 +51,11 @@ classdef DefaultSecureGenerator < mcpcoreserver.internal.connector.internal.apik
         end
 
         function bytes = generateKeyBytesOnWindows(obj)
-            rng = System.Security.Cryptography.RandomNumberGenerator.Create();
-            disposeOfRng = onCleanup(@() rng.Dispose());
-            bytes = NET.createArray('System.Byte', obj.KeySize);
-            rng.GetBytes(bytes);
-            bytes = uint8(bytes);
+            rng = obj.DotNetFacade.createRandomNumberGenerator();
+            cleanup = onCleanup(@() rng.Dispose()); %#ok<NASGU>
+            byteArray = obj.DotNetFacade.createByteArray(obj.KeySize);
+            rng.GetBytes(byteArray);
+            bytes = uint8(byteArray);
         end
     end
 

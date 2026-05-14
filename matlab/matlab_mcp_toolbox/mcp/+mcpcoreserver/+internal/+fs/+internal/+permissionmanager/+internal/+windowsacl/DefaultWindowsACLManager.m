@@ -9,44 +9,59 @@ classdef DefaultWindowsACLManager < handle & mcpcoreserver.internal.fs.internal.
     % Copyright 2026 The MathWorks, Inc.
 
     properties (Access = private)
-        CachedUserSid string = string.empty
+        CachedUserSID string = string.empty
+    end
+
+    properties (GetAccess = private, SetAccess = immutable)
+        DotNetAccessControl(1, 1) mcpcoreserver.internal.fs.internal.permissionmanager.internal.windowsacl.internal.dotnet.DotNetAccessControl = ...
+            mcpcoreserver.internal.fs.internal.permissionmanager.internal.windowsacl.internal.dotnet.createDotNetAccessControl()
+        DotNetFacade(1, 1) mcpcoreserver.internal.facade.dotnet.DotNetFacade = ...
+            mcpcoreserver.internal.facade.dotnet.DefaultDotNetFacade()
     end
 
     methods
-        function sid = getCurrentUserSid(obj)
-            %getCurrentUserSid Get the SID of the current process user (cached)
-            if ~isempty(obj.CachedUserSid)
-                sid = obj.CachedUserSid;
+        function obj = DefaultWindowsACLManager(options)
+            arguments
+                options.?mcpcoreserver.internal.fs.internal.permissionmanager.internal.windowsacl.DefaultWindowsACLManager
+            end
+
+            for prop = string(fieldnames(options).')
+                obj.(prop) = options.(prop);
+            end
+        end
+
+        function sid = getCurrentUserSID(obj)
+            %getCurrentUserSID Get the SID of the current process user (cached)
+            if ~isempty(obj.CachedUserSID)
+                sid = obj.CachedUserSID;
                 return;
             end
 
-            identity = System.Security.Principal.WindowsIdentity.GetCurrent();
-            obj.CachedUserSid = string(identity.User.ToString());
-            sid = obj.CachedUserSid;
+            identity = obj.DotNetFacade.getCurrentWindowsIdentity();
+            obj.CachedUserSID = string(identity.User.ToString());
+            sid = obj.CachedUserSID;
         end
 
-        function sids = getAllowedSids(~, path)
-            %getAllowedSids Get SIDs of all Allow ACEs on a path
-            %   Uses .NET AccessRules API to enumerate all access rules,
-            %   returning full SID strings (S-1-...) for every Allow ACE.
-            accessSections = System.Security.AccessControl.AccessControlSections.Access;
+        function sids = getAllowedSIDs(obj, path)
+            %getAllowedSIDs Get SIDs of all Allow ACEs on a path
+            accessSections = obj.DotNetFacade.getAccessSectionsAccess();
 
             if isfolder(path)
-                security = System.Security.AccessControl.DirectorySecurity( ...
-                    char(path), accessSections);
+                security = obj.DotNetFacade.DirectorySecurity(char(path), accessSections);
             else
-                security = System.Security.AccessControl.FileSecurity( ...
-                    char(path), accessSections);
+                security = obj.DotNetFacade.FileSecurity(char(path), accessSections);
             end
 
-            sidType = System.Type.GetType('System.Security.Principal.SecurityIdentifier');
+            identity = obj.DotNetFacade.getCurrentWindowsIdentity();
+            sidType = identity.User.GetType();
             rules = security.GetAccessRules(true, true, sidType);
 
+            allowType = obj.DotNetFacade.getAllowAccessControlType();
             sids = strings(1, rules.Count);
             n = 0;
             for i = 0:rules.Count-1
                 rule = rules.Item(i);
-                if rule.AccessControlType == System.Security.AccessControl.AccessControlType.Allow
+                if rule.AccessControlType == allowType
                     n = n + 1;
                     sids(n) = string(rule.IdentityReference.ToString());
                 end
@@ -54,54 +69,45 @@ classdef DefaultWindowsACLManager < handle & mcpcoreserver.internal.fs.internal.
             sids = sids(1:n);
         end
 
-        function tf = isDaclProtected(~, path)
-            %isDaclProtected Check if the DACL is protected (inheritance blocked)
-            %   Returns true if the SDDL contains "D:P", meaning the DACL
-            %   is protected and does not inherit ACEs from parent folders.
-            accessSections = System.Security.AccessControl.AccessControlSections.Access;
+        function tf = isDACLProtected(obj, path)
+            %isDACLProtected Check if the DACL is protected (inheritance blocked)
+            accessSections = obj.DotNetFacade.getAccessSectionsAccess();
 
             if isfolder(path)
-                security = System.Security.AccessControl.DirectorySecurity( ...
-                    char(path), accessSections);
+                security = obj.DotNetFacade.DirectorySecurity(char(path), accessSections);
             else
-                security = System.Security.AccessControl.FileSecurity( ...
-                    char(path), accessSections);
+                security = obj.DotNetFacade.FileSecurity(char(path), accessSections);
             end
 
             sddl = string(security.GetSecurityDescriptorSddlForm(accessSections));
             tf = startsWith(sddl, "D:P");
         end
 
-        function setProtectedAcl(~, path, sids, isDirectory)
-            %setProtectedAcl Set a protected ACL with FullControl for the given SIDs
-            %   Builds an SDDL string and applies it. D:P = Protected DACL
-            %   (blocks inheritance from parent).
+        function setProtectedACL(obj, path, sids, isDirectory)
+            %setProtectedACL Set a protected ACL with FullControl for the given SIDs
 
             % Build SDDL
-            % "P" = Protected: blocks ACL inheritance from parent, ensuring only the explicitly listed SIDs have access.
             sddl = "D:P";
             for i = 1:length(sids)
                 if isDirectory
-                    % A;OICI;FA = Allow, ObjectInherit+ContainerInherit, FullAccess
                     sddl = sddl + sprintf("(A;OICI;FA;;;%s)", sids(i));
                 else
-                    % A;;FA = Allow, no inheritance flags, FullAccess
                     sddl = sddl + sprintf("(A;;FA;;;%s)", sids(i));
                 end
             end
 
             % Apply SDDL to the path
-            accessSections = System.Security.AccessControl.AccessControlSections.Access;
+            accessSections = obj.DotNetFacade.getAccessSectionsAccess();
             if isDirectory
-                security = System.Security.AccessControl.DirectorySecurity();
+                security = obj.DotNetFacade.DirectorySecurity();
                 security.SetSecurityDescriptorSddlForm(char(sddl), accessSections);
-                dirInfo = System.IO.DirectoryInfo(char(path));
-                dirInfo.SetAccessControl(security);
+                dirInfo = obj.DotNetFacade.createDirectoryInfo(path);
+                obj.DotNetAccessControl.setAccessControl(dirInfo, security);
             else
-                security = System.Security.AccessControl.FileSecurity();
+                security = obj.DotNetFacade.FileSecurity();
                 security.SetSecurityDescriptorSddlForm(char(sddl), accessSections);
-                fileInfo = System.IO.FileInfo(char(path));
-                fileInfo.SetAccessControl(security);
+                fileInfo = obj.DotNetFacade.createFileInfo(path);
+                obj.DotNetAccessControl.setAccessControl(fileInfo, security);
             end
         end
     end

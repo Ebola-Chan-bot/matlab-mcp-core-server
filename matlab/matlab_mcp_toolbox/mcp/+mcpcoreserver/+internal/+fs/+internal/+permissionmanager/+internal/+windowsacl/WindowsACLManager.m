@@ -7,10 +7,10 @@ classdef (Abstract, HandleCompatible) WindowsACLManager
     % Copyright 2026 The MathWorks, Inc.
 
     methods (Abstract)
-        sid = getCurrentUserSid(obj)
-        sids = getAllowedSids(obj, path)
-        tf = isDaclProtected(obj, path)
-        setProtectedAcl(obj, path, sids, isDirectory)
+        sid = getCurrentUserSID(obj)
+        sids = getAllowedSIDs(obj, path)
+        tf = isDACLProtected(obj, path)
+        setProtectedACL(obj, path, sids, isDirectory)
     end
 
 end

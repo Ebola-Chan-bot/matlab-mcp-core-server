@@ -15,6 +15,7 @@ function plan = buildfile
     srcFiles = fullfile(prj, "mcp");
     testFiles = fullfile(prj, "tests");
     unitTestFiles = fullfile(testFiles, "unit");
+    integrationTestFiles = fullfile(testFiles, "integration");
     testResultsFolder = fullfile(prj, "test_results");
 
     distFolder = fullfile(prj, "dist");
@@ -53,6 +54,20 @@ function plan = buildfile
     );
     plan("unit-tests").Description = "Run unit tests";
 
+    % Define integration test task
+    testResultsSuffix = getenv("MATLAB_MCP_TEST_RESULTS_SUFFIX");
+    if testResultsSuffix ~= ""
+        integrationResultsFile = "integration_tests_" + testResultsSuffix + ".xml";
+    else
+        integrationResultsFile = "integration_tests.xml";
+    end
+    plan("integration-tests") = TestTask( ...
+        integrationTestFiles, ...
+        SourceFiles=srcFiles, ...
+        TestResults=fullfile(testResultsFolder, integrationResultsFile) ...
+    );
+    plan("integration-tests").Description = "Run integration tests";
+
     % Define package task
     plan("package") = Task( ...
         Description="Package the toolbox", ...
@@ -65,7 +80,7 @@ function plan = buildfile
     );
 
     % Set default tasks
-    plan.DefaultTasks = ["lint", "unit-tests", "package"];
+    plan.DefaultTasks = ["lint", "unit-tests", "integration-tests", "package"];
 end
 
 function packageTask(context, toolboxFolder, distFolder)
@@ -82,7 +97,7 @@ function packageTask(context, toolboxFolder, distFolder)
 
     % Stable UUID for the toolbox (do not change)
     toolboxName = "MATLAB MCP Core Server Toolbox";
-    toolboxVersion = "0.1.0";
+    toolboxVersion = "0.1.1";
     uuid = "fce99a56-1b63-4d49-9d70-c32c5605e4eb";
 
     % Create Contents.m

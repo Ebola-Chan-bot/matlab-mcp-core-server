@@ -104,6 +104,9 @@ SYSTEM_TEST_PKGS := ./tests/system/...
 # Scoped exports prevent polluting other commands (e.g. npm uses HOST)
 TEST_TARGETS := \
 	unit-tests  matlab-unit-tests  ci-unit-tests          \
+	matlab-integration-tests                              \
+	matlab-integration-tests-dotnet-framework             \
+	matlab-integration-tests-dotnet-core                  \
 	integration-tests              ci-integration-tests    \
 	functional-tests               ci-functional-tests     \
 	system-tests                   ci-system-tests         \
@@ -152,7 +155,7 @@ ci-build: build
 
 ci-build-mcpb: build-mcpb-bundle mcpb-validate
 
-ci-integration-tests:
+ci-integration-tests: matlab-integration-tests
 	go test $(RACE_FLAG) -json -count=1 $(INTEGRATION_TEST_PKGS)
 
 ci-functional-tests: ensure-binary-executable
@@ -322,6 +325,19 @@ unit-tests:
 
 matlab-unit-tests:
 	matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean unit-tests;"
+
+ifeq ($(OS),Windows_NT)
+matlab-integration-tests: matlab-integration-tests-dotnet-framework matlab-integration-tests-dotnet-core
+
+matlab-integration-tests-dotnet-framework:
+	matlab -batch "setenv('MATLAB_MCP_TEST_RESULTS_SUFFIX','dotnet-framework'); dotnetenv('framework'); cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean integration-tests;"
+
+matlab-integration-tests-dotnet-core:
+	matlab -batch "setenv('MATLAB_MCP_TEST_RESULTS_SUFFIX','dotnet-core'); dotnetenv('core'); cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean integration-tests;"
+else
+matlab-integration-tests:
+	matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean integration-tests;"
+endif
 
 integration-tests:
 	go tool gotestsum --packages="$(INTEGRATION_TEST_PKGS)" -- -race

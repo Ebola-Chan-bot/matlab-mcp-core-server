@@ -65,6 +65,12 @@ classdef Errors
             ex = MException("mcpcoreserver:FolderExistsAtFilePath", ...
                 "A folder already exists at the expected file path '%s'", path);
         end
+
+        function ex = FailedToLoadDotNetAssembly(assemblyPath)
+            %FailedToLoadDotNetAssembly Create an error for .NET assembly load failure
+            ex = MException("mcpcoreserver:FailedToLoadDotNetAssembly", ...
+                "Failed to load .NET assembly '%s'. Ensure the .NET runtime is properly installed.", assemblyPath);
+        end
     end
 
 end
