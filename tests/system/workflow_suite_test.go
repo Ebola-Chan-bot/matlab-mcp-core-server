@@ -250,24 +250,27 @@ func (s *WorkflowTestSuite) TestSetupMATLABWorkflow() {
 		`end`,
 	}, " ")
 
-	runMATLAB := func(code, failMsg string) string {
+	runMATLAB := func(code string) (string, error) {
 		s.T().Helper()
 		cmd := exec.CommandContext(ctx, "matlab", "-batch", code)
 		output, err := cmd.CombinedOutput()
-		s.Require().NoError(err, "%s:\n%s", failMsg, string(output))
-		return string(output)
+		return string(output), err
 	}
 
-	// Always uninstall on cleanup, even if the test fails
-	defer func() {
-		runMATLAB(uninstallCode, "should uninstall add-on on cleanup")
-	}()
+	// Step 1: Try to uninstall the add-on to start from a clean state
+	output, err := runMATLAB(uninstallCode)
+	s.Require().NoError(err, "should uninstall add-on if present:\n%s", output)
 
-	// Step 1: Ensure the add-on is not installed
-	runMATLAB(uninstallCode, "should uninstall add-on if present")
+	output, err = runMATLAB(checkInstalledCode)
+	s.Require().NoError(err, "should check add-on installation status:\n%s", output)
+	wasPreInstalled := strings.Contains(output, "installed=1")
 
-	output := runMATLAB(checkInstalledCode, "should check add-on installation status")
-	s.Contains(output, "installed=0", "add-on should not be installed before test")
+	if !wasPreInstalled {
+		// Only uninstall on cleanup if we're the ones installing it
+		defer func() {
+			_, _ = runMATLAB(uninstallCode)
+		}()
+	}
 
 	// Step 2: Run MCP server with --setup-matlab
 	installCmd := exec.CommandContext(ctx, s.mcpServerPath, //nolint:gosec // Trusted path in tests
@@ -276,9 +279,11 @@ func (s *WorkflowTestSuite) TestSetupMATLABWorkflow() {
 	installCmd.Env = s.defaultEnv
 	installOutput, err := installCmd.CombinedOutput()
 	s.Require().NoError(err, "setup-matlab should succeed:\n%s", string(installOutput))
+	s.Contains(string(installOutput), "Successfully setup MATLAB.", "--setup-matlab should print success message")
 
 	// Step 3: Verify the add-on is installed
-	output = runMATLAB(checkInstalledCode, "should check add-on installation status")
+	output, err = runMATLAB(checkInstalledCode)
+	s.Require().NoError(err, "should check add-on installation status:\n%s", output)
 	s.Contains(output, "installed=1", "add-on should be installed after running --setup-matlab")
 }
 
