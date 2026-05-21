@@ -20,7 +20,7 @@ jobs:
               working-directory: .github/scripts
 
             - name: Close referenced issues
-              uses: actions/github-script@v7
+              uses: actions/github-script@v9
               with:
                   script: |
                       const closeReferencedIssues = require('./.github/scripts/src/close-referenced-issues.js');
