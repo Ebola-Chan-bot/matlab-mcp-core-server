@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type WriteCloser interface {
@@ -40,7 +41,12 @@ func (u *Unpacker) Unpack(archive io.ReaderAt, size int64, destDir string) error
 	}
 
 	for _, f := range r.File {
-		targetPath := filepath.Join(destDir, f.Name) //nolint:gosec // Trusted archive built by our CI
+		targetPath := filepath.Join(destDir, f.Name) //nolint:gosec // Validated on next line
+		cleanTarget := filepath.Clean(targetPath)
+		cleanDest := filepath.Clean(destDir)
+		if cleanTarget != cleanDest && !strings.HasPrefix(cleanTarget, cleanDest+string(os.PathSeparator)) {
+			return fmt.Errorf("illegal file path in archive: %s", f.Name)
+		}
 		if f.FileInfo().IsDir() {
 			if err := u.fs.MkdirAll(targetPath, 0750); err != nil {
 				return fmt.Errorf("creating directory %s: %w", f.Name, err)
@@ -72,7 +78,7 @@ func (u *Unpacker) extractFile(f *zip.File, targetPath string) error {
 	}
 	defer func() { _ = out.Close() }()
 
-	if _, err = io.Copy(out, rc); err != nil { //nolint:gosec // Trusted archive built by our CI
+	if _, err = io.Copy(out, rc); err != nil { //nolint:gosec // Size is bounded by trusted CI-built archive
 		return fmt.Errorf("copying %s: %w", f.Name, err)
 	}
 	return nil

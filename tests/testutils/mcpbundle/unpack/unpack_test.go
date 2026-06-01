@@ -101,10 +101,54 @@ func TestUnpack_OpenFileError(t *testing.T) {
 	assert.Contains(t, err.Error(), "creating file.txt")
 }
 
+func TestUnpack_RootDirectoryEntry(t *testing.T) {
+	archive := createZipWithDirs(t,
+		map[string]string{"file.txt": "content"},
+		[]string{"./"},
+	)
+
+	wc := mocks.NewMockWriteCloser(t)
+	wc.EXPECT().Write(mock.Anything).RunAndReturn(func(p []byte) (int, error) { return len(p), nil })
+	wc.EXPECT().Close().Return(nil)
+
+	fs := mocks.NewMockFileSystem(t)
+	fs.EXPECT().MkdirAll(mock.Anything, mock.Anything).Return(nil)
+	fs.EXPECT().OpenFile(mock.Anything, mock.Anything, mock.Anything).Return(wc, nil)
+
+	u := unpack.NewUnpackerForTest(fs)
+
+	err := u.Unpack(bytes.NewReader(archive), int64(len(archive)), "/dest")
+
+	require.NoError(t, err)
+}
+
+func TestUnpack_ZipSlip_RejectsPathTraversal(t *testing.T) {
+	archive := createZip(t, map[string]string{
+		"../evil.txt": "malicious content",
+	})
+
+	fs := mocks.NewMockFileSystem(t)
+	u := unpack.NewUnpackerForTest(fs)
+
+	err := u.Unpack(bytes.NewReader(archive), int64(len(archive)), "/dest")
+
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "illegal file path in archive")
+}
+
 func createZip(t *testing.T, entries map[string]string) []byte {
+	t.Helper()
+	return createZipWithDirs(t, entries, nil)
+}
+
+func createZipWithDirs(t *testing.T, entries map[string]string, dirs []string) []byte {
 	t.Helper()
 	var buf bytes.Buffer
 	w := zip.NewWriter(&buf)
+	for _, dir := range dirs {
+		_, err := w.Create(dir)
+		require.NoError(t, err)
+	}
 	for name, content := range entries {
 		f, err := w.Create(name)
 		require.NoError(t, err)
