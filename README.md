@@ -1,5 +1,14 @@
 # MATLAB MCP Core Server
 
+> [!WARNING]
+> On June 18, 2026 (v0.11.0), MATLAB MCP Core Server will be renamed to MATLAB MCP Server. To use the latest version of the server after this date, you must update your settings.
+>
+> | Changes | Action Required |
+> |:-------:|:---------------:|
+> | **Repository URL**<br>`github.com/matlab/matlab-mcp-core-server` → **`github.com/matlab/matlab-mcp-server`** | None. GitHub redirects automatically. |
+> | **Binary names**<br>New format: **`matlab-mcp-server-<os>-<arch>[.exe]`**<br>Example: `matlab-mcp-server-windows-x64.exe` | Update the binary name in the configuration settings of your AI application, usually a `.json` file. |
+> | **Go module**<br>`github.com/matlab/matlab-mcp-core-server` → **`github.com/matlab/matlab-mcp-server`** | If you are using the MATLAB MCP Core Server module in a Go project, update the module name in `go.mod` and your import declarations.  |
+
 Run MATLAB® using AI applications with the official MATLAB MCP Server from MathWorks®. The MATLAB MCP Core Server allows your AI applications to:
 
 - Start and quit MATLAB.
