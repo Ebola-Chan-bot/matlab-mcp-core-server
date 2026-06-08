@@ -36,6 +36,10 @@ classdef DefaultFSFacade < mcpcoreserver.internal.facade.fs.FSFacade
         function varargout = fread(~, fileID, varargin)
             [varargout{1:nargout}] = fread(fileID, varargin{:});
         end
+
+        function delete(~, varargin)
+            delete(varargin{:});
+        end
     end
 
 end

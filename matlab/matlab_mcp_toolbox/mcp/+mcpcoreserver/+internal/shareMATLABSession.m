@@ -13,7 +13,7 @@ function shareMATLABSession(options)
         options.ConnectorFacade(1, 1) mcpcoreserver.internal.facade.connector.ConnectorFacade = mcpcoreserver.internal.facade.connector.DefaultConnectorFacade()
     end
 
-    options.ConnectorFacade.ensureServiceOn()
+    options.ConnectorFacade.ensureServiceOn();
 
     appDataFolder = options.AppDataLocator.getAppDataFolder();
     options.FSAdaptor.ensureSecureFolder(appDataFolder);

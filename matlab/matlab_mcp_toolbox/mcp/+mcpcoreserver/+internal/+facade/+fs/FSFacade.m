@@ -13,6 +13,7 @@ classdef (Abstract) FSFacade
         varargout = fopen(obj, varargin)
         fclose(obj, fileID)
         varargout = fread(obj, fileID, varargin)
+        delete(obj, varargin)
     end
 
 end

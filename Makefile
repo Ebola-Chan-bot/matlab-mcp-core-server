@@ -145,7 +145,7 @@ ci-check-generated: check-mockery check-wire check-embedded-matlab-addon
 
 ci-unit-tests:
 	go test $(RACE_FLAG) -json -count=1 -coverprofile cover.out $(UNIT_TEST_PKGS)
-	matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean unit-tests;"
+	matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean unit-tests integration-tests;"
 
 ci-matlab-unit-tests:
 	@echo "ci-matlab-unit-tests is no longer needed. MATLAB unit tests are now included in ci-unit-tests."
@@ -325,7 +325,7 @@ unit-tests:
 	go tool gotestsum --packages="$(UNIT_TEST_PKGS)" -- -race -coverprofile cover.out
 
 matlab-unit-tests:
-	matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean unit-tests;"
+	matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean unit-tests integration-tests;"
 
 ifeq ($(OS),Windows_NT)
 matlab-integration-tests: matlab-integration-tests-dotnet-framework matlab-integration-tests-dotnet-core

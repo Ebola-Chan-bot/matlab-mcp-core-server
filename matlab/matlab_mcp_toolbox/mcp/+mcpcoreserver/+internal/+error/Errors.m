@@ -71,6 +71,12 @@ classdef Errors
             ex = MException("mcpcoreserver:FailedToLoadDotNetAssembly", ...
                 "Failed to load .NET assembly '%s'. Ensure the .NET runtime is properly installed.", assemblyPath);
         end
+
+        function ex = FailedToReadFile(path)
+            %FailedToReadFile Create an error for file read failure
+            ex = MException("mcpcoreserver:FailedToReadFile", ...
+                "Failed to open file for reading: '%s'", path);
+        end
     end
 
 end
