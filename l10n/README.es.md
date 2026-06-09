@@ -2,7 +2,7 @@
 Source English Markdown:
 - File: ./README.md
 - Branch: main
-- Commit: 8df303db49ea1c497eb0128257e81f16e1fcba34
+- Commit: 1a992fb0d0fb979377598c35e02aa735c0320ce7
 -->
 
 # MATLAB MCP Core Server
@@ -48,8 +48,8 @@ Para ayudar a su agente a utilizar MATLAB y Simulink, puede usar habilidades de 
 
 ## Configuración
 
-1. Instale [MATLAB (MathWorks)](https://www.mathworks.com/help/install/ug/install-products-with-internet-connection.html) 2021a o posterior y agréguelo al PATH del sistema. MATLAB MCP Core Server es compatible con las versiones de MATLAB de los últimos cinco años.
-1. Para configurar MATLAB MCP Core Server para Claude Desktop, vaya directamente a las instrucciones de [Claude Desktop](#claude-desktop). Para configurar el servidor para otras aplicaciones, siga estas instrucciones:
+1. Instale [MATLAB (MathWorks)](https://www.mathworks.com/help/install/ug/install-products-with-internet-connection.html) R2021a o posterior y agréguelo al PATH del sistema. MATLAB MCP Core Server es compatible con las versiones de MATLAB de los últimos cinco años.
+1. El servidor es compatible con cualquier aplicación de IA que utilice Model Context Protocol. Para configurar MATLAB MCP Core Server para Claude Desktop, vaya directamente a las instrucciones de [Claude Desktop](#claude-desktop). Para configurar el servidor para otras aplicaciones, siga estas instrucciones:
    
    - Para Windows o Linux, [**descargue la última versión**](https://github.com/matlab/matlab-mcp-core-server/releases/latest). (Alternativamente, puede **compilar desde el código fuente**: instale [Go](https://go.dev/doc/install) y compile el binario con `go install github.com/matlab/matlab-mcp-core-server/cmd/matlab-mcp-core-server@latest`).
     
@@ -134,35 +134,12 @@ Personalice el comportamiento del servidor especificando argumentos de una de es
 | initialize-matlab-on-startup | Para inicializar MATLAB tan pronto como inicie el servidor, establezca este argumento en `true`. De forma predeterminada, MATLAB solo se inicia cuando se llama a la primera herramienta. | `--initialize-matlab-on-startup=true` |
 | initial-working-folder | Especifique la carpeta donde MATLAB se inicia. Si no especifica un valor, MATLAB se inicia en la ruta del primer [Root (MCP)](https://modelcontextprotocol.io/specification/latest/client/roots) de su aplicación de IA. Si no ha definido un root, MATLAB se inicia en estas ubicaciones: <br> <ul><li>Linux: `/home/username` </li><li> Windows: `C:\Users\username\Documents`</li><li>Mac: `/Users/username/Documents`</li></ul> | Windows: `--initial-working-folder=C:\\Users\\username\\MyProject` <br><br> Linux/macOS: `--initial-working-folder=/Users/username/MyProject` |
 | matlab-display-mode | Especifique si se muestra el escritorio de MATLAB. Use el modo `desktop` (predeterminado) para mostrar el escritorio de MATLAB. Use el modo `nodesktop` para utilizar MATLAB solo desde su aplicación de IA, sin el escritorio de MATLAB. Tenga en cuenta que en modo `nodesktop`, los comandos que requieren una interfaz gráfica (como `edit`, `open`, `open_system`, `uifigure` y `appdesigner`) seguirán abriendo ventanas de MATLAB en su escritorio. | `--matlab-display-mode=nodesktop` |
-| matlab-session-mode | Especifique si el servidor MCP inicia una nueva sesión de MATLAB o se conecta a una sesión de MATLAB existente (compatible con MATLAB R2023a en adelante). El valor predeterminado es el modo **`auto`**.<br><br> **Modo `new`:** El servidor MCP inicia una nueva sesión de MATLAB. <br><br>**Modo `auto` (predeterminado):** El servidor intenta conectarse a una sesión de MATLAB existente, que debe haber configurado para el modo `existing` siguiendo las instrucciones siguientes. Si el servidor no puede encontrar una sesión de MATLAB existente, inicia una nueva. <br><br>**Modo `existing`:** El servidor intenta conectarse a una sesión de MATLAB existente. Debe haber configurado su sesión de MATLAB previamente para usar este modo, siguiendo estos pasos:<br><br><ol><li>Si está usando el modo `existing` por primera vez, ejecute `./matlab-mcp-core-server --setup-matlab`.<br><br>Este comando instala un complemento llamado MATLAB MCP Core Server Toolbox en MATLAB. Puede personalizar el comando con otros argumentos de esta tabla. Por ejemplo, para especificar qué versión de MATLAB usar para instalar la toolbox, puede usar `./matlab-mcp-core-server --setup-matlab --matlab-root=/home/usr/MATLAB/R2026a`.<br><br>Para Claude Desktop, debe descargar el binario de MATLAB MCP Core Server siguiendo las instrucciones en [Configuración](#configuración) antes de ejecutar `./matlab-mcp-core-server --setup-matlab`.<br><br></li><li>En la ventana de comandos de una sesión de MATLAB en ejecución, ejecute `shareMATLABSession()`. El servidor MCP se conectará a esta sesión de MATLAB cuando inicie el servidor con `--matlab-session-mode=existing`. Si está ejecutando múltiples sesiones de MATLAB, el servidor se conecta a la sesión de MATLAB donde ejecutó más recientemente el comando `shareMATLABSession()`.<br><br>Como alternativa a ejecutar `shareMATLABSession()` manualmente, puede agregar el comando a su [script de inicio de MATLAB (MathWorks)](https://www.mathworks.com/help/matlab/ref/startup.html).</li></ol> | `--matlab-session-mode=existing` |
+| matlab-session-mode | Especifique si el servidor MCP inicia una nueva sesión de MATLAB o se conecta a una sesión de MATLAB existente (compatible con MATLAB R2023a en adelante). El valor predeterminado es el modo **`auto`**.<br><br> **Modo `new`:** El servidor MCP inicia una nueva sesión de MATLAB. <br><br>**Modo `auto` (predeterminado):** El servidor intenta conectarse a una sesión de MATLAB existente, que debe haber configurado para el modo `existing` siguiendo las instrucciones siguientes. Si el servidor no puede encontrar una sesión de MATLAB existente, inicia una nueva. <br><br>**Modo `existing`:** El servidor intenta conectarse a una sesión de MATLAB existente. Debe haber configurado su sesión de MATLAB previamente para usar este modo, siguiendo estos pasos:<br><br><ol><li>Si está usando el modo `existing` por primera vez, ejecute `./matlab-mcp-core-server --setup-matlab`.<br><br>Este comando instala un complemento llamado MATLAB MCP Core Server Toolbox en MATLAB. Puede personalizar el comando con otros argumentos de esta tabla. Por ejemplo, para especificar qué versión de MATLAB usar para instalar la toolbox, puede usar `./matlab-mcp-core-server --setup-matlab --matlab-root=/home/usr/MATLAB/R2026a`.<br><br>Para Claude Desktop, debe descargar el binario de MATLAB MCP Core Server siguiendo las instrucciones en [Configuración](#configuración) antes de ejecutar `./matlab-mcp-core-server --setup-matlab`.<br><br></li><li>En la ventana de comandos de una sesión de MATLAB en ejecución, ejecute `shareMATLABSession()`. El servidor MCP se conectará a esta sesión de MATLAB cuando inicie el servidor con `--matlab-session-mode=existing` o `--matlab-session-mode=auto`. Si está ejecutando múltiples sesiones de MATLAB, el servidor se conecta a la sesión de MATLAB donde ejecutó más recientemente el comando `shareMATLABSession()`.<br><br>Como alternativa a ejecutar `shareMATLABSession()` manualmente, puede agregar el comando a su [script de inicio de MATLAB (MathWorks)](https://www.mathworks.com/help/matlab/ref/startup.html).</li></ol> | `--matlab-session-mode=existing` |
 | extension-file | Para usar herramientas MCP personalizadas, proporcione una ruta a un archivo JSON que defina sus herramientas. También puede usar múltiples archivos de extensión. Para obtener más información sobre el uso de herramientas personalizadas, consulte [Use Custom Tools with the MATLAB MCP Core Server](guides/custom-tools.es.md). | <br><br>Windows: `--extension-file=C:\\Users\\name\\my-tools.json` <br><br> Linux/macOS: `--extension-file=/path/to/my-tools.json` <br><br> **Uso de múltiples archivos de extensión:**<br><br>Windows:`--extension-file=C:\\path\\to\\tools-1.json --extension-file=C:\\path\\to\\tools-2.json`<br><br>Linux/macOS:`--extension-file=/path/to/tools1.json --extension-file=/path/to/tools2.json` <br><br> **Uso de variables de entorno:** <br><br> Windows: `MW_MCP_SERVER_EXTENSION_FILE=C:\Users\name\tools1.json;C:\Users\name\tools2.json` <br><br> Linux/macOS: `MW_MCP_SERVER_EXTENSION_FILE=/path/to/tools1.json:/path/to/tools2.json` |
 | log-folder | Especifique la carpeta donde el servidor MCP almacena los archivos de registro. Si no se especifica, el servidor usa la carpeta temporal predeterminada de su sistema operativo. | Windows: `--log-folder=C:\\Users\\name\\AppData\\Local\\Temp` <br><br> Linux/macOS: `--log-folder=/tmp/my-logs`  |
 | log-level | Los niveles de registro del servidor MCP. Los valores válidos, en orden decreciente de detalle, son `debug`, `info`, `warn` y `error`. | `--log-level=debug` |
 | disable-telemetry | Para deshabilitar la recopilación de datos anónimos, establezca este argumento en `true`. Para obtener más información, consulte [Recopilación de datos](#recopilación-de-datos). | `--disable-telemetry=true` |
 
-**Múltiples archivos de extensión**
-
-Windows:
-```
---extension-file=C:\\path\\to\\my-tools.json --extension-file=C:\\path\\to\\my-other-tools.json
-```
-
-Linux y macOS:
-```
---extension-file=/path/to/my-tools.json --extension-file=/path/to/my-other-tools.json
-```
-
-**Variables de entorno**
-
-Windows:
-```
-MW_MCP_SERVER_EXTENSION_FILE=C:\Users\name\my-tools.json;C:\Users\name\my-other-tools.json
-```
-
-Linux y macOS:
-```
-MW_MCP_SERVER_EXTENSION_FILE=/path/to/my-tools.json:/path/to/my-other-tools.json
-```
 ## Herramientas
 
 1. `detect_matlab_toolboxes`
