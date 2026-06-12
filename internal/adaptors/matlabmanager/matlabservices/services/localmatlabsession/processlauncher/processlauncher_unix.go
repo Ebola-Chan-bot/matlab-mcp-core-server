@@ -9,8 +9,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/config"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 	"golang.org/x/sys/unix"
 )
 

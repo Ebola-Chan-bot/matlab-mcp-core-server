@@ -2,7 +2,7 @@
 
 package otel
 
-import "github.com/matlab/matlab-mcp-core-server/internal/entities"
+import "github.com/matlab/matlab-mcp-server/internal/entities"
 
 func NewLoggerErrorHandler(logger entities.Logger) *loggerErrorHandler {
 	return newLoggerErrorHandler(logger)

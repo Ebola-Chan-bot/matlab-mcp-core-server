@@ -7,10 +7,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/custom/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/custom/loader/validator"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/singlesession/custom/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/singlesession/custom/loader/validator"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 type toolsFile struct {

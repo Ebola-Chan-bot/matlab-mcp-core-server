@@ -5,9 +5,9 @@ package userconfig
 import (
 	"fmt"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/parameter"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/parameter/defaultparameters"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 type userConfigEntry struct {

@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/resources"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 

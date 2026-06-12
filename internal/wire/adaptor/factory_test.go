@@ -5,8 +5,8 @@ package adaptor_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/wire/adaptor"
-	adaptormocks "github.com/matlab/matlab-mcp-core-server/mocks/wire/adaptor"
+	"github.com/matlab/matlab-mcp-server/internal/wire/adaptor"
+	adaptormocks "github.com/matlab/matlab-mcp-server/mocks/wire/adaptor"
 	"github.com/stretchr/testify/assert"
 )
 

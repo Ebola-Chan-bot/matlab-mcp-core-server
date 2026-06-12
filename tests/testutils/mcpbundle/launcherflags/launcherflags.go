@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var flagRegex = regexp.MustCompile(`__MATLAB_MCP_CORE_SERVER_MCPB_\w+:(string|bool):(--[a-z][a-z0-9-]*)`)
+var flagRegex = regexp.MustCompile(`__MATLAB_MCP_SERVER_MCPB_\w+:(string|bool):(--[a-z][a-z0-9-]*)`)
 
 func Parse(scriptContent string) []string {
 	matches := flagRegex.FindAllStringSubmatch(scriptContent, -1)

@@ -7,7 +7,7 @@ package mocks
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/telemetry"
 	mock "github.com/stretchr/testify/mock"
 )
 

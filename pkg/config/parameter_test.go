@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	pkgconfig "github.com/matlab/matlab-mcp-core-server/pkg/config"
+	pkgconfig "github.com/matlab/matlab-mcp-server/pkg/config"
 )
 
 func TestParameter_String_HappyPath(t *testing.T) {

@@ -1,4 +1,4 @@
-classdef MixedOutputDisplayTest < mcpcoreserver.internal.display.console.DisplayTestHelper
+classdef MixedOutputDisplayTest < mcpserver.internal.display.console.DisplayTestHelper
     %MixedOutputDisplayTest Integration tests for mixed output console display
 
     % Copyright 2026 The MathWorks, Inc.

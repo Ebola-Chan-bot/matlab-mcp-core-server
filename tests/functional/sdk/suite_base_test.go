@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/serverlogs"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpclient"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/serverlogs"
 	"github.com/stretchr/testify/suite"
 )
 

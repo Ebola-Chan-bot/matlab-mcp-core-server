@@ -1,4 +1,4 @@
-classdef StdoutDisplayTest < mcpcoreserver.internal.display.console.DisplayTestHelper
+classdef StdoutDisplayTest < mcpserver.internal.display.console.DisplayTestHelper
     %StdoutDisplayTest Integration tests for stdout console display
 
     % Copyright 2026 The MathWorks, Inc.

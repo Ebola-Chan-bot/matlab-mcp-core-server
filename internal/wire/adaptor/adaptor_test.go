@@ -5,11 +5,11 @@ package adaptor_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/modeselector"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/logger"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/messagecatalog"
-	"github.com/matlab/matlab-mcp-core-server/internal/wire"
-	"github.com/matlab/matlab-mcp-core-server/internal/wire/adaptor"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/modeselector"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/logger"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/messagecatalog"
+	"github.com/matlab/matlab-mcp-server/internal/wire"
+	"github.com/matlab/matlab-mcp-server/internal/wire/adaptor"
 	"github.com/stretchr/testify/assert"
 )
 

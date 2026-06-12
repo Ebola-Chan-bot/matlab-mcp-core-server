@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/evalcustomtool/functioncall"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/evalcustomtool/functioncall"
 	mock "github.com/stretchr/testify/mock"
 )
 

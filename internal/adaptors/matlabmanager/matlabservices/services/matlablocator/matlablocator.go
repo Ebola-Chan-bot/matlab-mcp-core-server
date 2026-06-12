@@ -1,10 +1,10 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package matlablocator
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 type MATLABRootGetter interface {

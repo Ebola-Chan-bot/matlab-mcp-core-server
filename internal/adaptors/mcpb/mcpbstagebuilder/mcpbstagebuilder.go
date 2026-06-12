@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcpb/tools"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcpb/userconfig"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcpb/tools"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcpb/userconfig"
 )
 
 //go:embed assets
@@ -151,6 +151,11 @@ func stageManifest(mcpbStaging string, assets fs.FS, version string) error {
 	return nil
 }
 
+func toCRLF(data []byte) []byte {
+	normalized := bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n"))
+	return bytes.ReplaceAll(normalized, []byte("\n"), []byte("\r\n"))
+}
+
 func stageStaticAssets(mcpbStaging string, assets fs.FS) error {
 	relativePath := filepath.Join("bundle", "icon.png")
 
@@ -181,6 +186,9 @@ func stageStaticAssets(mcpbStaging string, assets fs.FS) error {
 		fileContent, err := fs.ReadFile(assets, path)
 		if err != nil {
 			return err
+		}
+		if strings.HasSuffix(fileName, ".cmd") {
+			fileContent = toCRLF(fileContent)
 		}
 		err = os.WriteFile(filepath.Join(mcpbStaging, "bundle", "bin", fileName), fileContent, executableFilePermissions)
 		if err != nil {

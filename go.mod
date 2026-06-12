@@ -1,5 +1,4 @@
-// Deprecated: this module will be renamed to github.com/mathworks/matlab-mcp-server in v0.11.0.
-module github.com/matlab/matlab-mcp-core-server
+module github.com/matlab/matlab-mcp-server
 
 // Copyright 2025-2026 The MathWorks, Inc.
 

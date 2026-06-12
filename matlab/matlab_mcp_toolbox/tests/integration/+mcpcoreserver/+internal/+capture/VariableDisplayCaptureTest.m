@@ -1,4 +1,4 @@
-classdef VariableDisplayCaptureTest < mcpcoreserver.internal.capture.CaptureTestHelper
+classdef VariableDisplayCaptureTest < mcpserver.internal.capture.CaptureTestHelper
     %VariableDisplayCaptureTest Functional tests for VariableDisplay event capture
 
     % Copyright 2026 The MathWorks, Inc.

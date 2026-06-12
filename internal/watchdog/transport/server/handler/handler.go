@@ -5,8 +5,8 @@ package handler
 import (
 	"sync"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/messages"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport/messages"
 )
 
 type Handler interface {

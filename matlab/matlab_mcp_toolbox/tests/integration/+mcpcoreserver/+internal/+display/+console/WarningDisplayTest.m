@@ -1,4 +1,4 @@
-classdef WarningDisplayTest < mcpcoreserver.internal.display.console.DisplayTestHelper
+classdef WarningDisplayTest < mcpserver.internal.display.console.DisplayTestHelper
     %WarningDisplayTest Integration tests for warning console display
 
     % Copyright 2026 The MathWorks, Inc.

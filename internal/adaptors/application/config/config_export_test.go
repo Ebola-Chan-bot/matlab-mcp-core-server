@@ -3,7 +3,7 @@
 package config
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 const RedactedValue = redactedValue

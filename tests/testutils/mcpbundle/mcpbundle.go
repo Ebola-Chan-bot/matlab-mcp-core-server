@@ -11,11 +11,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testconfig"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpbundle/launcherflags"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpbundle/launchersyntax"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpbundle/unpack"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmcpbinary"
+	"github.com/matlab/matlab-mcp-server/tests/testconfig"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpbundle/launcherflags"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpbundle/launchersyntax"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpbundle/unpack"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmcpbinary"
 	"github.com/stretchr/testify/require"
 )
 
@@ -57,7 +57,7 @@ func (b *Bundle) Dir() string {
 }
 
 func (b *Bundle) BinaryPath() string {
-	return filepath.Join(b.dir, "bin", "matlab-mcp-core-server-"+testconfig.OSDescriptor+testconfig.ExecutableExtension)
+	return filepath.Join(b.dir, "bin", "matlab-mcp-server-"+testconfig.OSName+"-"+testconfig.Architecture+testconfig.ExecutableExtension)
 }
 
 func (b *Bundle) ManifestVersion() (string, error) {
@@ -159,7 +159,7 @@ func (r *shellCommandRunner) Run(ctx context.Context, launcherPath string, env [
 func filterMCPBEnvVars(env []string) []string {
 	filtered := make([]string, 0, len(env))
 	for _, e := range env {
-		if !strings.HasPrefix(e, "__MATLAB_MCP_CORE_SERVER_MCPB_") {
+		if !strings.HasPrefix(e, "__MATLAB_MCP_SERVER_MCPB_") {
 			filtered = append(filtered, e)
 		}
 	}

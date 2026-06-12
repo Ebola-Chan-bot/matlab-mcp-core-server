@@ -5,9 +5,9 @@ package messages_test
 import (
 	"testing"
 
-	messagesadaptor "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/messages"
-	internalmessages "github.com/matlab/matlab-mcp-core-server/internal/messages"
-	messagesmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/messages"
+	messagesadaptor "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/messages"
+	internalmessages "github.com/matlab/matlab-mcp-server/internal/messages"
+	messagesmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/messages"
 	"github.com/stretchr/testify/require"
 )
 

@@ -5,7 +5,7 @@ package instruments_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry/otel/instruments"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/telemetry/otel/instruments"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/otel/metric/noop"

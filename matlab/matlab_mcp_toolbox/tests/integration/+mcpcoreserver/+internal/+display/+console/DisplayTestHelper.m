@@ -10,8 +10,8 @@ classdef (Abstract) DisplayTestHelper < matlab.unittest.TestCase
 
     methods (TestMethodSetup)
         function setupCapture(testCase)
-            testCase.EventProvider = mcpcoreserver.internal.capture.DefaultCapturedEventProvider();
-            testCase.Capture = mcpcoreserver.internal.capture.DefaultOutputCapture();
+            testCase.EventProvider = mcpserver.internal.capture.DefaultCapturedEventProvider();
+            testCase.Capture = mcpserver.internal.capture.DefaultOutputCapture();
             testCase.addTeardown(@() testCase.Capture.disable());
             testCase.addTeardown(@() delete(testCase.EventProvider));
         end
@@ -35,7 +35,7 @@ classdef (Abstract) DisplayTestHelper < matlab.unittest.TestCase
             testCase.Capture.disable();
 
             capturedEvents = testCase.EventProvider.getEvents(); %#ok<NASGU>
-            displayer = mcpcoreserver.internal.display.console.DefaultEventDisplayer(); %#ok<NASGU>
+            displayer = mcpserver.internal.display.console.DefaultEventDisplayer(); %#ok<NASGU>
 
             consoleOutput = evalc('displayer.displayEvents(capturedEvents)');
         end

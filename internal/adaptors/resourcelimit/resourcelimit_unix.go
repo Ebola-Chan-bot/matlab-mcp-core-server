@@ -6,7 +6,7 @@ package resourcelimit
 import (
 	"fmt"
 
-	unixfacade "github.com/matlab/matlab-mcp-core-server/internal/facades/unix"
+	unixfacade "github.com/matlab/matlab-mcp-server/internal/facades/unix"
 	"golang.org/x/sys/unix"
 )
 

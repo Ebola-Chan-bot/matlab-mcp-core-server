@@ -3,8 +3,8 @@
 package definition
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 type Watchdog interface {

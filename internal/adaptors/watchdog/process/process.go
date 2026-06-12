@@ -3,9 +3,9 @@
 package process
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/parameter/defaultparameters"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 type Config interface {

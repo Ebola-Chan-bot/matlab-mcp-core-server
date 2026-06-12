@@ -5,7 +5,7 @@ package matlabmanager
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 type matlabSessionClientWithoutCleanup struct {

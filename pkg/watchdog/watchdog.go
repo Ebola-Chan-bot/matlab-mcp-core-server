@@ -2,6 +2,6 @@
 
 package watchdog
 
-import "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
+import "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
 
 type Watchdog = publictypes.Watchdog

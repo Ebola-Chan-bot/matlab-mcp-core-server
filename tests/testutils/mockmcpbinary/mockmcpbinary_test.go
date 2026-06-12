@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmcpbinary"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmcpbinary"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +18,7 @@ func TestLastInvocation_Success(t *testing.T) {
 	outputFile := filepath.Join(t.TempDir(), "invocations.jsonl")
 	writeJSONL(t, outputFile, []mockmcpbinary.Invocation{
 		{Args: []string{"--version"}, Env: nil},
-		{Args: []string{"--matlab-root", "/opt/matlab"}, Env: []string{"__MATLAB_MCP_CORE_SERVER_MCPB_FOO=bar"}},
+		{Args: []string{"--matlab-root", "/opt/matlab"}, Env: []string{"__MATLAB_MCP_SERVER_MCPB_FOO=bar"}},
 	})
 
 	installation := &mockmcpbinary.Installation{
@@ -30,7 +30,7 @@ func TestLastInvocation_Success(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, []string{"--matlab-root", "/opt/matlab"}, inv.Args)
-	assert.Equal(t, []string{"__MATLAB_MCP_CORE_SERVER_MCPB_FOO=bar"}, inv.Env)
+	assert.Equal(t, []string{"__MATLAB_MCP_SERVER_MCPB_FOO=bar"}, inv.Env)
 }
 
 func TestLastInvocation_MissingFile(t *testing.T) {

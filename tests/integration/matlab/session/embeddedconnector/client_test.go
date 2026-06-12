@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	"github.com/matlab/matlab-mcp-core-server/tests/integration"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockembeddedconnector"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	"github.com/matlab/matlab-mcp-server/tests/integration"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockembeddedconnector"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

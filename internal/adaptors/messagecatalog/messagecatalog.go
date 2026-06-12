@@ -2,7 +2,7 @@
 
 package messagecatalog
 
-import "github.com/matlab/matlab-mcp-core-server/internal/messages"
+import "github.com/matlab/matlab-mcp-server/internal/messages"
 
 type MessageCatalog struct {
 	catalog *messages.Catalog

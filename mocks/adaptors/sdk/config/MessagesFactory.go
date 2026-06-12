@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/messages"
 	mock "github.com/stretchr/testify/mock"
 )
 

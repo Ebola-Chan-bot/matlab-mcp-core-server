@@ -3,8 +3,8 @@
 package parameter
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 type ParameterWithDescriptionFromMessageCatalog interface {

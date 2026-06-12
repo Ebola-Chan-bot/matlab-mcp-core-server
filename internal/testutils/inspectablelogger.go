@@ -7,7 +7,7 @@ import (
 	"maps"
 	"sync"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 	"github.com/stretchr/testify/mock"
 )
 

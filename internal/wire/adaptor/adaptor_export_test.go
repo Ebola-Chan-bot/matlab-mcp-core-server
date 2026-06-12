@@ -3,7 +3,7 @@
 package adaptor
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/wire"
+	"github.com/matlab/matlab-mcp-server/internal/wire"
 )
 
 // NewAdaptor exposes the internal adaptor constructor for testing purposes.

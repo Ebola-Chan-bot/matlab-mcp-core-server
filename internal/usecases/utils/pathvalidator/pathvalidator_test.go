@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/pathvalidator"
-	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/usecases/utils/pathvalidator"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/utils/pathvalidator"
+	osfacademocks "github.com/matlab/matlab-mcp-server/mocks/facades/osfacade"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/usecases/utils/pathvalidator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

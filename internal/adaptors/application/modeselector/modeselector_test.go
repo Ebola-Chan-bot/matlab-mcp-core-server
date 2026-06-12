@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/modeselector"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
-	modeselectormocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/modeselector"
-	telemetrymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/telemetry"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/modeselector"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	configmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
+	modeselectormocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/modeselector"
+	telemetrymocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/telemetry"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

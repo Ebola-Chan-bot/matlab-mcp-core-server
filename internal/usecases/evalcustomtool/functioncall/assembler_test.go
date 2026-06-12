@@ -6,7 +6,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/evalcustomtool/functioncall"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/evalcustomtool/functioncall"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

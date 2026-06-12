@@ -5,14 +5,14 @@ package toolsproviderresources_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/toolsproviderresources"
-	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
-	definitionmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/definition"
-	basetoolmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools/basetool"
-	publictypesmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/publictypes"
-	toolsproviderresourcesmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/toolsproviderresources"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/toolsproviderresources"
+	configmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
+	definitionmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/definition"
+	basetoolmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/mcp/tools/basetool"
+	publictypesmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/publictypes"
+	toolsproviderresourcesmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/toolsproviderresources"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
 	"github.com/stretchr/testify/require"
 )
 

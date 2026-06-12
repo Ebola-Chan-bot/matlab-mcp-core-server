@@ -5,20 +5,20 @@ package mcpserver_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpserver"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpserver"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestParseVersion_FullVersion(t *testing.T) {
-	version, err := mcpserver.ParseVersion("github.com/matlab/matlab-mcp-core-server v1.2.3\n")
+	version, err := mcpserver.ParseVersion("github.com/matlab/matlab-mcp-server v1.2.3\n")
 
 	require.NoError(t, err)
 	assert.Equal(t, "v1.2.3", version)
 }
 
 func TestParseVersion_DevelVersion(t *testing.T) {
-	version, err := mcpserver.ParseVersion("github.com/matlab/matlab-mcp-core-server (devel)\n")
+	version, err := mcpserver.ParseVersion("github.com/matlab/matlab-mcp-server (devel)\n")
 
 	require.NoError(t, err)
 	assert.Equal(t, "(devel)", version)

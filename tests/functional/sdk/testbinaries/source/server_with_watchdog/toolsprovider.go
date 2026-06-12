@@ -3,7 +3,7 @@
 package main
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
+	"github.com/matlab/matlab-mcp-server/pkg/tools"
 )
 
 type ToolsProviderResources interface {

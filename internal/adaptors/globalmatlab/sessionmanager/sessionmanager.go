@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/time/retry"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 var ErrFailedToAttachToMATLABSession = errors.New("failed to attach to MATLAB session")

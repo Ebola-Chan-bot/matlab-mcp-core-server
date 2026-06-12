@@ -13,7 +13,7 @@ import (
 	"testing"
 	"text/template"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testconfig"
+	"github.com/matlab/matlab-mcp-server/tests/testconfig"
 
 	"github.com/stretchr/testify/require"
 )
@@ -24,7 +24,7 @@ var source embed.FS
 const goModName = "mathworks.com/sdk-module"
 const goModTemplate = `module ` + goModName + `
 
-replace github.com/matlab/matlab-mcp-core-server => {{ .SDKPath }}
+replace github.com/matlab/matlab-mcp-server => {{ .SDKPath }}
 `
 
 func BuildEmptyServer(t *testing.T) ServerDetails {

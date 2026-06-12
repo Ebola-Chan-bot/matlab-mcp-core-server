@@ -5,8 +5,8 @@ package config_test
 import (
 	"testing"
 
-	configadaptor "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/config"
-	publictypesmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/publictypes"
+	configadaptor "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/config"
+	publictypesmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/publictypes"
 	"github.com/stretchr/testify/require"
 )
 

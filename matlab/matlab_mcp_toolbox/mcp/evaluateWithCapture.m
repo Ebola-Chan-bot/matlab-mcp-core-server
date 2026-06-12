@@ -11,5 +11,5 @@ function results = evaluateWithCapture(code, options)
     end
 
     args = namedargs2cell(options);
-    results = mcpcoreserver.internal.evaluateWithCapture(code, args{:});
+    results = mcpserver.internal.evaluateWithCapture(code, args{:});
 end

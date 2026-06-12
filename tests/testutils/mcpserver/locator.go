@@ -7,12 +7,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testconfig"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/facades/filefacade"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/tests/testconfig"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/facades/filefacade"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/facades/osfacade"
 )
 
-const matlabMCPCoreServerBuildDirEnvironmentVariable = "MATLAB_MCP_CORE_SERVER_BUILD_DIR"
+const matlabMCPServerServerBuildDirEnvironmentVariable = "MATLAB_MCP_SERVER_BUILD_DIR"
 
 // Environment defines the interface for environment variable operations
 type Environment interface {
@@ -39,22 +39,22 @@ func NewLocator() *Locator {
 func (l *Locator) GetPath() (string, error) {
 	var path string
 	var value string
-	if value = l.Env.Getenv(matlabMCPCoreServerBuildDirEnvironmentVariable); value == "" {
-		return "", fmt.Errorf("environment variable %s is not set", matlabMCPCoreServerBuildDirEnvironmentVariable)
+	if value = l.Env.Getenv(matlabMCPServerServerBuildDirEnvironmentVariable); value == "" {
+		return "", fmt.Errorf("environment variable %s is not set", matlabMCPServerServerBuildDirEnvironmentVariable)
 	}
 
-	path = filepath.Join(value, testconfig.OSDescriptor, testconfig.MATLABMCPCoreServerBinariesFilename)
+	path = filepath.Join(value, testconfig.OSDescriptor, testconfig.MATLABMCPServerBinariesFilename)
 
 	if !filepath.IsAbs(path) {
 		return "", fmt.Errorf("mcp server path must be absolute: %s", path)
 	}
 
 	if path == "" {
-		return "", fmt.Errorf("MATLAB MCP Core Server binary path cannot be empty")
+		return "", fmt.Errorf("MATLAB MCP Server binary path cannot be empty")
 	}
 
 	if _, err := l.FS.Stat(path); err != nil {
-		return "", fmt.Errorf("MATLAB MCP Core Server binary does not exist at path: %s", path)
+		return "", fmt.Errorf("MATLAB MCP Server binary does not exist at path: %s", path)
 	}
 
 	return path, nil

@@ -9,11 +9,11 @@ import (
 
 	"golang.org/x/sys/unix"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/resourcelimit"
-	unixfacade "github.com/matlab/matlab-mcp-core-server/internal/facades/unix"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	resourcelimitmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/resourcelimit"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/resourcelimit"
+	unixfacade "github.com/matlab/matlab-mcp-server/internal/facades/unix"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	resourcelimitmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/resourcelimit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

@@ -3,9 +3,9 @@
 package toolsproviderresources
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	publictypes "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	publictypes "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 type LoggerFactory interface {

@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
 	"github.com/stretchr/testify/require"
 )
 

@@ -5,8 +5,8 @@ package rootstore_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/rootstore"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/server/rootstore"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

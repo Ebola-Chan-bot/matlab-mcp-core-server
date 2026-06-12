@@ -6,12 +6,12 @@ import (
 	"context"
 	"os"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/directory"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/directory"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 

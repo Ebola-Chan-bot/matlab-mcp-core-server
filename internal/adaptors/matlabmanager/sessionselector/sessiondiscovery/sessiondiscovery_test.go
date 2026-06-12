@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/sessionselector/sessiondiscovery"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/sessionselector/sessiondiscovery"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/sessionselector/sessiondiscovery"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/sessionselector/sessiondiscovery"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -321,7 +321,7 @@ func TestSessionDiscoverer_DiscoverSessions_HappyPath(t *testing.T) {
 
 	mockLogger := testutils.NewInspectableLogger()
 
-	expectedAppDataDir := filepath.Join("home", "user", "MATLABMCPCoreServer")
+	expectedAppDataDir := filepath.Join("home", "user", "MATLABMCPServer")
 	expectedCertPath := filepath.Join("path", "to", "cert.pem")
 	expectedCertPEM := []byte("-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----")
 	expectedPort := 31515
@@ -398,7 +398,7 @@ func TestSessionDiscoverer_DiscoverSessions_SessionFileNotFound(t *testing.T) {
 
 	mockLogger := testutils.NewInspectableLogger()
 
-	expectedAppDataDir := filepath.Join("home", "user", "MATLABMCPCoreServer")
+	expectedAppDataDir := filepath.Join("home", "user", "MATLABMCPServer")
 
 	mockAppDataDirGetter.EXPECT().
 		AppDataDir().
@@ -431,7 +431,7 @@ func TestSessionDiscoverer_DiscoverSessions_InvalidJSON(t *testing.T) {
 
 	mockLogger := testutils.NewInspectableLogger()
 
-	expectedAppDataDir := filepath.Join("home", "user", "MATLABMCPCoreServer")
+	expectedAppDataDir := filepath.Join("home", "user", "MATLABMCPServer")
 
 	mockAppDataDirGetter.EXPECT().
 		AppDataDir().
@@ -464,7 +464,7 @@ func TestSessionDiscoverer_DiscoverSessions_InvalidPort(t *testing.T) {
 
 	mockLogger := testutils.NewInspectableLogger()
 
-	expectedAppDataDir := filepath.Join("home", "user", "MATLABMCPCoreServer")
+	expectedAppDataDir := filepath.Join("home", "user", "MATLABMCPServer")
 
 	sessionJSON := []byte(`{"port":"not-a-number","certificate":"cert.pem","apiKey":"key","pid":100}`)
 
@@ -499,7 +499,7 @@ func TestSessionDiscoverer_DiscoverSessions_CertificateReadError(t *testing.T) {
 
 	mockLogger := testutils.NewInspectableLogger()
 
-	expectedAppDataDir := filepath.Join("home", "user", "MATLABMCPCoreServer")
+	expectedAppDataDir := filepath.Join("home", "user", "MATLABMCPServer")
 	expectedCertPath := filepath.Join("path", "to", "cert.pem")
 
 	sessionJSON := marshallSessionDetails(t, map[string]any{

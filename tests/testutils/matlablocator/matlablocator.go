@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package matlablocator
 
@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/facades/filefacade"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/facades/filefacade"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/facades/osfacade"
 )
 
 const mcpMATLABPathEnvKey = "MCP_MATLAB_PATH"

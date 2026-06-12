@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	httpclientmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/http/client"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	httpclientmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/http/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

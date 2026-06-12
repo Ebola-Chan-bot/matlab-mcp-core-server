@@ -1,4 +1,4 @@
-classdef VariableDisplayDisplayTest < mcpcoreserver.internal.display.console.DisplayTestHelper
+classdef VariableDisplayDisplayTest < mcpserver.internal.display.console.DisplayTestHelper
     %VariableDisplayDisplayTest Integration tests for variable display console rendering
 
     % Copyright 2026 The MathWorks, Inc.

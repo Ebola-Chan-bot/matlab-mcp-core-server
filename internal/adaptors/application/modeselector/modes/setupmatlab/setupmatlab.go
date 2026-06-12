@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/directory"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/directory"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 type OSLayer interface {

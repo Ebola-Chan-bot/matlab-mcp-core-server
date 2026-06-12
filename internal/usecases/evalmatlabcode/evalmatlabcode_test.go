@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/evalmatlabcode"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/usecases/evalmatlabcode"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/evalmatlabcode"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/usecases/evalmatlabcode"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

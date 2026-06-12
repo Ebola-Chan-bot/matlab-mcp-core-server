@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testconfig"
+	"github.com/matlab/matlab-mcp-server/tests/testconfig"
 )
 
 // Placeholder represents a non-functional MATLAB executable placeholder.

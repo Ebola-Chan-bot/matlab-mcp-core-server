@@ -5,12 +5,12 @@ package startmatlabsession
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/startmatlabsession"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/annotations"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/basetool"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/startmatlabsession"
 )
 
 type ConfigFactory interface {

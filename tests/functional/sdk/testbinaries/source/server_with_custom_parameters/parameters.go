@@ -3,7 +3,7 @@
 package main
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/pkg/config"
+	"github.com/matlab/matlab-mcp-server/pkg/config"
 )
 
 func CustomParameter() config.Parameter[string] {

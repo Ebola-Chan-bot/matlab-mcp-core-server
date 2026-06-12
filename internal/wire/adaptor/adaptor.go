@@ -5,9 +5,9 @@ package adaptor
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/wire"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/wire"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 

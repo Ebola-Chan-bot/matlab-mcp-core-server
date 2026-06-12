@@ -11,9 +11,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/facades/filefacade"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/facades/osfacade"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab/mockruntime"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/facades/filefacade"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab/mockruntime"
 )
 
 const (

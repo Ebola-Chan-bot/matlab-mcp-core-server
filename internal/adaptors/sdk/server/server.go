@@ -6,11 +6,11 @@ import (
 	"context"
 	"fmt"
 
-	internaldefinition "github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	publictypes "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/toolsprovider"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/wire/adaptor"
+	internaldefinition "github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	publictypes "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/toolsprovider"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/wire/adaptor"
 )
 
 type DependenciesProviderFactory[Dependencies any] interface {

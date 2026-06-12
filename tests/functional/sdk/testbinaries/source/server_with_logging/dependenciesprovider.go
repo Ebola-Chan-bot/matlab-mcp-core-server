@@ -3,8 +3,8 @@
 package main
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
-	"github.com/matlab/matlab-mcp-core-server/pkg/logger"
+	"github.com/matlab/matlab-mcp-server/pkg/i18n"
+	"github.com/matlab/matlab-mcp-server/pkg/logger"
 )
 
 type Dependencies struct{}

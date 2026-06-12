@@ -7,7 +7,7 @@ import (
 	"io/fs"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/logs"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/logs"
 )
 
 type LogReader interface {

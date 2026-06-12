@@ -3,7 +3,7 @@
 package embeddedconnector
 
 import (
-	httpclient "github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/client"
+	httpclient "github.com/matlab/matlab-mcp-server/internal/adaptors/http/client"
 )
 
 func (c *Client) SetHttpClient(httpClient httpclient.HttpClient) {

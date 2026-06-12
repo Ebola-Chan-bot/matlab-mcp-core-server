@@ -5,15 +5,15 @@ filename: "{{.InterfaceName}}.go"
 log-level: error
 pkgname: "mocks"
 packages:
-    github.com/matlab/matlab-mcp-core-server/internal:
+    github.com/matlab/matlab-mcp-server/internal:
         config:
             dir: 'mocks/{{.InterfaceDirRelative | trimPrefix "internal" }}'
             recursive: true
             all: true
-    github.com/matlab/matlab-mcp-core-server/internal/messages:
+    github.com/matlab/matlab-mcp-server/internal/messages:
         config:
             all: false
-    github.com/matlab/matlab-mcp-core-server/tests/testutils:
+    github.com/matlab/matlab-mcp-server/tests/testutils:
         config:
             dir: 'tests/mocks/{{.InterfaceDirRelative | trimPrefix "tests" }}'
             recursive: true

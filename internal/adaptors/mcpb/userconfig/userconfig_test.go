@@ -5,7 +5,7 @@ package userconfig_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcpb/userconfig"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcpb/userconfig"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

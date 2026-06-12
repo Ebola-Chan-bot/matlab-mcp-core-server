@@ -5,10 +5,10 @@ package config_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/parameter/defaultparameters"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	configmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

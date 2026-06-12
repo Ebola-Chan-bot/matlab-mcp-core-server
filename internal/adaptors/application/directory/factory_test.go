@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/directory"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
-	directorymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/directory"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/directory"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	configmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
+	directorymocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/directory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -28,9 +28,9 @@ func TestFactory_Directory_HappyPath(t *testing.T) {
 	mockOSLayer := &directorymocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	logDir := filepath.Join("tmp", "matlab-mcp-core-server-12345")
+	logDir := filepath.Join("tmp", "matlab-mcp-server-12345")
 	expectedMarkerFileBase := filepath.Join(logDir, directory.MarkerFileName)
-	markerFileName := filepath.Join(logDir, ".matlab-mcp-core-server-123")
+	markerFileName := filepath.Join(logDir, ".matlab-mcp-server-123")
 	suffix := "1337"
 
 	mockConfigFactory.EXPECT().
@@ -82,9 +82,9 @@ func TestFactory_Directory_ReturnsSameInstance(t *testing.T) {
 	mockOSLayer := &directorymocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	logDir := filepath.Join("tmp", "matlab-mcp-core-server-12345")
+	logDir := filepath.Join("tmp", "matlab-mcp-server-12345")
 	expectedMarkerFileBase := filepath.Join(logDir, directory.MarkerFileName)
-	markerFileName := filepath.Join(logDir, ".matlab-mcp-core-server-123")
+	markerFileName := filepath.Join(logDir, ".matlab-mcp-server-123")
 	suffix := "1337"
 
 	mockConfigFactory.EXPECT().

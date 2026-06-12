@@ -5,10 +5,10 @@ package addonmanager_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/addonmanager"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	addonmanagermocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/addonmanager"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/addonmanager"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	addonmanagermocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/addonmanager"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

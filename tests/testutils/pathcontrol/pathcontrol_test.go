@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/fakematlab"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/pathcontrol"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/fakematlab"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/pathcontrol"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

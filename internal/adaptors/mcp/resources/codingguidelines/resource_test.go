@@ -6,9 +6,9 @@ import (
 	_ "embed"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/resources/codingguidelines"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	baseresourcemocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/resources/baseresource"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/resources/codingguidelines"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	baseresourcemocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/mcp/resources/baseresource"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

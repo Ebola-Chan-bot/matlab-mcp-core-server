@@ -5,10 +5,10 @@ package parameters_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/parameters"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
-	internalentities "github.com/matlab/matlab-mcp-core-server/internal/entities"
-	publictypesmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/publictypes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/parameters"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
+	internalentities "github.com/matlab/matlab-mcp-server/internal/entities"
+	publictypesmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/publictypes"
 	"github.com/stretchr/testify/require"
 )
 

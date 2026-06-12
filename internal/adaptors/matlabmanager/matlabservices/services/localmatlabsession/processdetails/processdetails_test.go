@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package processdetails_test
 
@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession/processdetails"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/matlabservices/services/localmatlabsession/processdetails"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession/processdetails"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/matlabservices/services/localmatlabsession/processdetails"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

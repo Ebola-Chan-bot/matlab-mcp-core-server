@@ -5,8 +5,8 @@ package otel_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry/otel"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/telemetry/otel"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

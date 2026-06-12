@@ -20,7 +20,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
     methods (Test)
         function testHide_FigureCreatedWhileHidden_IsInvisible(testCase)
             % Arrange
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
             controller.hide();
 
@@ -37,7 +37,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
 
         function testShow_FigureCreatedAfterShow_IsVisible(testCase)
             % Arrange
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
             controller.hide();
             controller.show();
@@ -55,7 +55,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
 
         function testHide_FigureVisibilityCannotBeToggledOn(testCase)
             % Arrange
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
             controller.hide();
 
@@ -74,7 +74,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
 
         function testRestore_AfterHide_FigureVisibilityCanBeToggledOn(testCase)
             % Arrange
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
 
             controller.hide();
@@ -94,7 +94,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
 
         function testShow_AfterHide_FigureVisibilityCanBeToggledOn(testCase)
             % Arrange
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
 
             controller.hide();
@@ -115,7 +115,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
         function testRestore_RestoresOriginalDefaultFigureVisible(testCase)
             % Arrange
             originalVisible = get(0, "DefaultFigureVisible");
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
             controller.hide();
 
@@ -136,7 +136,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
             customCreateFcn = @(~,~) disp("custom");
             set(0, "DefaultFigureCreateFcn", customCreateFcn);
 
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
             controller.hide();
             controller.show();
@@ -157,7 +157,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
 
         function testHide_UifigureCreatedWhileHidden_IsInvisible(testCase)
             % Arrange
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
             controller.hide();
 
@@ -174,7 +174,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
 
         function testShow_UifigureCreatedAfterShow_IsVisible(testCase)
             % Arrange
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
             controller.hide();
             controller.show();
@@ -192,7 +192,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
 
         function testRestore_AfterHide_NewFiguresAreVisible(testCase)
             % Arrange
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
             controller.hide();
 
@@ -210,7 +210,7 @@ classdef DefaultFigureVisibilityControllerFunctionalTest < matlab.unittest.TestC
 
         function testRestore_AfterHide_ClosedFigureDoesNotError(testCase)
             % Arrange
-            controller = mcpcoreserver.internal.display.DefaultFigureVisibilityController();
+            controller = mcpserver.internal.display.DefaultFigureVisibilityController();
             testCase.addTeardown(@() controller.restore());
             controller.hide();
 

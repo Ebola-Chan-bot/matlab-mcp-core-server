@@ -5,8 +5,8 @@ package addonmanager
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/time/retry"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 type InstallationSteps interface {

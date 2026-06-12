@@ -6,9 +6,9 @@ import (
 	"errors"
 	"testing"
 
-	watchdogadaptor "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/watchdog"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	watchdogmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/watchdog"
+	watchdogadaptor "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/watchdog"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	watchdogmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/watchdog"
 	"github.com/stretchr/testify/require"
 )
 

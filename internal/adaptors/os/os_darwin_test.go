@@ -7,9 +7,9 @@ package os_test
 import (
 	"testing"
 
-	osadaptor "github.com/matlab/matlab-mcp-core-server/internal/adaptors/os"
-	osmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/os"
-	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
+	osadaptor "github.com/matlab/matlab-mcp-server/internal/adaptors/os"
+	osmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/os"
+	osfacademocks "github.com/matlab/matlab-mcp-server/mocks/facades/osfacade"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

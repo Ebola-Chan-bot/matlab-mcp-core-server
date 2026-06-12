@@ -3,8 +3,8 @@
 package os
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
-	"github.com/matlab/matlab-mcp-core-server/internal/facades/registryfacade"
+	"github.com/matlab/matlab-mcp-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/internal/facades/registryfacade"
 )
 
 type VersionOSLayer interface {

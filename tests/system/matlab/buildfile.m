@@ -1,5 +1,5 @@
 function plan = buildfile
-    %buildfile Build tasks for MATLAB MCP Core Server Toolbox system tests
+    %buildfile Build tasks for MATLAB MCP Server Toolbox system tests
 
     % Copyright 2026 The MathWorks, Inc.
 

@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package files_test
 
@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/filesystem/files"
-	filesmock "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/filesystem/files"
-	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/filesystem/files"
+	filesmock "github.com/matlab/matlab-mcp-server/mocks/adaptors/filesystem/files"
+	osfacademocks "github.com/matlab/matlab-mcp-server/mocks/facades/osfacade"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -5,10 +5,10 @@ package matlabsessionclient_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
-	httpclientmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/http/client"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/matlabsessionclient"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabsessionclient"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
+	httpclientmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/http/client"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/matlabsessionclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

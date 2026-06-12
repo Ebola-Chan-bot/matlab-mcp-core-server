@@ -5,7 +5,7 @@ package telemetry
 import (
 	"errors"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 	"go.opentelemetry.io/otel/attribute"
 )
 

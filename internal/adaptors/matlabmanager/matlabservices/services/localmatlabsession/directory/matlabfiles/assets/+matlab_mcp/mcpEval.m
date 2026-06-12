@@ -5,7 +5,7 @@
 
 function results = mcpEval(code)
     % mcpEval A helper function for handling execution of MATLAB code and post-processing
-    % the outputs. The MATLAB MCP Core Server will then convert those to the appropriate MCP Server Tool Content, see:
+    % the outputs. The MATLAB MCP Server will then convert those to the appropriate MCP Server Tool Content, see:
     % 
     % https://modelcontextprotocol.io/specification/2025-06-18/server/tools#tool-result
     % 
@@ -32,11 +32,11 @@ function results = mcpEval(code)
             'end'], code);
     end
 
-    fileToShowErrors = 'matlab_mcp_core_server';
+    fileToShowErrors = 'matlab_mcp_server';
 
     request = struct( ...
-        'requestId', 'matlab_mcp_core_server',...
-        'editorId', 'matlab_mcp_core_server',...
+        'requestId', 'matlab_mcp_server',...
+        'editorId', 'matlab_mcp_server',...
         'fullText', code,...
         'fullFilePath', fileToShowErrors);
 
@@ -68,7 +68,7 @@ function request = updateRequest(request, code)
             case 2
                 request = updateRequestFromVersion2(request, code);
             otherwise
-                error("Invalid API version. Create an issue at https://github.com/matlab/matlab-mcp-core-server for further support.");
+                error("Invalid API version. Create an issue at https://github.com/matlab/matlab-mcp-server for further support.");
         end
     end
 

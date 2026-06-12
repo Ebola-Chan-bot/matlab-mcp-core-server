@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
-	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/time/retry"
+	"github.com/matlab/matlab-mcp-server/internal/facades/osfacade"
 )
 
 const defaultCheckParentAliveInterval = 1 * time.Second

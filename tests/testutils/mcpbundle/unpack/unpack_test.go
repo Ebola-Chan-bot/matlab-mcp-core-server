@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	mocks "github.com/matlab/matlab-mcp-core-server/tests/mocks/testutils/mcpbundle/unpack"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpbundle/unpack"
+	mocks "github.com/matlab/matlab-mcp-server/tests/mocks/testutils/mcpbundle/unpack"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpbundle/unpack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package pathvalidator
 
@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/internal/facades/osfacade"
 )
 
 type OSLayer interface {

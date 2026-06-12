@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package matlabversion
 
@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/customerrors"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/customerrors"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
+	"github.com/matlab/matlab-mcp-server/internal/facades/osfacade"
 )
 
 type MathWorksVersionInfo struct {

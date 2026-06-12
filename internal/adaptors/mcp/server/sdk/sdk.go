@@ -8,11 +8,11 @@ import (
 	"maps"
 	"slices"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/telemetry"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 

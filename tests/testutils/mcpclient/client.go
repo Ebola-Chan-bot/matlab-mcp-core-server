@@ -53,7 +53,7 @@ type MCPClientSession struct {
 
 func GetMCPClientImplementation() *mcp.Implementation {
 	return &mcp.Implementation{
-		Name:       "test-client-for-matlab-mcp-core-server",
+		Name:       "test-client-for-matlab-mcp-server",
 		Title:      "Test Client",
 		Version:    "v.0.1-some-version",
 		WebsiteURL: "https://test-client.example.com",

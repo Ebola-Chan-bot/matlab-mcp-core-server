@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 	"github.com/spf13/pflag"
 )
 

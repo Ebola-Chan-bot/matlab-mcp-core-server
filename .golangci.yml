@@ -55,9 +55,9 @@ linters:
           files:
             - "**/pkg/**/*.go"
           allow:
-            - "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk"
+            - "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk"
           deny:
-            - pkg: "github.com/matlab/matlab-mcp-core-server/internal/"
+            - pkg: "github.com/matlab/matlab-mcp-server/internal/"
               desc: "pkg/* must not import internal/* directly — only internal/adaptors/sdk/* is allowed"
         # Rule 2: internal/* must never import pkg/*
         internal-no-pkg:
@@ -65,7 +65,7 @@ linters:
           files:
             - "**/internal/**/*.go"
           deny:
-            - pkg: "github.com/matlab/matlab-mcp-core-server/pkg/"
+            - pkg: "github.com/matlab/matlab-mcp-server/pkg/"
               desc: "internal/* must not import pkg/* — the SDK layer depends on internal, not vice-versa"
     nolintlint:
       require-explanation: true

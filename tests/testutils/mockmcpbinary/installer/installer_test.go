@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	mocks "github.com/matlab/matlab-mcp-core-server/tests/mocks/testutils/mockmcpbinary/installer"
-	"github.com/matlab/matlab-mcp-core-server/tests/testconfig"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmcpbinary/installer"
+	mocks "github.com/matlab/matlab-mcp-server/tests/mocks/testutils/mockmcpbinary/installer"
+	"github.com/matlab/matlab-mcp-server/tests/testconfig"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmcpbinary/installer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +23,7 @@ func TestInstaller_BuildAndInstall_Success(t *testing.T) {
 
 	builder := mocks.NewMockBinaryBuilder(t)
 	expectedSourceDir := filepath.Join(moduleRoot, "tests", "testutils", "mockmcpbinary", "source")
-	expectedBinaryPath := filepath.Join(binDir, "matlab-mcp-core-server-"+testconfig.OSDescriptor+testconfig.ExecutableExtension)
+	expectedBinaryPath := filepath.Join(binDir, "matlab-mcp-server-"+testconfig.OSName+"-"+testconfig.Architecture+testconfig.ExecutableExtension)
 	builder.EXPECT().Build(expectedSourceDir, expectedBinaryPath).Return(nil)
 
 	inst := installer.New(finder, builder)
@@ -63,7 +63,7 @@ func TestInstaller_BuildAndInstall_BuildFailure(t *testing.T) {
 	builder := mocks.NewMockBinaryBuilder(t)
 	builder.EXPECT().Build(
 		filepath.Join(moduleRoot, "tests", "testutils", "mockmcpbinary", "source"),
-		filepath.Join(binDir, "matlab-mcp-core-server-"+testconfig.OSDescriptor+testconfig.ExecutableExtension),
+		filepath.Join(binDir, "matlab-mcp-server-"+testconfig.OSName+"-"+testconfig.Architecture+testconfig.ExecutableExtension),
 	).Return(expectedErr)
 
 	inst := installer.New(finder, builder)

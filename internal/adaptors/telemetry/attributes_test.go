@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/otel/attribute"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/telemetry"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
 )
 
 func TestNewAttributes_HappyPath(t *testing.T) {

@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 const (
-	defaultLogDirPattern = "matlab-mcp-core-server-"
-	markerFileName       = ".matlab-mcp-core-server"
+	defaultLogDirPattern = "matlab-mcp-server-"
+	markerFileName       = ".matlab-mcp-server"
 )
 
 type Config interface {

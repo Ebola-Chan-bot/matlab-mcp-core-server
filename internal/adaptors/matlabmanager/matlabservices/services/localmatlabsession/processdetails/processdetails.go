@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package processdetails
 
@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	// The environment variable MW_CONTEXT_TAGS allows MathWorks to understand how this MathWorks product (MATLAB MCP Core Server)
+	// The environment variable MW_CONTEXT_TAGS allows MathWorks to understand how this MathWorks product (MATLAB MCP Server)
 	// is used with MATLAB. This information helps us improve our products.
 	// Your content, and information about the content within your files, is not shared with MathWorks.
 	// For more information see https://mathworks.com/support/faq/user_experience_information_faq.html

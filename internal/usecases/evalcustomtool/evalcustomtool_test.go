@@ -5,12 +5,12 @@ package evalcustomtool_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/evalcustomtool"
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/evalcustomtool/functioncall"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
-	evalcustomtoolmocks "github.com/matlab/matlab-mcp-core-server/mocks/usecases/evalcustomtool"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/evalcustomtool"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/evalcustomtool/functioncall"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
+	evalcustomtoolmocks "github.com/matlab/matlab-mcp-server/mocks/usecases/evalcustomtool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

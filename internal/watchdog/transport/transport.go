@@ -1,8 +1,8 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package transport
 
-import "github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/messages"
+import "github.com/matlab/matlab-mcp-server/internal/watchdog/transport/messages"
 
 type Client interface {
 	Connect(socketPath string) error

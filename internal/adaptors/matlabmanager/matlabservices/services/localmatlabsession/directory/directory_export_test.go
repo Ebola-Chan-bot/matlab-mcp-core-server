@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 func NewDirectory(logger entities.Logger, sessionDir string, osLayer OSLayer, config Config) *directory {

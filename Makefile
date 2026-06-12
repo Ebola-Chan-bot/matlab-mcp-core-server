@@ -61,27 +61,27 @@ endif
 
 EMBEDDED_MLTBX_DIR := $(CURDIR)/internal/adaptors/matlabmanager/addonmanager/installationsteps/assets/mltbx
 
-MATLAB_MCP_CORE_SERVER_BUILD_DIR ?= $(CURDIR)/.bin
-MATLAB_MCP_CORE_SERVER_MLTBX_DIR ?= $(EMBEDDED_MLTBX_DIR)
+MATLAB_MCP_SERVER_BUILD_DIR ?= $(CURDIR)/.bin
+MATLAB_MCP_SERVER_MLTBX_DIR ?= $(EMBEDDED_MLTBX_DIR)
 
 # --- Build paths ---
 
-TOOLS_BIN_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/tools
+TOOLS_BIN_DIR := $(MATLAB_MCP_SERVER_BUILD_DIR)/tools
 SOURCEHASH_BIN := $(TOOLS_BIN_DIR)/sourcehash$(EXE_SUFFIX)
 MCPB_GEN_BIN := $(TOOLS_BIN_DIR)/mcpb-gen$(EXE_SUFFIX)
 
-WIN64_BIN_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/win64
-GLNXA64_BIN_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/glnxa64
-MACI64_BIN_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/maci64
-MACA64_BIN_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/maca64
-ALL_BIN_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/all
+WIN64_BIN_DIR := $(MATLAB_MCP_SERVER_BUILD_DIR)/win64
+GLNXA64_BIN_DIR := $(MATLAB_MCP_SERVER_BUILD_DIR)/glnxa64
+MACI64_BIN_DIR := $(MATLAB_MCP_SERVER_BUILD_DIR)/maci64
+MACA64_BIN_DIR := $(MATLAB_MCP_SERVER_BUILD_DIR)/maca64
+ALL_BIN_DIR := $(MATLAB_MCP_SERVER_BUILD_DIR)/all
 
-MLTBX_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/mltbx
+MLTBX_DIR := $(MATLAB_MCP_SERVER_BUILD_DIR)/mltbx
 SOURCES_HASH_FILE := $(EMBEDDED_MLTBX_DIR)/.sources-hash
 MATLAB_TOOLBOX_DIR := $(CURDIR)/matlab/matlab_mcp_toolbox
 
-MCPB_STAGING_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)/mcpb
-MCPB_FILENAME := matlab-mcp-core-server.mcpb
+MCPB_STAGING_DIR := $(MATLAB_MCP_SERVER_BUILD_DIR)/mcpb
+MCPB_FILENAME := matlab-mcp-server.mcpb
 
 # --- Resource paths ---
 
@@ -112,7 +112,7 @@ TEST_TARGETS := \
 	system-tests                   ci-system-tests         \
 	matlab-system-tests            ci-matlab-system-tests
 $(TEST_TARGETS): export PATH := $(BIN_PATH)$(PATHSEP)$(PATH)
-$(TEST_TARGETS): export MATLAB_MCP_CORE_SERVER_BUILD_DIR := $(MATLAB_MCP_CORE_SERVER_BUILD_DIR)
+$(TEST_TARGETS): export MATLAB_MCP_SERVER_BUILD_DIR := $(MATLAB_MCP_SERVER_BUILD_DIR)
 $(TEST_TARGETS): export MCP_MATLAB_PATH := $(MCP_MATLAB_PATH)
 $(TEST_TARGETS): export MCPB_ARTIFACT_PATH := $(or $(MCPB_ARTIFACT_PATH),$(MCPB_STAGING_DIR)/$(MCPB_FILENAME))
 
@@ -173,7 +173,7 @@ ci-matlab-system-tests: matlab-system-tests
 # =============================================================================
 
 wire:
-	go tool wire github.com/matlab/matlab-mcp-core-server/internal/wire
+	go tool wire github.com/matlab/matlab-mcp-server/internal/wire
 
 check-wire: wire
 	@$(call CHECK_GIT_CLEAN,Wire generated code)
@@ -228,56 +228,56 @@ endif
 
 ensure-binary-executable:
 ifneq ($(OS),Windows_NT)
-	@chmod +x "$(BIN_PATH)/matlab-mcp-core-server" 2>/dev/null || true
+	@chmod +x "$(BIN_PATH)/matlab-mcp-server" 2>/dev/null || true
 endif
 
 # Windows .exe doesn't need execute bit; build-mcpb-bundle only runs on macOS/Linux
 ensure-all-binaries-executable:
 ifneq ($(OS),Windows_NT)
-	@chmod +x "$(ALL_BIN_DIR)/matlab-mcp-core-server-glnxa64" "$(ALL_BIN_DIR)/matlab-mcp-core-server-maca64" "$(ALL_BIN_DIR)/matlab-mcp-core-server-maci64" 2>/dev/null || true
+	@chmod +x "$(ALL_BIN_DIR)/matlab-mcp-server-linux-x64" "$(ALL_BIN_DIR)/matlab-mcp-server-macos-arm64" "$(ALL_BIN_DIR)/matlab-mcp-server-macos-x64" 2>/dev/null || true
 endif
 
 build: build-for-windows build-for-glnxa64 build-for-maci64 build-for-maca64
 	@$(call MK_DIR,$(ALL_BIN_DIR))
-	@$(call CP,$(GLNXA64_BIN_DIR)/matlab-mcp-core-server,$(ALL_BIN_DIR)/matlab-mcp-core-server-glnxa64)
-	@$(call CP,$(MACA64_BIN_DIR)/matlab-mcp-core-server,$(ALL_BIN_DIR)/matlab-mcp-core-server-maca64)
-	@$(call CP,$(MACI64_BIN_DIR)/matlab-mcp-core-server,$(ALL_BIN_DIR)/matlab-mcp-core-server-maci64)
-	@$(call CP,$(WIN64_BIN_DIR)/matlab-mcp-core-server.exe,$(ALL_BIN_DIR)/matlab-mcp-core-server-win64.exe)
+	@$(call CP,$(GLNXA64_BIN_DIR)/matlab-mcp-server,$(ALL_BIN_DIR)/matlab-mcp-server-linux-x64)
+	@$(call CP,$(MACA64_BIN_DIR)/matlab-mcp-server,$(ALL_BIN_DIR)/matlab-mcp-server-macos-arm64)
+	@$(call CP,$(MACI64_BIN_DIR)/matlab-mcp-server,$(ALL_BIN_DIR)/matlab-mcp-server-macos-x64)
+	@$(call CP,$(WIN64_BIN_DIR)/matlab-mcp-server.exe,$(ALL_BIN_DIR)/matlab-mcp-server-windows-x64.exe)
 
 build-for-windows:
 ifeq ($(OS),Windows_NT)
-	$$env:GOOS='windows'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(WIN64_BIN_DIR)/matlab-mcp-core-server.exe ./cmd/matlab-mcp-core-server
+	$$env:GOOS='windows'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(WIN64_BIN_DIR)/matlab-mcp-server.exe ./cmd/matlab-mcp-server
 else
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(WIN64_BIN_DIR)/matlab-mcp-core-server.exe" ./cmd/matlab-mcp-core-server
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(WIN64_BIN_DIR)/matlab-mcp-server.exe" ./cmd/matlab-mcp-server
 endif
 
 build-for-glnxa64:
 ifeq ($(OS),Windows_NT)
-	$$env:GOOS='linux'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(GLNXA64_BIN_DIR)/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
+	$$env:GOOS='linux'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(GLNXA64_BIN_DIR)/matlab-mcp-server ./cmd/matlab-mcp-server
 else
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(GLNXA64_BIN_DIR)/matlab-mcp-core-server" ./cmd/matlab-mcp-core-server
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(GLNXA64_BIN_DIR)/matlab-mcp-server" ./cmd/matlab-mcp-server
 endif
 
 build-for-maci64:
 ifeq ($(OS),Windows_NT)
-	$$env:GOOS='darwin'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(MACI64_BIN_DIR)/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
+	$$env:GOOS='darwin'; $$env:GOARCH='amd64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(MACI64_BIN_DIR)/matlab-mcp-server ./cmd/matlab-mcp-server
 else
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(MACI64_BIN_DIR)/matlab-mcp-core-server" ./cmd/matlab-mcp-core-server
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(MACI64_BIN_DIR)/matlab-mcp-server" ./cmd/matlab-mcp-server
 endif
 
 build-for-maca64:
 ifeq ($(OS),Windows_NT)
-	$$env:GOOS='darwin'; $$env:GOARCH='arm64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(MACA64_BIN_DIR)/matlab-mcp-core-server ./cmd/matlab-mcp-core-server
+	$$env:GOOS='darwin'; $$env:GOARCH='arm64'; $$env:CGO_ENABLED='0'; go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o $(MACA64_BIN_DIR)/matlab-mcp-server ./cmd/matlab-mcp-server
 else
-	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(MACA64_BIN_DIR)/matlab-mcp-core-server" ./cmd/matlab-mcp-core-server
+	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build $(BUILD_FLAGS) $(LDFLAGS_ARG) -o "$(MACA64_BIN_DIR)/matlab-mcp-server" ./cmd/matlab-mcp-server
 endif
 
 build-all:
 	@$(call MK_DIR,$(ALL_BIN_DIR))
-	@$(call CP,$(GLNXA64_BIN_DIR)/matlab-mcp-core-server,$(ALL_BIN_DIR)/matlab-mcp-core-server-glnxa64)
-	@$(call CP,$(MACA64_BIN_DIR)/matlab-mcp-core-server,$(ALL_BIN_DIR)/matlab-mcp-core-server-maca64)
-	@$(call CP,$(MACI64_BIN_DIR)/matlab-mcp-core-server,$(ALL_BIN_DIR)/matlab-mcp-core-server-maci64)
-	@$(call CP,$(WIN64_BIN_DIR)/matlab-mcp-core-server.exe,$(ALL_BIN_DIR)/matlab-mcp-core-server-win64.exe)
+	@$(call CP,$(GLNXA64_BIN_DIR)/matlab-mcp-server,$(ALL_BIN_DIR)/matlab-mcp-server-linux-x64)
+	@$(call CP,$(MACA64_BIN_DIR)/matlab-mcp-server,$(ALL_BIN_DIR)/matlab-mcp-server-macos-arm64)
+	@$(call CP,$(MACI64_BIN_DIR)/matlab-mcp-server,$(ALL_BIN_DIR)/matlab-mcp-server-macos-x64)
+	@$(call CP,$(WIN64_BIN_DIR)/matlab-mcp-server.exe,$(ALL_BIN_DIR)/matlab-mcp-server-windows-x64.exe)
 
 build-tools: build-sourcehash build-mcpb-gen
 
@@ -291,17 +291,17 @@ build-mcpb-gen:
 
 build-matlab-addon: sync-matlab-mcp
 ifeq ($(OS),Windows_NT)
-	$$env:MATLAB_MCP_CORE_SERVER_MLTBX_DIR='$(MLTBX_DIR)'; matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean package;"
+	$$env:MATLAB_MCP_SERVER_MLTBX_DIR='$(MLTBX_DIR)'; matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean package;"
 else
-	MATLAB_MCP_CORE_SERVER_MLTBX_DIR="$(MLTBX_DIR)" matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean package;"
+	MATLAB_MCP_SERVER_MLTBX_DIR="$(MLTBX_DIR)" matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean package;"
 endif
 
 update-embedded-matlab-addon: build-tools sync-matlab-mcp
 ifeq ($(OS),Windows_NT)
-	$$env:MATLAB_MCP_CORE_SERVER_MLTBX_DIR='$(EMBEDDED_MLTBX_DIR)'; matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean package;"
+	$$env:MATLAB_MCP_SERVER_MLTBX_DIR='$(EMBEDDED_MLTBX_DIR)'; matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean package;"
 	& "$(SOURCEHASH_BIN)" write "$(SOURCES_HASH_FILE)" "$(MATLAB_TOOLBOX_DIR)"
 else
-	MATLAB_MCP_CORE_SERVER_MLTBX_DIR="$(EMBEDDED_MLTBX_DIR)" matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean package;"
+	MATLAB_MCP_SERVER_MLTBX_DIR="$(EMBEDDED_MLTBX_DIR)" matlab -batch "cd(fullfile('$(CURDIR)', 'matlab', 'matlab_mcp_toolbox')); buildtool clean package;"
 	"$(SOURCEHASH_BIN)" write "$(SOURCES_HASH_FILE)" "$(MATLAB_TOOLBOX_DIR)"
 endif
 
@@ -319,7 +319,7 @@ endif
 mcp-inspector: export PATH := $(BIN_PATH)$(PATHSEP)$(PATH)
 mcp-inspector: export HOST := localhost
 mcp-inspector:
-	npx @modelcontextprotocol/inspector matlab-mcp-core-server
+	npx @modelcontextprotocol/inspector matlab-mcp-server
 
 unit-tests:
 	go tool gotestsum --packages="$(UNIT_TEST_PKGS)" -- -race -coverprofile cover.out
@@ -350,7 +350,7 @@ system-tests:
 	go tool gotestsum --packages="$(SYSTEM_TEST_PKGS)" -- -race -count=1 -timeout 30m
 	@$(CHECK_MATLAB_LEAKS)
 
-matlab-system-tests: export MATLAB_MCP_CORE_SERVER_MLTBX_DIR := $(MATLAB_MCP_CORE_SERVER_MLTBX_DIR)
+matlab-system-tests: export MATLAB_MCP_SERVER_MLTBX_DIR := $(MATLAB_MCP_SERVER_MLTBX_DIR)
 matlab-system-tests:
 	matlab -batch "cd(fullfile('$(CURDIR)', 'tests', 'system', 'matlab')); buildtool;"
 
@@ -371,7 +371,7 @@ endif
 
 pack-mcpb-bundle: mcpb-stage ensure-all-binaries-executable
 ifeq ($(OS),Windows_NT)
-	@Copy-Item "$(ALL_BIN_DIR)/matlab-mcp-core-server-*" "$(MCPB_STAGING_DIR)/bundle/bin/" -ErrorAction Stop
+	@Copy-Item "$(ALL_BIN_DIR)/matlab-mcp-server-*" "$(MCPB_STAGING_DIR)/bundle/bin/" -ErrorAction Stop
 	@Push-Location "$(MCPB_STAGING_DIR)"; \
 		npm i; \
 		if ($$LASTEXITCODE -ne 0) { Pop-Location; exit 1 }; \
@@ -382,7 +382,7 @@ ifeq ($(OS),Windows_NT)
 	@Write-Host ""
 	@Write-Host "Created: $(MCPB_STAGING_DIR)/$(MCPB_FILENAME)"
 else
-	@cp "$(ALL_BIN_DIR)"/matlab-mcp-core-server-* "$(MCPB_STAGING_DIR)/bundle/bin/"
+	@cp "$(ALL_BIN_DIR)"/matlab-mcp-server-* "$(MCPB_STAGING_DIR)/bundle/bin/"
 	@cd "$(MCPB_STAGING_DIR)" && npm i && npm run mcpb-pack -- "$(MCPB_FILENAME)"
 	@echo ""
 	@echo "Created: $(MCPB_STAGING_DIR)/$(MCPB_FILENAME)"
@@ -392,10 +392,10 @@ build-mcpb-bundle:
 ifeq ($(OS),Windows_NT)
 	@Write-Error "build-mcpb-bundle cannot be called directly on Windows. Use 'make mcpb-dev' instead."; exit 1
 else
-	@if [ ! -f "$(ALL_BIN_DIR)/matlab-mcp-core-server-glnxa64" ] || \
-		[ ! -f "$(ALL_BIN_DIR)/matlab-mcp-core-server-maca64" ] || \
-		[ ! -f "$(ALL_BIN_DIR)/matlab-mcp-core-server-maci64" ] || \
-		[ ! -f "$(ALL_BIN_DIR)/matlab-mcp-core-server-win64.exe" ]; then \
+	@if [ ! -f "$(ALL_BIN_DIR)/matlab-mcp-server-linux-x64" ] || \
+		[ ! -f "$(ALL_BIN_DIR)/matlab-mcp-server-macos-arm64" ] || \
+		[ ! -f "$(ALL_BIN_DIR)/matlab-mcp-server-macos-x64" ] || \
+		[ ! -f "$(ALL_BIN_DIR)/matlab-mcp-server-windows-x64.exe" ]; then \
 		echo "Error: Missing binaries in $(ALL_BIN_DIR)."; \
 		echo "Run 'make mcpb-dev' for local builds, or populate $(ALL_BIN_DIR) with signed binaries."; \
 		exit 1; \
@@ -430,7 +430,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "& {
     Start-Sleep -Seconds 5;
     Write-Host 'Checking for leaked MATLAB processes...';
     `$$p = Get-Process -Name MATLAB -ErrorAction SilentlyContinue |
-        Where-Object { `$$_.CommandLine -like '*matlab-mcp-core-server*' };
+        Where-Object { `$$_.CommandLine -like '*matlab-mcp-server*' };
     if (`$$p) {
         Write-Host 'WARNING: Found leaked MATLAB processes:';
         `$$p | Format-Table Id,ProcessName,StartTime;

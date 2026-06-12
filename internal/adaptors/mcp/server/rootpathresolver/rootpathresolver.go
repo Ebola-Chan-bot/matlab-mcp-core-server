@@ -9,7 +9,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 type OSLayer interface {

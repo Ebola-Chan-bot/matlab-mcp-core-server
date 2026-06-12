@@ -8,10 +8,10 @@ import (
 	"io"
 	"net/http"
 
-	httpserver "github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/server"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/server/handler"
+	httpserver "github.com/matlab/matlab-mcp-server/internal/adaptors/http/server"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport/messages"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport/server/handler"
 )
 
 type Server struct {

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 const internalErrorText = "Unimplemented parameter type"

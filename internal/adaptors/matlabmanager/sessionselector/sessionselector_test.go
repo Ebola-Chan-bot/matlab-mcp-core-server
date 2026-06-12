@@ -5,12 +5,12 @@ package sessionselector_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/sessionselector"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/sessionselector"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/sessionselector"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	configmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/sessionselector"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/server"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/socket"
-	servermocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/http/server"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/http/server"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport/socket"
+	servermocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/http/server"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -5,8 +5,8 @@ package config
 import (
 	"reflect"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/parameter"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 func get[OutputType any](cfg GenericConfig, parameter *parameter.Parameter[OutputType]) (OutputType, messages.Error) {

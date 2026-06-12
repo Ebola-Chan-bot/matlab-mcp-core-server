@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters/selector"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	selectormocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/parameter/defaultparameters/selector"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/parameter/defaultparameters/selector"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	selectormocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/parameter/defaultparameters/selector"
 )
 
 func TestSelector_DefaultParameters_DescriptionsResolvedForVisibleParameters(t *testing.T) {

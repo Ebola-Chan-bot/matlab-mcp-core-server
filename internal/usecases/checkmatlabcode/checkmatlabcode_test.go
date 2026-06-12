@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/checkmatlabcode"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
-	checkmatlabcodemocks "github.com/matlab/matlab-mcp-core-server/mocks/usecases/checkmatlabcode"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/checkmatlabcode"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
+	checkmatlabcodemocks "github.com/matlab/matlab-mcp-server/mocks/usecases/checkmatlabcode"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

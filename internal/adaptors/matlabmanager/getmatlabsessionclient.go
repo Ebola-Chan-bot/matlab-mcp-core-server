@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/time/retry"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 const defaultMATLABSessionConnectionRetryInterval = 100 * time.Millisecond

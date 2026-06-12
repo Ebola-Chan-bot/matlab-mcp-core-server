@@ -5,7 +5,7 @@ package mockruntime_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab/mockruntime"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab/mockruntime"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -3,9 +3,9 @@
 package resourcelimit
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	unixfacade "github.com/matlab/matlab-mcp-core-server/internal/facades/unix"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	unixfacade "github.com/matlab/matlab-mcp-server/internal/facades/unix"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 type LoggerFactory interface {

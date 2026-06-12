@@ -5,7 +5,7 @@ package logs
 import (
 	"io/fs"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/facades/filefacade"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/facades/filefacade"
 )
 
 func NewReader() Reader {

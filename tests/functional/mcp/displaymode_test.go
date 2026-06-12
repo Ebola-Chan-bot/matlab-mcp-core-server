@@ -6,9 +6,9 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/fakematlab"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/pathcontrol"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/fakematlab"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpclient"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/pathcontrol"
 	"github.com/stretchr/testify/suite"
 )
 

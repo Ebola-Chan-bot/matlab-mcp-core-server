@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/server"
-	servermocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/http/server"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/http/server"
+	servermocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/http/server"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

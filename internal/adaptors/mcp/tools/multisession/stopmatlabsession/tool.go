@@ -1,13 +1,13 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package stopmatlabsession
 
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/annotations"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/basetool"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 type Usecase interface {

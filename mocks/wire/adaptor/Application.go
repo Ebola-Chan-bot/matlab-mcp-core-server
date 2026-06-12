@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/wire/adaptor"
+	"github.com/matlab/matlab-mcp-server/internal/wire/adaptor"
 	mock "github.com/stretchr/testify/mock"
 )
 

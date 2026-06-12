@@ -5,8 +5,8 @@ package client_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/client"
-	clientmocks "github.com/matlab/matlab-mcp-core-server/mocks/watchdog/transport/client"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport/client"
+	clientmocks "github.com/matlab/matlab-mcp-server/mocks/watchdog/transport/client"
 	"github.com/stretchr/testify/assert"
 )
 

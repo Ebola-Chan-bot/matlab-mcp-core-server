@@ -1,4 +1,4 @@
-cmd/matlab-mcp-core-server/assets/**
+cmd/matlab-mcp-server/assets/**
 internal/adaptors/application/config/assets/version
 internal/adaptors/mcp/resources/**/*.md
 internal/messages/**
@@ -9,7 +9,7 @@ go.sum
 SECURITY.md
 *.pem
 tests/mocks/**
-matlab/matlab_mcp_toolbox/MATLABMCPCoreServerToolbox.prj
+matlab/matlab_mcp_toolbox/MATLABMCPServerToolbox.prj
 matlab/matlab_mcp_toolbox/resources/**
 *.mltbx
 *.sources-hash

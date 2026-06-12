@@ -5,9 +5,9 @@ package defaultparameters
 import (
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/parameter"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 const envVarNamePrefix = "MW_MCP_SERVER_"

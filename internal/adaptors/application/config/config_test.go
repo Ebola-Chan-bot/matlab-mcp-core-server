@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/defaultparameters"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/parameter/defaultparameters"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	configmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -511,7 +511,7 @@ func TestConfig_Version_HappyPath(t *testing.T) {
 	programName := "testprocess"
 	args := []string{programName}
 
-	expectedVersion := "github.com/matlab/matlab-mcp-core-server v1.2.3"
+	expectedVersion := "github.com/matlab/matlab-mcp-server v1.2.3"
 
 	mockOSLayer.EXPECT().
 		Args().

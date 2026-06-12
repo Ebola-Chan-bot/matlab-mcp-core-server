@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package logger_test
 
@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/logger"
-	loggermocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/logger"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/logger"
+	loggermocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

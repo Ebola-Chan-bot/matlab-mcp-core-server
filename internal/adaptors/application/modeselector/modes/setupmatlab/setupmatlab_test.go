@@ -7,12 +7,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/modeselector/modes/setupmatlab"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	directorymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/directory"
-	setupmatlabmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/modeselector/modes/setupmatlab"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/modeselector/modes/setupmatlab"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	directorymocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/directory"
+	setupmatlabmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/modeselector/modes/setupmatlab"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

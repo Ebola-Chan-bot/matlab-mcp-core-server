@@ -5,7 +5,7 @@ package matlabstring_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/matlabstring"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/utils/matlabstring"
 	"github.com/stretchr/testify/assert"
 )
 

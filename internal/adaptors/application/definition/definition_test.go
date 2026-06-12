@@ -5,13 +5,13 @@ package definition_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	toolsmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools"
-	basetoolmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools/basetool"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	toolsmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/mcp/tools"
+	basetoolmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/mcp/tools/basetool"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
 	"github.com/stretchr/testify/require"
 )
 

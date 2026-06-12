@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 // CodeIssue represents a single code issue found by the code analysis

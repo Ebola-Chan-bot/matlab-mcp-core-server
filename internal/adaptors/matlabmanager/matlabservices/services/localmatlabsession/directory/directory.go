@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/time/retry"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 const defaultEmbeddedConnectorDetailsRetry = 500 * time.Millisecond

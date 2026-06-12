@@ -17,7 +17,7 @@ classdef shareMATLABSessionDarwinTest < shareMATLABSessionTestBase
         end
 
         function expectedFolder = getExpectedAppDataFolder(testCase)
-            expectedFolder = fullfile(testCase.TestBaseFolder, "Library", "Application Support", "MathWorks", "MATLAB MCP Core Server");
+            expectedFolder = fullfile(testCase.TestBaseFolder, "Library", "Application Support", "MathWorks", "MATLAB MCP Server");
         end
 
         function verifyFolderPermissions(testCase, path)

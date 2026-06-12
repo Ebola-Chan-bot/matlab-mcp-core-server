@@ -1,4 +1,4 @@
-classdef FigureCaptureTest < mcpcoreserver.internal.capture.CaptureTestHelper
+classdef FigureCaptureTest < mcpserver.internal.capture.CaptureTestHelper
     %FigureCaptureTest Integration tests for figure event capture
 
     % Copyright 2026 The MathWorks, Inc.

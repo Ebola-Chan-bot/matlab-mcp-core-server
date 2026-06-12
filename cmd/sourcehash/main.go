@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sourcehash"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sourcehash"
 )
 
 func main() {

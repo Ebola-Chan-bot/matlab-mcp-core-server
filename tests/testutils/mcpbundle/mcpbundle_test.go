@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	mocks "github.com/matlab/matlab-mcp-core-server/tests/mocks/testutils/mcpbundle"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpbundle"
+	mocks "github.com/matlab/matlab-mcp-server/tests/mocks/testutils/mcpbundle"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpbundle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -91,7 +91,7 @@ func TestLaunch_PassesEnvVarsToRunner(t *testing.T) {
 
 	runner.EXPECT().
 		Run(t.Context(), mock.AnythingOfType("string"), mock.MatchedBy(func(env []string) bool {
-			return slices.Contains(env, "__MATLAB_MCP_CORE_SERVER_MCPB_MATLAB_ROOT=/opt/matlab")
+			return slices.Contains(env, "__MATLAB_MCP_SERVER_MCPB_MATLAB_ROOT=/opt/matlab")
 		}), []string(nil)).
 		Return(mcpbundle.LaunchResult{Args: []string{"--matlab-root", "/opt/matlab"}}, nil).
 		Once()
@@ -99,7 +99,7 @@ func TestLaunch_PassesEnvVarsToRunner(t *testing.T) {
 	bundle := mcpbundle.NewBundleForTest(bundleDir, runner)
 
 	result := bundle.Launch(t, map[string]string{
-		"__MATLAB_MCP_CORE_SERVER_MCPB_MATLAB_ROOT": "/opt/matlab",
+		"__MATLAB_MCP_SERVER_MCPB_MATLAB_ROOT": "/opt/matlab",
 	})
 
 	assert.Equal(t, []string{"--matlab-root", "/opt/matlab"}, result.Args)
@@ -115,7 +115,7 @@ func TestLaunch_FiltersExistingMCPBEnvVars(t *testing.T) {
 	runner.EXPECT().
 		Run(t.Context(), mock.AnythingOfType("string"), mock.MatchedBy(func(env []string) bool {
 			for _, e := range env {
-				if strings.HasPrefix(e, "__MATLAB_MCP_CORE_SERVER_MCPB_") {
+				if strings.HasPrefix(e, "__MATLAB_MCP_SERVER_MCPB_") {
 					return false
 				}
 			}

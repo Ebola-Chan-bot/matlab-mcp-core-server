@@ -21,7 +21,7 @@ func main() {
 
 	var env []string
 	for _, e := range os.Environ() {
-		if strings.HasPrefix(e, "__MATLAB_MCP_CORE_SERVER_MCPB_") {
+		if strings.HasPrefix(e, "__MATLAB_MCP_SERVER_MCPB_") {
 			env = append(env, e)
 		}
 	}

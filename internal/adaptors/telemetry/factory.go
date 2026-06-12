@@ -6,17 +6,17 @@ import (
 	"context"
 	"sync"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/directory"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry/otel"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry/otel/instruments"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/directory"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/telemetry/otel"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/telemetry/otel/instruments"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/noop"
 )
 
-const name = "github.com/matlab/matlab-mcp-core-server"
+const name = "github.com/matlab/matlab-mcp-server"
 
 type LoggerFactory interface {
 	GetGlobalLogger() (entities.Logger, messages.Error)

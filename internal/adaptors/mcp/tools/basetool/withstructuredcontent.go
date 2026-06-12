@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/google/jsonschema-go/jsonschema"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/facades/mcpfacade"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/facades/mcpfacade"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 

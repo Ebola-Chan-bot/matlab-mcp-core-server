@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package lifecyclesignaler_test
 
@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/lifecyclesignaler"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/lifecyclesignaler"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

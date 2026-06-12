@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package matlablocator_test
 
@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/matlablocator"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/matlabservices/services/matlablocator"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/services/matlablocator"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/matlabservices/services/matlablocator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

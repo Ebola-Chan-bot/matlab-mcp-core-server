@@ -2,7 +2,7 @@
 
 package directory
 
-import "github.com/matlab/matlab-mcp-core-server/internal/messages"
+import "github.com/matlab/matlab-mcp-server/internal/messages"
 
 const (
 	DefaultLogDirPattern = defaultLogDirPattern

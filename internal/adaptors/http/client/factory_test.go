@@ -11,7 +11,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/client"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/http/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

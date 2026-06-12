@@ -17,7 +17,7 @@ classdef shareMATLABSessionLinuxTest < shareMATLABSessionTestBase
         end
 
         function expectedFolder = getExpectedAppDataFolder(testCase)
-            expectedFolder = fullfile(testCase.TestBaseFolder, ".MathWorks", "MATLABMCPCoreServer");
+            expectedFolder = fullfile(testCase.TestBaseFolder, ".MathWorks", "MATLABMCPServer");
         end
 
         function verifyFolderPermissions(testCase, path)

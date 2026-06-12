@@ -3,11 +3,11 @@
 package tools
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/checkmatlabcode"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/detectmatlabtoolboxes"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/evalmatlabcode"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/runmatlabfile"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/runmatlabtestfile"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/singlesession/checkmatlabcode"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/singlesession/detectmatlabtoolboxes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/singlesession/evalmatlabcode"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/singlesession/runmatlabfile"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/singlesession/runmatlabtestfile"
 )
 
 type Definition struct {

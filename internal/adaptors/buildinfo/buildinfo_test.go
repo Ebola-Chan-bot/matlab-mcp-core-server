@@ -6,8 +6,8 @@ import (
 	"runtime/debug"
 	"testing"
 
-	buildinfoadaptor "github.com/matlab/matlab-mcp-core-server/internal/adaptors/buildinfo"
-	buildinfomocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/buildinfo"
+	buildinfoadaptor "github.com/matlab/matlab-mcp-server/internal/adaptors/buildinfo"
+	buildinfomocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/buildinfo"
 	"github.com/stretchr/testify/require"
 )
 
@@ -29,7 +29,7 @@ func TestDebug_Version_HappyPath(t *testing.T) {
 	expectedVersion := "v1.2.3"
 	buildInfo := &debug.BuildInfo{
 		Main: debug.Module{
-			Path:    "github.com/matlab/matlab-mcp-core-server",
+			Path:    "github.com/matlab/matlab-mcp-server",
 			Version: expectedVersion,
 		},
 	}
@@ -72,7 +72,7 @@ func TestDebug_Version_EmptyVersion(t *testing.T) {
 
 	buildInfo := &debug.BuildInfo{
 		Main: debug.Module{
-			Path:    "github.com/matlab/matlab-mcp-core-server",
+			Path:    "github.com/matlab/matlab-mcp-server",
 			Version: "",
 		},
 	}
@@ -97,7 +97,7 @@ func TestDebug_Version_DevelVersion(t *testing.T) {
 
 	buildInfo := &debug.BuildInfo{
 		Main: debug.Module{
-			Path:    "github.com/matlab/matlab-mcp-core-server",
+			Path:    "github.com/matlab/matlab-mcp-server",
 			Version: "(devel)",
 		},
 	}
@@ -120,7 +120,7 @@ func TestDebug_FullVersion_HappyPath(t *testing.T) {
 	// Arrange
 	mockOSLayer := buildinfomocks.NewMockOSLayer(t)
 
-	expectedPath := "github.com/matlab/matlab-mcp-core-server"
+	expectedPath := "github.com/matlab/matlab-mcp-server"
 	expectedVersion := "v1.2.3"
 	buildInfo := &debug.BuildInfo{
 		Main: debug.Module{
@@ -165,7 +165,7 @@ func TestDebug_FullVersion_DevelVersion(t *testing.T) {
 	// Arrange
 	mockOSLayer := buildinfomocks.NewMockOSLayer(t)
 
-	expectedPath := "github.com/matlab/matlab-mcp-core-server"
+	expectedPath := "github.com/matlab/matlab-mcp-server"
 	buildInfo := &debug.BuildInfo{
 		Main: debug.Module{
 			Path:    expectedPath,
@@ -191,7 +191,7 @@ func TestDebug_FullVersion_EmptyVersion(t *testing.T) {
 	// Arrange
 	mockOSLayer := buildinfomocks.NewMockOSLayer(t)
 
-	expectedPath := "github.com/matlab/matlab-mcp-core-server"
+	expectedPath := "github.com/matlab/matlab-mcp-server"
 	buildInfo := &debug.BuildInfo{
 		Main: debug.Module{
 			Path:    expectedPath,

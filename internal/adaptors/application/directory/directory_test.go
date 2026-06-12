@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/directory"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	directorymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/directory"
-	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/directory"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	directorymocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/directory"
+	osfacademocks "github.com/matlab/matlab-mcp-server/mocks/facades/osfacade"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -30,10 +30,10 @@ func TestNewDirectory_HappyPath(t *testing.T) {
 	mockMarkerFile := &osfacademocks.MockFile{}
 	defer mockMarkerFile.AssertExpectations(t)
 
-	logDir := filepath.Join("tmp", "matlab-mcp-core-server-12345")
+	logDir := filepath.Join("tmp", "matlab-mcp-server-12345")
 	expectedMarkerFileBase := filepath.Join(logDir, directory.MarkerFileName)
 	expectedMarkerExtension := ""
-	markerFileName := filepath.Join(logDir, ".matlab-mcp-core-server-123")
+	markerFileName := filepath.Join(logDir, ".matlab-mcp-server-123")
 	suffix := "1337"
 
 	mockConfig.EXPECT().
@@ -219,10 +219,10 @@ func TestDirectory_BaseDir_HappyPath(t *testing.T) {
 	mockOSLayer := &directorymocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	expectedLogDir := filepath.Join("tmp", "matlab-mcp-core-server-67890")
+	expectedLogDir := filepath.Join("tmp", "matlab-mcp-server-67890")
 	expectedMarkerFileBase := filepath.Join(expectedLogDir, directory.MarkerFileName)
 	expectedMarkerExtension := ""
-	markerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
+	markerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-server")
 	suffix := "1337"
 
 	mockConfig.EXPECT().
@@ -269,7 +269,7 @@ func TestDirectory_BaseDir_SuppliedBaseDir_HappyPath(t *testing.T) {
 	expectedLogDir := filepath.Join("logs", "subdir")
 	expectedMarkerFileBase := filepath.Join(expectedLogDir, directory.MarkerFileName)
 	expectedMarkerExtension := ""
-	markerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
+	markerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-server")
 	suffix := "123"
 
 	mockConfig.EXPECT().
@@ -313,10 +313,10 @@ func TestDirectory_ID_HappyPath(t *testing.T) {
 	mockOSLayer := &directorymocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	logDir := filepath.Join("tmp", "matlab-mcp-core-server-12345")
+	logDir := filepath.Join("tmp", "matlab-mcp-server-12345")
 	expectedMarkerFileBase := filepath.Join(logDir, directory.MarkerFileName)
 	expectedMarkerExtension := ""
-	markerFileName := filepath.Join(logDir, ".matlab-mcp-core-server")
+	markerFileName := filepath.Join(logDir, ".matlab-mcp-server")
 	expectedSuffix := "1337"
 
 	mockConfig.EXPECT().
@@ -362,7 +362,7 @@ func TestDirectory_ID_SuppliedID_HappyPath(t *testing.T) {
 	defer mockOSLayer.AssertExpectations(t)
 
 	expectedID := "1337"
-	logDir := filepath.Join("tmp", "matlab-mcp-core-server-12345")
+	logDir := filepath.Join("tmp", "matlab-mcp-server-12345")
 
 	mockConfig.EXPECT().
 		BaseDir().
@@ -401,12 +401,12 @@ func TestDirectory_CreateSubDir_HappyPath(t *testing.T) {
 	mockOSLayer := &directorymocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	expectedLogDir := filepath.Join("tmp", "matlab-mcp-core-server-11111")
+	expectedLogDir := filepath.Join("tmp", "matlab-mcp-server-11111")
 	expectedMarkerBaseName := filepath.Join(expectedLogDir, directory.MarkerFileName)
 	expectedMarkerExtension := ""
 	pattern := "test-pattern-"
-	expectedTempDir := filepath.Join("tmp", "matlab-mcp-core-server-11111", "test-pattern-22222")
-	expectedMarkerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
+	expectedTempDir := filepath.Join("tmp", "matlab-mcp-server-11111", "test-pattern-22222")
+	expectedMarkerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-server")
 	expectedSuffix := "1337"
 	expectedPattern := pattern + expectedSuffix + "-"
 
@@ -457,12 +457,12 @@ func TestDirectory_CreateSubDir_EnforcesDashSuffix(t *testing.T) {
 	mockOSLayer := &directorymocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	expectedLogDir := filepath.Join("tmp", "matlab-mcp-core-server-11111")
+	expectedLogDir := filepath.Join("tmp", "matlab-mcp-server-11111")
 	expectedMarkerBaseName := filepath.Join(expectedLogDir, directory.MarkerFileName)
 	expectedMarkerExtension := ""
 	pattern := "test-pattern"
-	expectedTempDir := filepath.Join("tmp", "matlab-mcp-core-server-11111", "test-pattern-22222")
-	expectedMarkerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
+	expectedTempDir := filepath.Join("tmp", "matlab-mcp-server-11111", "test-pattern-22222")
+	expectedMarkerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-server")
 	expectedSuffix := "1337"
 	expectedPattern := pattern + "-" + expectedSuffix + "-"
 
@@ -513,11 +513,11 @@ func TestDirectory_CreateSubDir_MkdirTempError(t *testing.T) {
 	mockOSLayer := &directorymocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	expectedLogDir := filepath.Join("tmp", "matlab-mcp-core-server-33333")
+	expectedLogDir := filepath.Join("tmp", "matlab-mcp-server-33333")
 	expectedMarkerBaseName := filepath.Join(expectedLogDir, directory.MarkerFileName)
 	expectedMarkerExtension := ""
 	pattern := "test-pattern-"
-	expectedMarkerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
+	expectedMarkerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-server")
 	expectedSuffix := "1337"
 	expectedPattern := pattern + expectedSuffix + "-"
 	expectedError := messages.New_StartupErrors_FailedToCreateSubdirectory_Error(expectedLogDir)
@@ -572,7 +572,7 @@ func TestDirectory_CreateSubDir_SuppliedBaseDir_HappyPath(t *testing.T) {
 	expectedLogDir := filepath.Join("logs", "subdir")
 	expectedMarkerFileBase := filepath.Join(expectedLogDir, directory.MarkerFileName)
 	expectedMarkerExtension := ""
-	markerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
+	markerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-server")
 	suffix := "1337"
 	pattern := "test-pattern-"
 	expectedDirPattern := pattern + suffix + "-"
@@ -625,10 +625,10 @@ func TestDirectory_RecordToLogger_HappyPath(t *testing.T) {
 	mockOSLayer := &directorymocks.MockOSLayer{}
 	defer mockOSLayer.AssertExpectations(t)
 
-	expectedLogDir := filepath.Join("tmp", "matlab-mcp-core-server-33333")
+	expectedLogDir := filepath.Join("tmp", "matlab-mcp-server-33333")
 	expectedMarkerFileBase := filepath.Join(expectedLogDir, directory.MarkerFileName)
 	expectedMarkerExtension := ""
-	expectedMarkerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-core-server")
+	expectedMarkerFileName := filepath.Join(expectedLogDir, ".matlab-mcp-server")
 	expectedSuffix := "1337"
 
 	mockConfig.EXPECT().

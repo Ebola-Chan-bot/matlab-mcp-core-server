@@ -5,7 +5,7 @@ package testdata
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

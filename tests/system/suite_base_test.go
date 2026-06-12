@@ -11,12 +11,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/system/testdata"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/matlablocator"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpserver"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/pathcontrol"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/serverlogs"
+	"github.com/matlab/matlab-mcp-server/tests/system/testdata"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/matlablocator"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpclient"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpserver"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/pathcontrol"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/serverlogs"
 	"github.com/stretchr/testify/suite"
 )
 

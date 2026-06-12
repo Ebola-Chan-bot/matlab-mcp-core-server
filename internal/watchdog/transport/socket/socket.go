@@ -6,8 +6,8 @@ import (
 	"errors"
 	"path/filepath"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/directory"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/directory"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 var ErrSocketPathTooLong = errors.New("socket path is too long")

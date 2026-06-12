@@ -2,7 +2,7 @@
 
 package tools
 
-import "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
+import "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
 
 func NewDefinition(name, title, description string, annotations publictypes.Annotations) publictypes.ToolDefinition {
 	if annotations == nil {

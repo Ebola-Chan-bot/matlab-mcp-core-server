@@ -9,12 +9,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlab/matlabrootselector"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlab/matlabrootselector"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlab/matlabrootselector"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	configmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlab/matlabrootselector"
 )
 
 func TestNew_HappyPath(t *testing.T) {

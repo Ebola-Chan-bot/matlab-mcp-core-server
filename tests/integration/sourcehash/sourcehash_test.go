@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sourcehash"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sourcehash"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

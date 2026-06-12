@@ -5,8 +5,8 @@ package main
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
-	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
+	"github.com/matlab/matlab-mcp-server/pkg/i18n"
+	"github.com/matlab/matlab-mcp-server/pkg/tools"
 )
 
 type ToolThatLogsInput struct {

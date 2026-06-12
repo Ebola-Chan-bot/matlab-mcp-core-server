@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/pathcontrol"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/pathcontrol"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -21,7 +21,7 @@ func (s *CLITestSuite) TestVersionFlag() {
 	cmd := exec.Command(s.mcpServerPath, "--version") //nolint:gosec // Trusted test path
 	output, err := cmd.CombinedOutput()
 	s.Require().NoError(err, "version flag should execute successfully")
-	s.Contains(string(output), "github.com/matlab/matlab-mcp-core-server", "should display server package path")
+	s.Contains(string(output), "github.com/matlab/matlab-mcp-server", "should display server package path")
 }
 
 func (s *CLITestSuite) TestMATLABRootFlag() {

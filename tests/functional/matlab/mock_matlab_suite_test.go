@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"slices"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/logs"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab/mockruntime"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/pathcontrol"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/logs"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpclient"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab/mockruntime"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/pathcontrol"
 )
 
 type MockMATLABSession struct {

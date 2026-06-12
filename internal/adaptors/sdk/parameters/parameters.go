@@ -3,8 +3,8 @@
 package parameters
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
-	internalentities "github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
+	internalentities "github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 type Factory struct{}

@@ -5,11 +5,11 @@ package process_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/watchdog/process"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	directorymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/directory"
-	processmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/watchdog/process"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/watchdog/process"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	directorymocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/directory"
+	processmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/watchdog/process"
 	"github.com/stretchr/testify/require"
 )
 

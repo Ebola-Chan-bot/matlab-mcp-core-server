@@ -5,8 +5,8 @@ package tools
 import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	internalannotations "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
+	internalannotations "github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/annotations"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
 )
 
 type ConvertibleAnnotation interface {

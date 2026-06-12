@@ -1,4 +1,4 @@
-classdef StdoutCaptureTest < mcpcoreserver.internal.capture.CaptureTestHelper
+classdef StdoutCaptureTest < mcpserver.internal.capture.CaptureTestHelper
     %StdoutCaptureTest Functional tests for stdout event capture
 
     % Copyright 2026 The MathWorks, Inc.

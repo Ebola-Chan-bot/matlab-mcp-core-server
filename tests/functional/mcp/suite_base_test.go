@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/fakematlab"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpserver"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/pathcontrol"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/fakematlab"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpclient"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpserver"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/pathcontrol"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/suite"
 )
@@ -32,7 +32,7 @@ type MCPTestSuite struct {
 
 func (s *MCPTestSuite) SetupSuite() {
 	mcpServerPath, err := mcpserver.NewLocator().GetPath()
-	s.Require().NoError(err, "MCP server binary not found — ensure MATLAB_MCP_CORE_SERVER_BUILD_DIR is set and the binary is built")
+	s.Require().NoError(err, "MCP server binary not found — ensure MATLAB_MCP_SERVER_BUILD_DIR is set and the binary is built")
 	s.mcpServerPath = mcpServerPath
 
 	s.fakeMatlab = fakematlab.CreateExecutable(s.T())

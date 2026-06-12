@@ -5,12 +5,12 @@ package telemetry_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
-	telemetrymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/telemetry"
-	instrumentsmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/telemetry/otel/instruments"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/telemetry"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	configmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
+	telemetrymocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/telemetry"
+	instrumentsmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/telemetry/otel/instruments"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -164,7 +164,7 @@ func TestOTELTelemetry_RecordServerStart_HappyPath(t *testing.T) {
 	meter := noop.NewMeterProvider().Meter("test")
 
 	expectedVersion := "v1.2.3"
-	expectedName := "matlab-mcp-core-server"
+	expectedName := "matlab-mcp-server"
 	expectedOS := "linux"
 	expectedSpecifiedParameters := []string{"disable-telemetry", "log-level"}
 	expectedOSVersion := "Debian GNU/Linux 12"
@@ -323,7 +323,7 @@ func TestOTELTelemetry_RecordServerStart_OSVersionError(t *testing.T) {
 	meter := noop.NewMeterProvider().Meter("test")
 
 	expectedVersion := "v1.2.3"
-	expectedName := "matlab-mcp-core-server"
+	expectedName := "matlab-mcp-server"
 	expectedOS := "linux"
 	expectedSpecifiedParameters := []string{"disable-telemetry", "log-level"}
 	expectedInstanceID := "test-instance-id"

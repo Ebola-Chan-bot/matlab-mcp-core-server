@@ -6,7 +6,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/matlab/matlab-mcp-core-server/pkg/server"
+	"github.com/matlab/matlab-mcp-server/pkg/server"
 )
 
 func main() {

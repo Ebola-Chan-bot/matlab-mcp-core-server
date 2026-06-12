@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/system/testdata"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
+	"github.com/matlab/matlab-mcp-server/tests/system/testdata"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpclient"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/suite"
 )
@@ -215,7 +215,7 @@ func (s *WorkflowTestSuite) TestParallelExperimentationWorkflow() {
 }
 
 // TestInstallMATLABAddOnWorkflow verifies the --setup-matlab flag
-// correctly installs the MATLAB MCP Core Server Toolbox add-on.
+// correctly installs the MATLAB MCP Server Toolbox add-on.
 //
 // Scenario: User installing the MATLAB add-on
 // - Ensures the add-on is not installed (uninstalls if present)
@@ -232,14 +232,14 @@ func (s *WorkflowTestSuite) TestSetupMATLABWorkflow() {
 	checkInstalledCode := strings.Join([]string{
 		`tbxs = matlab.addons.toolbox.installedToolboxes();`,
 		`if isempty(tbxs), installed = false;`,
-		`else, installed = any(strcmp({tbxs.Name}, 'MATLAB MCP Core Server Toolbox')); end;`,
+		`else, installed = any(strcmp({tbxs.Name}, 'MATLAB MCP Server Toolbox')); end;`,
 		`fprintf('installed=%d\n', installed);`,
 	}, " ")
 
 	uninstallCode := strings.Join([]string{
 		`tbxs = matlab.addons.toolbox.installedToolboxes();`,
 		`if ~isempty(tbxs),`,
-		`idx = find(strcmp({tbxs.Name}, 'MATLAB MCP Core Server Toolbox'));`,
+		`idx = find(strcmp({tbxs.Name}, 'MATLAB MCP Server Toolbox'));`,
 		`for i = 1:numel(idx), matlab.addons.toolbox.uninstallToolbox(tbxs(idx(i))); end;`,
 		`end`,
 	}, " ")

@@ -7,12 +7,12 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/matlabservices/services/localmatlabsession"
-	directorymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/matlabservices/services/localmatlabsession/directory"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/matlabservices/services/localmatlabsession"
+	directorymocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/matlabservices/services/localmatlabsession/directory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

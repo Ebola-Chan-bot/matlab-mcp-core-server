@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	appDataDirNameLinux   = "MATLABMCPCoreServer"
-	appDataDirNameDarwin  = "MATLAB MCP Core Server"
-	appDataDirNameWindows = "MATLAB MCP Core Server"
+	appDataDirNameLinux   = "MATLABMCPServer"
+	appDataDirNameDarwin  = "MATLAB MCP Server"
+	appDataDirNameWindows = "MATLAB MCP Server"
 )
 
 type OSLayer interface {

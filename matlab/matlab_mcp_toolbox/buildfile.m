@@ -1,5 +1,5 @@
 function plan = buildfile
-    %buildfile Build tasks for MATLAB MCP Core Server Toolbox
+    %buildfile Build tasks for MATLAB MCP Server Toolbox
 
     % Copyright 2026 The MathWorks, Inc.
 
@@ -19,7 +19,7 @@ function plan = buildfile
     testResultsFolder = fullfile(prj, "test_results");
 
     distFolder = fullfile(prj, "dist");
-    distFolderOverride = getenv("MATLAB_MCP_CORE_SERVER_MLTBX_DIR");
+    distFolderOverride = getenv("MATLAB_MCP_SERVER_MLTBX_DIR");
     if distFolderOverride ~= ""
         distFolder = distFolderOverride;
     end
@@ -84,7 +84,7 @@ function plan = buildfile
 end
 
 function packageTask(context, toolboxFolder, distFolder)
-    %packageTask Package the MATLAB MCP Core Server Toolbox
+    %packageTask Package the MATLAB MCP Server Toolbox
     %   This task creates an MLTBX file for distribution.
 
     % Get project root folder
@@ -96,7 +96,7 @@ function packageTask(context, toolboxFolder, distFolder)
     end
 
     % Stable UUID for the toolbox (do not change)
-    toolboxName = "MATLAB MCP Core Server Toolbox";
+    toolboxName = "MATLAB MCP Server Toolbox";
     toolboxVersion = "0.2.0";
     uuid = "fce99a56-1b63-4d49-9d70-c32c5605e4eb";
 
@@ -107,7 +107,7 @@ function packageTask(context, toolboxFolder, distFolder)
     opts = matlab.addons.toolbox.ToolboxOptions(toolboxFolder, uuid, ...
         ToolboxName=toolboxName, ...
         ToolboxVersion=toolboxVersion, ...
-        Summary="MATLAB toolbox for the MATLAB MCP Core server", ...
+        Summary="MATLAB toolbox for the MATLAB MCP server", ...
         Description="Enables sharing of MATLAB sessions through the Model Context Protocol.", ...
         AuthorName="MathWorks", ...
         AuthorEmail="genai-support@mathworks.com", ...
@@ -116,7 +116,7 @@ function packageTask(context, toolboxFolder, distFolder)
         MaximumMatlabRelease="", ...
         ToolboxGettingStartedGuide="", ...
         ToolboxImageFile=fullfile(prj, "icon.png"), ...
-        OutputFile=fullfile(distFolder, "MATLABMCPCoreServerToolbox.mltbx") ...
+        OutputFile=fullfile(distFolder, "MATLABMCPServerToolbox.mltbx") ...
     );
 
     % Package the toolbox

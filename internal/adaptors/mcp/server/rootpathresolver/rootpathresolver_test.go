@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/server/rootpathresolver"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/server/rootpathresolver"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/server/rootpathresolver"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/mcp/server/rootpathresolver"
 	"github.com/stretchr/testify/require"
 )
 

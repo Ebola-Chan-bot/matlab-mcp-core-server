@@ -2,6 +2,6 @@
 
 package i18n
 
-import "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
+import "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
 
 type Error = publictypes.Error

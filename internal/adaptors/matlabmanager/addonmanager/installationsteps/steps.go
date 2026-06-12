@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 //go:embed assets/matlab/upload_mltbx.m
@@ -24,7 +24,7 @@ var verifyMLTBXInstallationFile string
 //go:embed assets/matlab/install_mltbx.m
 var installMLTBX string
 
-//go:embed assets/mltbx/MATLABMCPCoreServerToolbox.mltbx
+//go:embed assets/mltbx/MATLABMCPServerToolbox.mltbx
 var matlabAddOn []byte
 
 type InstallationSteps struct{}

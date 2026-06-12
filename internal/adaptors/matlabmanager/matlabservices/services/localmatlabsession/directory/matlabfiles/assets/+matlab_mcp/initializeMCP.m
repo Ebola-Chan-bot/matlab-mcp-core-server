@@ -1,5 +1,5 @@
 function initializeMCP()
-% initializeMCP intializes the MATLAB sessions for the MATLAB MCP Core Server.
+% initializeMCP intializes the MATLAB sessions for the MATLAB MCP Server.
 
 % Copyright 2025-2026 The MathWorks, Inc.
 

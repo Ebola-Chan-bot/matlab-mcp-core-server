@@ -5,7 +5,7 @@ package functional_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab"
 	"github.com/stretchr/testify/suite"
 )
 

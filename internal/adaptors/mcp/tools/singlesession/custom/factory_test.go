@@ -5,13 +5,13 @@ package custom_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/custom"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/custom/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	basetoolmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools/basetool"
-	custommocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools/singlesession/custom"
-	definitionmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools/singlesession/custom/definition"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/singlesession/custom"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/singlesession/custom/definition"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	basetoolmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/mcp/tools/basetool"
+	custommocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/mcp/tools/singlesession/custom"
+	definitionmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/mcp/tools/singlesession/custom/definition"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

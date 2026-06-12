@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package pathextractor_test
 
@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/pathextractor"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/utils/pathextractor"
 	"github.com/stretchr/testify/assert"
 )
 

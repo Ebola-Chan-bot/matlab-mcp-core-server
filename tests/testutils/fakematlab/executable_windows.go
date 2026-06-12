@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	matlabservicesconfig "github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/config"
-	"github.com/matlab/matlab-mcp-core-server/tests/testconfig"
+	matlabservicesconfig "github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/config"
+	"github.com/matlab/matlab-mcp-server/tests/testconfig"
 	"github.com/stretchr/testify/require"
 )
 

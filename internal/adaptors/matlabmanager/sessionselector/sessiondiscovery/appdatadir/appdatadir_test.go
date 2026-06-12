@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/sessionselector/sessiondiscovery/appdatadir"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/sessionselector/sessiondiscovery/appdatadir"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/sessionselector/sessiondiscovery/appdatadir"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/sessionselector/sessiondiscovery/appdatadir"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -48,7 +48,7 @@ func TestGetter_AppDataDir_Linux(t *testing.T) {
 
 	// Assert
 	require.NoError(t, err)
-	assert.Equal(t, filepath.Join(expectedHome, ".MathWorks", "MATLABMCPCoreServer"), result)
+	assert.Equal(t, filepath.Join(expectedHome, ".MathWorks", "MATLABMCPServer"), result)
 }
 
 func TestGetter_AppDataDir_Darwin(t *testing.T) {
@@ -75,7 +75,7 @@ func TestGetter_AppDataDir_Darwin(t *testing.T) {
 
 	// Assert
 	require.NoError(t, err)
-	assert.Equal(t, filepath.Join(expectedHome, "Library", "Application Support", "MathWorks", "MATLAB MCP Core Server"), result)
+	assert.Equal(t, filepath.Join(expectedHome, "Library", "Application Support", "MathWorks", "MATLAB MCP Server"), result)
 }
 
 func TestGetter_AppDataDir_Windows(t *testing.T) {
@@ -102,7 +102,7 @@ func TestGetter_AppDataDir_Windows(t *testing.T) {
 
 	// Assert
 	require.NoError(t, err)
-	assert.Equal(t, filepath.Join(expectedAppData, "MathWorks", "MATLAB MCP Core Server"), result)
+	assert.Equal(t, filepath.Join(expectedAppData, "MathWorks", "MATLAB MCP Server"), result)
 }
 
 func TestGetter_AppDataDir_DarwinHomeDirError(t *testing.T) {

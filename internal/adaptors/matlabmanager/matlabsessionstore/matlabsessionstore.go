@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 	"golang.org/x/sync/errgroup"
 )
 

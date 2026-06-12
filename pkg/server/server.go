@@ -3,9 +3,9 @@
 package server
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/server"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/server"
 )
 
 type Definition[Dependencies any] struct {

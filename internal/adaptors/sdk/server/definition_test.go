@@ -5,9 +5,9 @@ package server_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
-	internalserver "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/server"
-	publictypesmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/publictypes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
+	internalserver "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/server"
+	publictypesmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/publictypes"
 	"github.com/stretchr/testify/require"
 )
 

@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

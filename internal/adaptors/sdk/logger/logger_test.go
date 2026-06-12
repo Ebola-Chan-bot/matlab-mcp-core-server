@@ -5,8 +5,8 @@ package logger_test
 import (
 	"testing"
 
-	loggeradaptor "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/logger"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
+	loggeradaptor "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/logger"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

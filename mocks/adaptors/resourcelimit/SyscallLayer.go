@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/facades/unix"
+	"github.com/matlab/matlab-mcp-server/internal/facades/unix"
 	mock "github.com/stretchr/testify/mock"
 )
 

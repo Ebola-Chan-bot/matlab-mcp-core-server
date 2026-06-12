@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/server/handler"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport/server/handler"
 	mock "github.com/stretchr/testify/mock"
 )
 

@@ -3,10 +3,10 @@
 package definition
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/basetool"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/basetool"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 type ToolsProviderResources struct {

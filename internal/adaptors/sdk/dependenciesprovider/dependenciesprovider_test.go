@@ -5,12 +5,12 @@ package dependenciesprovider_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/dependenciesprovider"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	dependenciesprovidermocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/dependenciesprovider"
-	publictypesmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/publictypes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/dependenciesprovider"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	dependenciesprovidermocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/dependenciesprovider"
+	publictypesmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/publictypes"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

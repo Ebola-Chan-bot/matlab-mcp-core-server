@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testconfig"
+	"github.com/matlab/matlab-mcp-server/tests/testconfig"
 )
 
 type ModuleRootFinder interface {
@@ -30,7 +30,7 @@ func New(moduleRootFinder ModuleRootFinder, binaryBuilder BinaryBuilder) *Instal
 }
 
 func (i *Installer) BuildAndInstall(binDir string) (string, error) {
-	binaryPath := filepath.Join(binDir, fmt.Sprintf("matlab-mcp-core-server-%s%s", testconfig.OSDescriptor, testconfig.ExecutableExtension))
+	binaryPath := filepath.Join(binDir, fmt.Sprintf("matlab-mcp-server-%s-%s%s", testconfig.OSName, testconfig.Architecture, testconfig.ExecutableExtension))
 
 	moduleRoot, err := i.moduleRootFinder.FindModuleRoot()
 	if err != nil {

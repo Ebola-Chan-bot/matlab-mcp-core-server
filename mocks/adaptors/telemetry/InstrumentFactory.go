@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/telemetry/otel/instruments"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/telemetry/otel/instruments"
 	mock "github.com/stretchr/testify/mock"
 	"go.opentelemetry.io/otel/metric"
 )

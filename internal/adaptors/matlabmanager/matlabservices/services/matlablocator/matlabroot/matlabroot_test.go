@@ -8,11 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/matlablocator/matlabroot"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/matlabservices/services/matlablocator/matlabroot"
-	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/services/matlablocator/matlabroot"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/matlabservices/services/matlablocator/matlabroot"
+	osfacademocks "github.com/matlab/matlab-mcp-server/mocks/facades/osfacade"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

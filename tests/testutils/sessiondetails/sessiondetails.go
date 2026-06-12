@@ -32,11 +32,11 @@ func MarshalJSON(port string, certificatePath, apiKey string, pid int) (string, 
 func ResolveAppDataDir(homeDir string) string {
 	switch runtime.GOOS {
 	case "windows":
-		return filepath.Join(homeDir, "AppData", "Roaming", "MathWorks", "MATLAB MCP Core Server")
+		return filepath.Join(homeDir, "AppData", "Roaming", "MathWorks", "MATLAB MCP Server")
 	case "darwin":
-		return filepath.Join(homeDir, "Library", "Application Support", "MathWorks", "MATLAB MCP Core Server")
+		return filepath.Join(homeDir, "Library", "Application Support", "MathWorks", "MATLAB MCP Server")
 	default:
-		return filepath.Join(homeDir, ".MathWorks", "MATLABMCPCoreServer")
+		return filepath.Join(homeDir, ".MathWorks", "MATLABMCPServer")
 	}
 }
 

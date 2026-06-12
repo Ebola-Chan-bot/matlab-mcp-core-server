@@ -1,4 +1,4 @@
-classdef WarningCaptureTest < mcpcoreserver.internal.capture.CaptureTestHelper
+classdef WarningCaptureTest < mcpserver.internal.capture.CaptureTestHelper
     %WarningCaptureTest Functional tests for IssuedWarning event capture
 
     % Copyright 2026 The MathWorks, Inc.

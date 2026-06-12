@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
-	"github.com/matlab/matlab-mcp-core-server/tests/functional/sdk/testbinaries"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/time/retry"
+	"github.com/matlab/matlab-mcp-server/tests/functional/sdk/testbinaries"
 	"github.com/stretchr/testify/suite"
 )
 

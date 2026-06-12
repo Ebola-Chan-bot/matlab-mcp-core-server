@@ -5,9 +5,9 @@ package config
 import (
 	"reflect"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
-	internalmessages "github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/messages"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
+	internalmessages "github.com/matlab/matlab-mcp-server/internal/messages"
 )
 
 type InternalConfig interface {

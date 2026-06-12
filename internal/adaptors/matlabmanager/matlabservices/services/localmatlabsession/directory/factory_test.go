@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession/directory"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	appconfigmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
-	applicationdirectorymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/directory"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/matlabservices/services/localmatlabsession/directory"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession/directory"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	appconfigmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
+	applicationdirectorymocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/directory"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/matlabservices/services/localmatlabsession/directory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

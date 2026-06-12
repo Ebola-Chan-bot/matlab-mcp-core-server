@@ -3,8 +3,8 @@
 package features
 
 import (
-	internaldefinition "github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
+	internaldefinition "github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
 )
 
 type Factory struct{}

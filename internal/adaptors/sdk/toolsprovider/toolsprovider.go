@@ -3,10 +3,10 @@
 package toolsprovider
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	internaltools "github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
-	pkgtools "github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/tools"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	internaltools "github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
+	pkgtools "github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/tools"
 )
 
 type ToolsProvider[Dependencies any] = publictypes.ToolsProvider[Dependencies]

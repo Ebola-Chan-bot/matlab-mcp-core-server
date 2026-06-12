@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
 	"github.com/spf13/pflag"
 )
 

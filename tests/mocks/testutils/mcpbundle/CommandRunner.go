@@ -7,7 +7,7 @@ package mocks
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpbundle"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpbundle"
 	mock "github.com/stretchr/testify/mock"
 )
 

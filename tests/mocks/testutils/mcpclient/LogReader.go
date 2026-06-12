@@ -7,7 +7,7 @@ package mocks
 import (
 	"io/fs"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/logs"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/logs"
 	mock "github.com/stretchr/testify/mock"
 )
 

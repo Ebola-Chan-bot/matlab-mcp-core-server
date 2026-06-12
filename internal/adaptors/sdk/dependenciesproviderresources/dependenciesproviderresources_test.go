@@ -5,13 +5,13 @@ package dependenciesproviderresources_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/dependenciesproviderresources"
-	internalconfigmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
-	definitionmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/definition"
-	dependenciesproviderresourcesmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/dependenciesproviderresources"
-	publictypesmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/sdk/publictypes"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/dependenciesproviderresources"
+	internalconfigmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
+	definitionmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/definition"
+	dependenciesproviderresourcesmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/dependenciesproviderresources"
+	publictypesmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/sdk/publictypes"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
 	"github.com/stretchr/testify/require"
 )
 

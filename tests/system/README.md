@@ -6,7 +6,7 @@ This README is intended for MathWorks® developers only.
 
 ---
 
-System tests validate the MATLAB MCP Core Server end-to-end through realistic workflows. These tests use actual MATLAB installations and exercise the full server stack.
+System tests validate the MATLAB MCP Server end-to-end through realistic workflows. These tests use actual MATLAB installations and exercise the full server stack.
 
 ## Test Philosophy
 
@@ -30,9 +30,9 @@ make build
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `MCP_MATLAB_PATH` | Directory containing the MATLAB executable (e.g., `/usr/local/MATLAB/R2024b/bin`) | Yes |
-| `MATLAB_MCP_CORE_SERVER_BUILD_DIR` | Base directory for built binaries. The test locates the server at `<base>/<os>/matlab-mcp-core-server` (e.g., `.bin/glnxa64/matlab-mcp-core-server`) | Only for `go test` |
+| `MATLAB_MCP_SERVER_BUILD_DIR` | Base directory for built binaries. The test locates the server at `<base>/<os>/matlab-mcp-server` (e.g., `.bin/glnxa64/matlab-mcp-server`) | Only for `go test` |
 
-The Makefile automatically sets `MATLAB_MCP_CORE_SERVER_BUILD_DIR` to `.bin/`, so you only need to set it when running `go test` directly.
+The Makefile automatically sets `MATLAB_MCP_SERVER_BUILD_DIR` to `.bin/`, so you only need to set it when running `go test` directly.
 
 ### Run Tests
 ```bash
@@ -42,7 +42,7 @@ make system-tests
 
 # Using go test directly - must set both variables
 export MCP_MATLAB_PATH=/path/to/matlab/bin
-export MATLAB_MCP_CORE_SERVER_BUILD_DIR=$(pwd)/.bin
+export MATLAB_MCP_SERVER_BUILD_DIR=$(pwd)/.bin
 go test -v ./tests/system/...
 
 # Run specific suite
@@ -68,6 +68,6 @@ When adding new features, think in terms of **user scenarios** rather than indiv
 
 ---
 
-Copyright 2025 The MathWorks, Inc.
+Copyright 2025-2026 The MathWorks, Inc.
 
 ---

@@ -5,8 +5,8 @@ package matlabmanager_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager"
 	"github.com/stretchr/testify/assert"
 )
 

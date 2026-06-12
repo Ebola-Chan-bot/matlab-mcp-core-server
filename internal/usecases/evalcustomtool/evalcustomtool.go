@@ -5,8 +5,8 @@ package evalcustomtool
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/evalcustomtool/functioncall"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/evalcustomtool/functioncall"
 )
 
 type FunctionCallAssembler interface {

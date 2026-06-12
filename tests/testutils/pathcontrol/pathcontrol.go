@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package pathcontrol
 
@@ -8,7 +8,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testconfig"
+	"github.com/matlab/matlab-mcp-server/tests/testconfig"
 )
 
 func RemoveFromPath(currentPath string, pathsToRemove []string) string {

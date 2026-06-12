@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcpb/mcpbstagebuilder"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcpb/mcpbstagebuilder"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -76,7 +76,7 @@ func TestBuild_ManifestPreservesTemplateFields(t *testing.T) {
 	require.NoError(t, json.Unmarshal(content, &manifest))
 
 	assert.Equal(t, "0.2", manifest["manifest_version"])
-	assert.Equal(t, "matlab-mcp-core-server", manifest["name"])
+	assert.Equal(t, "matlab-mcp-server", manifest["name"])
 	assert.Equal(t, "MATLAB", manifest["display_name"])
 	assert.NotEmpty(t, manifest["description"])
 	assert.NotEmpty(t, manifest["long_description"])
@@ -123,7 +123,7 @@ func assertPackageJSONStaged(t *testing.T, stagingDir string) {
 
 	var pkg map[string]any
 	require.NoError(t, json.Unmarshal(content, &pkg))
-	assert.Equal(t, "matlab-mcp-core-server-build", pkg["name"])
+	assert.Equal(t, "matlab-mcp-server-build", pkg["name"])
 }
 
 func assertManifestStaged(t *testing.T, stagingDir string) {
@@ -294,7 +294,7 @@ func TestBuild_LaunchersParseExtensionFilesArgs(t *testing.T) {
 }
 
 func extractEnvVarsFromContent(content string) []string {
-	re := regexp.MustCompile(`__MATLAB_MCP_CORE_SERVER_MCPB_\w+`)
+	re := regexp.MustCompile(`__MATLAB_MCP_SERVER_MCPB_\w+`)
 	matches := re.FindAllString(content, -1)
 
 	seen := make(map[string]bool)

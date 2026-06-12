@@ -12,9 +12,9 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/config"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession/processlauncher/utils/winenvironmentbuilder"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession/processlauncher/utils/winenvironmentbuilder"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 	"golang.org/x/sys/windows"
 )
 

@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/processhandler"
-	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
-	processhandlermocks "github.com/matlab/matlab-mcp-core-server/mocks/watchdog/processhandler"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/processhandler"
+	osfacademocks "github.com/matlab/matlab-mcp-server/mocks/facades/osfacade"
+	processhandlermocks "github.com/matlab/matlab-mcp-server/mocks/watchdog/processhandler"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

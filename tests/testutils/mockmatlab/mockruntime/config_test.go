@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	mocks "github.com/matlab/matlab-mcp-core-server/tests/mocks/testutils/mockmatlab/mockruntime"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab/mockruntime"
+	mocks "github.com/matlab/matlab-mcp-server/tests/mocks/testutils/mockmatlab/mockruntime"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab/mockruntime"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

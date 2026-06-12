@@ -1,4 +1,4 @@
-// Copyright 2025 The MathWorks, Inc.
+// Copyright 2025-2026 The MathWorks, Inc.
 
 package matlabversion_test
 
@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/customerrors"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/matlablocator/matlabversion"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/matlabmanager/matlabservices/services/matlablocator/matlabversion"
-	osfacademocks "github.com/matlab/matlab-mcp-core-server/mocks/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/customerrors"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/datatypes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/services/matlablocator/matlabversion"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/matlabmanager/matlabservices/services/matlablocator/matlabversion"
+	osfacademocks "github.com/matlab/matlab-mcp-server/mocks/facades/osfacade"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

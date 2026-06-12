@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/pathcontrol"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpclient"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/pathcontrol"
 )
 
 // ExistingMATLABSessionTestSuite tests connecting to an already-running MATLAB

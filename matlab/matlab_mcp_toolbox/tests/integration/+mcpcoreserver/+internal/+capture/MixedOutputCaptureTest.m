@@ -1,4 +1,4 @@
-classdef MixedOutputCaptureTest < mcpcoreserver.internal.capture.CaptureTestHelper
+classdef MixedOutputCaptureTest < mcpserver.internal.capture.CaptureTestHelper
     %MixedOutputCaptureTest Integration tests for mixed output and edge cases
 
     % Copyright 2026 The MathWorks, Inc.

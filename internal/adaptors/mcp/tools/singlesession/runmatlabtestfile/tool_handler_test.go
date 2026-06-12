@@ -5,14 +5,14 @@ package runmatlabtestfile_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/annotations"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/singlesession/runmatlabtestfile"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	runmatlabtestfileusecase "github.com/matlab/matlab-mcp-core-server/internal/usecases/runmatlabtestfile"
-	basetoolsmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools/basetool"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/mcp/tools/singlesession/runmatlabtestfile"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/annotations"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/singlesession/runmatlabtestfile"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	runmatlabtestfileusecase "github.com/matlab/matlab-mcp-server/internal/usecases/runmatlabtestfile"
+	basetoolsmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/mcp/tools/basetool"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/mcp/tools/singlesession/runmatlabtestfile"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

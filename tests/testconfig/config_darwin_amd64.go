@@ -3,8 +3,10 @@
 package testconfig
 
 const (
-	MATLABMCPCoreServerBinariesFilename = "matlab-mcp-core-server"
+	MATLABMCPServerBinariesFilename = "matlab-mcp-server"
 	OSDescriptor                        = "maci64"
+	OSName                              = "macos"
+	Architecture                        = "x64"
 	MATLABExeName                       = "matlab"
 	ExecutableExtension                 = ""
 )

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/socket"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport/socket"
 )
 
 const defaultReadHeaderTimeout = 10 * time.Second

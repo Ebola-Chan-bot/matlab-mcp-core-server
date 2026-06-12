@@ -5,7 +5,7 @@ package matlabmanager
 import (
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 func (m *MATLABManager) SetMATLABSessionConnectionRetryInterval(matlabSessionConnectionRetryInterval time.Duration) {

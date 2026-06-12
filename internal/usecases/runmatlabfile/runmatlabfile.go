@@ -6,9 +6,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/matlabstring"
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/utils/pathextractor"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/utils/matlabstring"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/utils/pathextractor"
 )
 
 type Args struct {

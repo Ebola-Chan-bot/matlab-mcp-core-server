@@ -11,10 +11,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab/mockruntime"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/sessiondetails"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/time/retry"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab/mockruntime"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/sessiondetails"
 )
 
 const (

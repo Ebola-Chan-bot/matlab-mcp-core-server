@@ -7,7 +7,7 @@ package mocks
 import (
 	"net/http"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/server"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/http/server"
 	mock "github.com/stretchr/testify/mock"
 )
 

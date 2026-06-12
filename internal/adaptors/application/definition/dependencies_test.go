@@ -5,10 +5,10 @@ package definition_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	configmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/config"
-	definitionmocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	configmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/config"
+	definitionmocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/definition"
 	"github.com/stretchr/testify/require"
 )
 

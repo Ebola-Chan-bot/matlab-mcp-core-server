@@ -6,8 +6,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpbundle"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpserver"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpbundle"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpserver"
 	"github.com/stretchr/testify/suite"
 )
 

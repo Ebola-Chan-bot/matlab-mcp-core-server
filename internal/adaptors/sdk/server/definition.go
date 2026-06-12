@@ -5,7 +5,7 @@ package server
 import (
 	"slices"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
 )
 
 type Definition[Dependencies any] struct {

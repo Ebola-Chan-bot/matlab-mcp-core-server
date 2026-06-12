@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/sessiondetails"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/sessiondetails"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

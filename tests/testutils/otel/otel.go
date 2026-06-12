@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/time/retry"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 )

@@ -7,8 +7,8 @@ package mocks
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/listavailablematlabs"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/listavailablematlabs"
 	mock "github.com/stretchr/testify/mock"
 )
 

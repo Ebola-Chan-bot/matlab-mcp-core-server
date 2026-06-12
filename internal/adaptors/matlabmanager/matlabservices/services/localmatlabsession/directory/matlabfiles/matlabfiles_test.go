@@ -7,7 +7,7 @@ import (
 	"io/fs"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession/directory/matlabfiles"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/services/localmatlabsession/directory/matlabfiles"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

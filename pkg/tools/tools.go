@@ -5,9 +5,9 @@ package tools
 import (
 	"context"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/tools"
-	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/tools"
+	"github.com/matlab/matlab-mcp-server/pkg/i18n"
 )
 
 type Definition = publictypes.ToolDefinition

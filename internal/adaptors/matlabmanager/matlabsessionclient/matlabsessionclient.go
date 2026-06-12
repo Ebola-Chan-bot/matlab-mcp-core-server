@@ -3,9 +3,9 @@
 package matlabsessionclient
 
 import (
-	httpclient "github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/client"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
+	httpclient "github.com/matlab/matlab-mcp-server/internal/adaptors/http/client"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
 )
 
 type HttpClientFactory interface {

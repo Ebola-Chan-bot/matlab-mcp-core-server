@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/parameter/parser"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	parsermocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/parameter/parser"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/application/parameter/parser"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	parsermocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/parameter/parser"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

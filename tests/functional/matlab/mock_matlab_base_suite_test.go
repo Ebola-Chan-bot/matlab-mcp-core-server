@@ -6,12 +6,12 @@ import (
 	"context"
 	"os"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/facades/filefacade"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/logs"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpclient"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mcpserver"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/serverlogs"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/facades/filefacade"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/logs"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpclient"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mcpserver"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/serverlogs"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -30,7 +30,7 @@ func (s *MockMATLABBaseSuite) SetupSuite() {
 	s.installation = mockmatlab.BuildAndInstall(s.T())
 
 	mcpServerPath, err := mcpserver.NewLocator().GetPath()
-	s.Require().NoError(err, "MCP server binary not found — ensure MATLAB_MCP_CORE_SERVER_BUILD_DIR is set and the binary is built")
+	s.Require().NoError(err, "MCP server binary not found — ensure MATLAB_MCP_SERVER_BUILD_DIR is set and the binary is built")
 	s.mcpServerPath = mcpServerPath
 
 	sessionFactory, err := mcpclient.NewLoggedSessionFactory(logs.NewReader(), filefacade.RealFileSystem{})

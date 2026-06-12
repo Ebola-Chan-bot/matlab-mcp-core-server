@@ -15,8 +15,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab/mockruntime"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabsessionclient/embeddedconnector"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab/mockruntime"
 )
 
 func startConnectorServer(ctx context.Context, sessionDir, apiKey string, tlsCfg *tls.Config, recorder *mockruntime.EventRecorder) error {

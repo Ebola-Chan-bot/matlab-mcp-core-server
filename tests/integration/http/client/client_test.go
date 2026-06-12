@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/client"
-	"github.com/matlab/matlab-mcp-core-server/tests/integration"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/http/client"
+	"github.com/matlab/matlab-mcp-server/tests/integration"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

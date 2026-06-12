@@ -3,10 +3,10 @@
 package watchdog
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/socket"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport/socket"
 )
 
 type WatchdogProcess interface {

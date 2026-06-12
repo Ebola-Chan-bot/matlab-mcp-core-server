@@ -7,7 +7,7 @@ package mocks
 import (
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/internal/facades/osfacade"
 	mock "github.com/stretchr/testify/mock"
 )
 

@@ -6,10 +6,10 @@ import (
 	"context"
 	"os"
 
-	"github.com/matlab/matlab-mcp-core-server/pkg/config"
-	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
-	"github.com/matlab/matlab-mcp-core-server/pkg/server"
-	"github.com/matlab/matlab-mcp-core-server/pkg/tools"
+	"github.com/matlab/matlab-mcp-server/pkg/config"
+	"github.com/matlab/matlab-mcp-server/pkg/i18n"
+	"github.com/matlab/matlab-mcp-server/pkg/server"
+	"github.com/matlab/matlab-mcp-server/pkg/tools"
 )
 
 func main() {

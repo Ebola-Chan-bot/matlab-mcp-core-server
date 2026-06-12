@@ -1,7 +1,7 @@
 {
-  "name": "matlab-mcp-core-server-build",
+  "name": "matlab-mcp-server-build",
   "private": true,
-  "description": "Build tooling for MATLAB MCP Core Server MCPB packaging",
+  "description": "Build tooling for MATLAB MCP Server MCPB packaging",
   "scripts": {
     "mcpb-pack": "mcpb pack bundle",
     "mcpb-validate": "mcpb validate bundle/manifest.json"

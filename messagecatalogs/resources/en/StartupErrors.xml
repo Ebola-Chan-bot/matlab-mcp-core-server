@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- Copyright 2025-2026 The MathWorks, Inc. -->
-<rsccat version="1.0" locale="en_US" product="matlab-mcp-core-server">
+<rsccat version="1.0" locale="en_US" product="matlab-mcp-server">
     <message>
         <entry key="BadFlag" context="error">Error with supplied arguments: non-existent option {0}.{1}{2}</entry>
         <entry key="BadSyntax" context="error">Error with supplied arguments: invalid syntax {0}.{1}{2}</entry>
         <entry key="BadValue" context="error">Error with supplied arguments: invalid value {0} for option {1}.</entry>
         <entry key="BadValueForEnvVar" context="error">Error with supplied environment variable: invalid value {0} for environment variable {1}.</entry>
-        <entry key="GenericInitializeFailure" context="error">Failed to initialize MCP Core Server. For details, see the MCP server log in your AI application.</entry>
+        <entry key="GenericInitializeFailure" context="error">Failed to initialize MCP Server. For details, see the MCP server log in your AI application.</entry>
         <entry key="WriteError" context="error">Failed to display {0} information. Error: {1}</entry>
         <entry key="InvalidLogLevel" context="error">Error with supplied arguments: invalid log level {0}.</entry>
         <entry key="FailedToCreateLogFile" context="error">Failed to create the log file "{0}".</entry>

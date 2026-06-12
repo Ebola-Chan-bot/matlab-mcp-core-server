@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/otel"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/otel"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -59,7 +59,7 @@ func (s *TelemetryTestSuite) TestTelemetry() {
 
 	serverName, exists := attrs.Get("server.name")
 	s.True(exists, "server.name attribute should exist")
-	s.Equal("matlab-mcp-core-server", serverName.Str())
+	s.Equal("matlab-mcp-server", serverName.Str())
 
 	serverOS, exists := attrs.Get("server.os")
 	s.True(exists, "server.os attribute should exist")

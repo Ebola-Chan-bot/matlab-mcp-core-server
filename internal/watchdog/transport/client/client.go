@@ -12,10 +12,10 @@ import (
 	"os"
 	"time"
 
-	httpclient "github.com/matlab/matlab-mcp-core-server/internal/adaptors/http/client"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/time/retry"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/messages"
+	httpclient "github.com/matlab/matlab-mcp-server/internal/adaptors/http/client"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/time/retry"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport/messages"
 )
 
 const (

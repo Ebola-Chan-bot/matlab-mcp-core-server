@@ -5,9 +5,9 @@ package features_test
 import (
 	"testing"
 
-	internaldefinition "github.com/matlab/matlab-mcp-core-server/internal/adaptors/application/definition"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/features"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/sdk/publictypes"
+	internaldefinition "github.com/matlab/matlab-mcp-server/internal/adaptors/application/definition"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/features"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/sdk/publictypes"
 	"github.com/stretchr/testify/require"
 )
 

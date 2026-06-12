@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/buildinfo"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcpb/mcpbstagebuilder"
-	"github.com/matlab/matlab-mcp-core-server/internal/facades/osfacade"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/buildinfo"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcpb/mcpbstagebuilder"
+	"github.com/matlab/matlab-mcp-server/internal/facades/osfacade"
 )
 
 func main() {

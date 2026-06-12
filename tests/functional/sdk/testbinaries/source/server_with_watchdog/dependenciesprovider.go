@@ -3,8 +3,8 @@
 package main
 
 import (
-	"github.com/matlab/matlab-mcp-core-server/pkg/i18n"
-	"github.com/matlab/matlab-mcp-core-server/pkg/watchdog"
+	"github.com/matlab/matlab-mcp-server/pkg/i18n"
+	"github.com/matlab/matlab-mcp-server/pkg/watchdog"
 )
 
 type Dependencies struct {

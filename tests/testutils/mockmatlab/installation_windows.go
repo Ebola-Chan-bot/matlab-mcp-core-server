@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/matlabmanager/matlabservices/config"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/matlabmanager/matlabservices/config"
 )
 
 func buildPlatformSpecificBinaries(moduleDir, binDir string) error {

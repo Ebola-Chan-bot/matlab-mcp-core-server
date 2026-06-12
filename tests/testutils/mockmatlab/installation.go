@@ -5,8 +5,8 @@ package mockmatlab
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/facades/filefacade"
-	"github.com/matlab/matlab-mcp-core-server/tests/testutils/mockmatlab/installer"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/facades/filefacade"
+	"github.com/matlab/matlab-mcp-server/tests/testutils/mockmatlab/installer"
 	"github.com/stretchr/testify/require"
 )
 

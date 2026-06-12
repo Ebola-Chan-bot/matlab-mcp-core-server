@@ -8,11 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/testutils"
-	"github.com/matlab/matlab-mcp-core-server/internal/usecases/runmatlabfile"
-	entitiesmocks "github.com/matlab/matlab-mcp-core-server/mocks/entities"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/usecases/runmatlabfile"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/testutils"
+	"github.com/matlab/matlab-mcp-server/internal/usecases/runmatlabfile"
+	entitiesmocks "github.com/matlab/matlab-mcp-server/mocks/entities"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/usecases/runmatlabfile"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

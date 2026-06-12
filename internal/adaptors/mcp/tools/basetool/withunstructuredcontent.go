@@ -6,10 +6,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools"
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/mcp/tools/utils/responseconverter"
-	"github.com/matlab/matlab-mcp-core-server/internal/entities"
-	"github.com/matlab/matlab-mcp-core-server/internal/facades/mcpfacade"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/mcp/tools/utils/responseconverter"
+	"github.com/matlab/matlab-mcp-server/internal/entities"
+	"github.com/matlab/matlab-mcp-server/internal/facades/mcpfacade"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 

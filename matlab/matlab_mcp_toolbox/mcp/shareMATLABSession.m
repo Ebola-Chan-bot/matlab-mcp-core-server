@@ -5,5 +5,5 @@ function shareMATLABSession()
 
     % Copyright 2026 The MathWorks, Inc.
 
-    mcpcoreserver.internal.shareMATLABSession();
+    mcpserver.internal.shareMATLABSession();
 end

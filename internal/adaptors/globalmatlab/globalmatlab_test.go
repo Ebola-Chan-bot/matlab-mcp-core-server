@@ -5,8 +5,8 @@ package globalmatlab_test
 import (
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/adaptors/globalmatlab"
-	mocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/globalmatlab"
+	"github.com/matlab/matlab-mcp-server/internal/adaptors/globalmatlab"
+	mocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/globalmatlab"
 	"github.com/stretchr/testify/assert"
 )
 

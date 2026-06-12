@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/matlab/matlab-mcp-core-server/internal/messages"
-	"github.com/matlab/matlab-mcp-core-server/internal/watchdog/transport/socket"
-	directorymocks "github.com/matlab/matlab-mcp-core-server/mocks/adaptors/application/directory"
-	socketmocks "github.com/matlab/matlab-mcp-core-server/mocks/watchdog/transport/socket"
+	"github.com/matlab/matlab-mcp-server/internal/messages"
+	"github.com/matlab/matlab-mcp-server/internal/watchdog/transport/socket"
+	directorymocks "github.com/matlab/matlab-mcp-server/mocks/adaptors/application/directory"
+	socketmocks "github.com/matlab/matlab-mcp-server/mocks/watchdog/transport/socket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
