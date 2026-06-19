@@ -36,10 +36,10 @@ classdef Errors
                 "Insecure permissions on '%s': Access must be restricted to the user only.", path);
         end
 
-        function ex = UnsupportedMATLABVersion()
+        function ex = UnsupportedMATLABVersion(featureName, minRelease)
             %UnsupportedMATLABVersion Create an error for unsupported MATLAB version
             ex = MException("mcpserver:UnsupportedMATLABVersion", ...
-                "MCP server requires MATLAB R2023a or later.");
+                "%s requires MATLAB %s or later.", featureName, minRelease);
         end
 
         function ex = MissingEnvironmentVariable(varName)

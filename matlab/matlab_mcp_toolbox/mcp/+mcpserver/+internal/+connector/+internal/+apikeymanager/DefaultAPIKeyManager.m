@@ -27,7 +27,7 @@ classdef DefaultAPIKeyManager < mcpserver.internal.connector.internal.apikeymana
         function apiKey = getAPIKey(obj)
             % Prior to R2023a: not supported
             if obj.MATLABFacade.isMATLABReleaseOlderThan("R2023a")
-                throw(mcpserver.internal.error.Errors.UnsupportedMATLABVersion());
+                throw(mcpserver.internal.error.Errors.UnsupportedMATLABVersion("Connecting to an existing session with shareMATLABSession()", "R2023a"));
             end
 
             % Auto-generated key or key was previously set

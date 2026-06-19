@@ -64,7 +64,7 @@ classdef DefaultAPIKeyManagerTest < matlab.mock.TestCase
                 SecureGenerator=mockSecureGenerator ...
             );
 
-            expectedError = mcpserver.internal.error.Errors.UnsupportedMATLABVersion();
+            expectedError = mcpserver.internal.error.Errors.UnsupportedMATLABVersion("Connecting to an existing session with shareMATLABSession()", "R2023a");
 
             % Act & Assert
             testCase.verifyError(@() manager.getAPIKey(), ...
