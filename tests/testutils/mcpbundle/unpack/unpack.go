@@ -42,9 +42,8 @@ func (u *Unpacker) Unpack(archive io.ReaderAt, size int64, destDir string) error
 
 	for _, f := range r.File {
 		targetPath := filepath.Join(destDir, f.Name) //nolint:gosec // Validated on next line
-		cleanTarget := filepath.Clean(targetPath)
-		cleanDest := filepath.Clean(destDir)
-		if cleanTarget != cleanDest && !strings.HasPrefix(cleanTarget, cleanDest+string(os.PathSeparator)) {
+		rel, err := filepath.Rel(destDir, targetPath)
+		if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
 			return fmt.Errorf("illegal file path in archive: %s", f.Name)
 		}
 		if f.FileInfo().IsDir() {
