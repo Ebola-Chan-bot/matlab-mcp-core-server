@@ -57,7 +57,7 @@ Source English Markdown:
    - 对于 macOS，请先在终端中运行以下命令以下载最新版本:
      - 对于 Apple silicon 处理器，请运行:
           ```sh
-          curl -L -o ~/Downloads/matlab-mcp-server https://github.com/matlab/matlab-mcp-server/releases/latest/download/matlab-mcp-server-macos-amd64
+          curl -L -o ~/Downloads/matlab-mcp-server https://github.com/matlab/matlab-mcp-server/releases/latest/download/matlab-mcp-server-macos-arm64
           ```
       - 对于 Intel 处理器，请运行:
           ```sh

@@ -57,7 +57,7 @@ Para ayudar a su agente a utilizar MATLAB y Simulink, puede usar habilidades de 
    - Para macOS, primero descargue la última versión ejecutando el siguiente comando en su terminal:
      - Para procesadores Apple silicon, ejecute:
           ```sh
-          curl -L -o ~/Downloads/matlab-mcp-server https://github.com/matlab/matlab-mcp-server/releases/latest/download/matlab-mcp-server-macos-amd64
+          curl -L -o ~/Downloads/matlab-mcp-server https://github.com/matlab/matlab-mcp-server/releases/latest/download/matlab-mcp-server-macos-arm64
           ```
       - Para procesadores Intel, ejecute:
           ```sh

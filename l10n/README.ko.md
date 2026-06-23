@@ -57,7 +57,7 @@ MathWorks®의 공식 MATLAB MCP Server를 사용하여 AI 애플리케이션에
    - macOS의 경우 먼저 터미널에서 다음 명령을 실행하여 최신 릴리스를 다운로드하십시오.
      - Apple Silicon 프로세서의 경우:
           ```sh
-          curl -L -o ~/Downloads/matlab-mcp-server https://github.com/matlab/matlab-mcp-server/releases/latest/download/matlab-mcp-server-macos-amd64
+          curl -L -o ~/Downloads/matlab-mcp-server https://github.com/matlab/matlab-mcp-server/releases/latest/download/matlab-mcp-server-macos-arm64
           ```
       - Intel 프로세서의 경우:
           ```sh
