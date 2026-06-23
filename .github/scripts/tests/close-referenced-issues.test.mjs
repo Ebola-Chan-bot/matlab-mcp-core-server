@@ -61,6 +61,77 @@ describe("extractIssueNumbers", () => {
 
         expect(extractIssueNumbers(body)).toEqual([10]);
     });
+
+    it("extracts issue numbers when section header is a plain paragraph (not a Markdown heading)", () => {
+        // Reproduces the v0.10.1 release where 'Issues Resolved' was authored as plain text
+        // rather than a '## Issues Resolved' heading, causing #21 to be missed.
+        const body = [
+            "Enhancements",
+            "",
+            "- Added translations for the README in Spanish, Japanese, Korean, and Chinese.",
+            "",
+            "Issues Resolved",
+            "",
+            "#21: MATLAB output in Claude Code shows raw HTML for hyperlinks.",
+            "",
+            "We encourage you to try this repository and provide feedback.",
+        ].join("\n");
+
+        expect(extractIssueNumbers(body)).toEqual([21]);
+    });
+
+    it("does not pick up #refs from earlier paragraphs when section header is plain text", () => {
+        const body = [
+            "Enhancements",
+            "",
+            "- Added feature referenced in #99",
+            "",
+            "Issues Resolved",
+            "",
+            "#77: real fix.",
+        ].join("\n");
+
+        expect(extractIssueNumbers(body)).toEqual([77]);
+    });
+
+    it("does not start a section when 'Issues Resolved' appears mid-sentence", () => {
+        const body = [
+            "## What's New",
+            "We have several Issues Resolved in this release.",
+            "- See #404",
+        ].join("\n");
+
+        expect(extractIssueNumbers(body)).toEqual([]);
+    });
+
+    it("does not start a section when the plain-text header has trailing punctuation", () => {
+        const body = [
+            "Enhancements",
+            "",
+            "- Some feature",
+            "",
+            "Issues Resolved.",
+            "",
+            "#404: should not be captured.",
+        ].join("\n");
+
+        expect(extractIssueNumbers(body)).toEqual([]);
+    });
+
+    it("ignores cross-repo references inside a plain-text Issues Resolved section", () => {
+        const body = [
+            "Enhancements",
+            "",
+            "- Some feature",
+            "",
+            "Issues Resolved",
+            "",
+            "#21: real fix.",
+            "Also see mathworks/other-repo#234 and org/repo#456.",
+        ].join("\n");
+
+        expect(extractIssueNumbers(body)).toEqual([21]);
+    });
 });
 
 describe("closeIssue", () => {

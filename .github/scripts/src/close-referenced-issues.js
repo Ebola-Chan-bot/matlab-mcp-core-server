@@ -2,19 +2,54 @@
 const { marked } = require("marked");
 const { issueClosedComment } = require("./messages");
 
+// A paragraph is treated as a "header-style" line (i.e. a section divider)
+// when its trimmed text is a short title with no issue refs or URLs --
+// e.g. "Enhancements" or "Issues Resolved" typed without '##' in the
+// GitHub release editor.
+function isHeaderLikeParagraph(token) {
+    if (token.type !== "paragraph") {
+        return false;
+    }
+    const text = token.text.trim();
+    return (
+        text.length > 0 &&
+        text.length <= 60 &&
+        !/\n/.test(text) &&
+        !/#\d/.test(text) &&
+        !/https?:\/\//i.test(text) &&
+        /^[A-Za-z][A-Za-z0-9 '/-]*$/.test(text)
+    );
+}
+
+function isIssuesResolvedSectionStart(token) {
+    if (token.type === "heading" && /issues resolved/i.test(token.text)) {
+        return { depth: token.depth, kind: "heading" };
+    }
+    if (isHeaderLikeParagraph(token) && /^issues resolved$/i.test(token.text.trim())) {
+        return { depth: 0, kind: "paragraph" };
+    }
+    return null;
+}
+
 function extractIssueNumbers(releaseBody) {
     const tokens = marked.lexer(releaseBody);
     const issueNumbers = [];
     let inSection = false;
     let sectionDepth = 0;
+    let sectionKind = null;
 
     for (const token of tokens) {
-        if (token.type === "heading" && /issues resolved/i.test(token.text)) {
+        const start = isIssuesResolvedSectionStart(token);
+        if (start) {
             inSection = true;
-            sectionDepth = token.depth;
+            sectionDepth = start.depth;
+            sectionKind = start.kind;
             continue;
         }
         if (inSection && token.type === "heading" && token.depth <= sectionDepth) {
+            break;
+        }
+        if (inSection && sectionKind === "paragraph" && isHeaderLikeParagraph(token)) {
             break;
         }
         if (inSection) {
